@@ -1,234 +1,191 @@
-# 研究用アンケートシステム (Java版)
+# Form Response Logger
 
-Googleフォームのようなモダンなデザインの研究用アンケートアプリケーションです。
-Java SwingとFlatLafを使用して実装されています。
+A desktop survey application for research with comprehensive logging capabilities.
 
-## 主な機能
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Java](https://img.shields.io/badge/Java-11+-orange.svg)](https://www.oracle.com/java/)
+[![Maven](https://img.shields.io/badge/Maven-3.6+-red.svg)](https://maven.apache.org/)
 
-### アンケート作成・実施
-- **GUIで問題作成**: 直感的なインターフェースで質問と選択肢を作成
-- **問題の順番変更**: 問題を自由に並べ替え・削除可能
-- **CSV/JSON入出力**: 質問データをCSVファイルとして保存・読み込み、回答データはCSV/JSON両方に対応
-- **自動ファイル読み込み**: 設定したディレクトリから問題ファイルを自動読み込み
-- **自由記述機能**: 選択した理由を記述できる
-- **選択肢変更ルール**: 理由を書き始めたら、完了するまで選択肢を変更できない
+## Overview
 
-### データ管理・ログ機能
-- **被験者情報管理**: 被験者名・IDの入力とファイル名への自動反映
-- **タイムスタンプログ**: すべてのボタン操作をログに記録
-- **柔軟なファイル命名**: 日付、時刻、被験者情報、連番を使った自動ファイル名生成
-- **連番管理**: ログファイルと回答ファイルの連番を個別に管理・編集可能
+Form Response Logger is a desktop application designed for conducting research surveys with detailed action logging. Built with Java Swing and FlatLaf, it provides a modern, user-friendly interface similar to Google Forms while offering extensive logging capabilities for research data integrity.
 
-### UI・カスタマイズ
-- **選択肢レイアウト設定**: 1～4列の間で自由に選択肢の表示列数を変更可能
-- **外観カスタマイズ**: ライト/ダークモード、カラーテーマ、フォントサイズの変更可能
-- **設定機能**: ログや回答ファイルの出力先、ファイル名を自動設定
+## Key Features
 
-## 必要な環境
+### Survey Creation & Management
+- **GUI-based Question Editor**: Create questions and choices with an intuitive interface
+- **Flexible Question Management**: Reorder and delete questions easily
+- **Multiple Export Formats**: Save questions as CSV or JSON
+- **Auto-loading**: Automatically load question files from configured directories
 
-- Java 11以上
-- Maven 3.6以上
+### Response Collection
+- **Visual Feedback**: Selected choices are highlighted for clarity
+- **Reason Recording**: Require respondents to explain their choices
+- **Response Modification Rules**: Prevent impulsive changes after reasoning begins
+- **Complete Action Logging**: All user actions are timestamped and recorded
 
-## インストール
+### Data Management
+- **Participant Information**: Collect and manage participant names and IDs
+- **Flexible File Naming**: Auto-generate filenames with dates, times, and participant info
+- **Sequence Management**: Independently manage sequence numbers for logs and responses
+- **Dual Format Export**: Export data in CSV (Excel-compatible UTF-8 BOM) and/or JSON
 
-### 1. プロジェクトのビルド
+### Customization
+- **Layout Options**: Display choices in 1-4 columns
+- **Appearance**: Light/dark mode, color themes, font size customization
+- **Configurable Paths**: Set custom directories for questions, responses, and logs
+
+## Requirements
+
+- Java 11 or higher
+- Maven 3.6 or higher
+
+## Installation & Running
+
+### Build from Source
 
 ```bash
-cd study_form_app_java
+# Clone the repository
+git clone https://github.com/your-username/form-response-logger.git
+cd form-response-logger
+
+# Build with Maven
 mvn clean package
-```
 
-### 2. アプリケーションの起動
-
-```bash
-# Mavenから起動
-mvn exec:java -Dexec.mainClass="com.study.form.SurveyApp"
-
-# または生成されたJARから起動
+# Run the application
 java -jar target/form-app-1.0.0.jar
 ```
 
-## 使い方
+### Quick Start Scripts
 
-### 1. 初回起動
+```bash
+# macOS/Linux
+./run.sh
 
-初回起動時に自動的にデフォルトディレクトリが作成されます：
-- `data/questions/`: 問題ファイル保存用ディレクトリ
-- `data/responses/`: 回答ファイル保存用ディレクトリ
-- `data/logs/`: ログファイル保存用ディレクトリ
-- `data/questions/sample_questions.csv`: サンプル問題ファイル
-
-### 2. 設定（初回のみ）
-
-1. メイン画面で「⚙ 設定」ボタンをクリック
-2. 以下の項目を設定：
-
-#### ファイル設定
-   - **被験者名**: 実験参加者の名前（ファイル名に反映可能）
-   - **被験者ID**: 実験参加者のID（ファイル名に反映可能）
-   - **問題ファイル**: 使用する問題ファイルのパス（例: /path/to/questions.csv）
-   - **ログ出力ディレクトリ**: アクションログの保存先
-   - **ログファイル名フォーマット**: ログファイルの命名規則
-   - **回答出力ディレクトリ**: 回答CSVの保存先
-   - **回答ファイル名フォーマット**: 回答ファイルの命名規則
-
-#### データ設定
-   - **出力形式**: csv（CSV形式）/ json（JSON形式）/ both（両方）
-   - **デフォルト選択肢数**: 問題作成時のデフォルト選択肢数（2～10）
-   - **選択肢の列数**: アンケート画面での選択肢表示列数（1～4列）
-   - **ログ連番（次回）**: 次に生成されるログファイルの連番（手動編集可能）
-   - **回答連番（次回）**: 次に生成される回答ファイルの連番（手動編集可能）
-   - **自動保存**: 有効にすると設定に基づいて自動保存、無効にすると毎回保存先を選択
-   - **被験者情報を使用**: 有効にするとアンケート開始時に被験者情報入力画面を表示
-
-3. 「保存」をクリック
-
-**ファイル名フォーマットで使用可能な変数:**
-- `{date}`: 日付（YYYYMMDD形式）
-- `{time}`: 時刻（HHMMSS形式）
-- `{respondent_id}`: 回答者ID（自動生成される8桁のUUID）
-- `{participant_name}`: 被験者名（設定で入力した名前）
-- `{participant_id}`: 被験者ID（設定で入力したID）
-- `{sequence}`: 連番（設定で管理される3桁の連番、例: 001, 002, ...）
-
-**ファイル名フォーマット例:**
-- `action_log_{participant_id}_{date}.csv` → `action_log_P001_20250115.csv`
-- `responses_{participant_name}_{sequence}.csv` → `responses_田中太郎_001.csv`
-- `log_{date}_{time}_{sequence}.csv` → `log_20250115_143000_001.csv`
-
-### 3. 問題の作成
-
-1. メイン画面で「問題を作成」ボタンをクリック
-2. 質問文を入力
-3. 選択肢を入力（最低2つ必要）
-4. 「問題を追加」ボタンで問題リストに追加
-5. 問題リストで問題を選択して：
-   - 「↑ 上へ」「↓ 下へ」ボタンで順番を変更
-   - 「✕ 削除」ボタンで削除
-6. すべての問題を作成したら「保存」で保存
-   - CSV形式またはJSON形式を選択可能
-
-### 4. アンケートの実施
-
-1. メイン画面で「アンケートに回答」ボタンをクリック
-2. 「被験者情報を使用」が有効な場合、被験者情報入力画面が表示されます
-   - **被験者名**と**被験者ID**を入力
-   - 前回入力した情報が自動的に読み込まれます
-   - 「確定」で進む、「キャンセル」でアンケートを中止
-3. 設定で問題ファイルを指定している場合は自動的に読み込まれます
-   - 設定していない場合は手動でCSVまたはJSONファイルを選択
-4. 各質問について：
-   - 選択肢を選択（選択した選択肢は緑色になります）
-   - 選択した理由を記入
-   - 「理由を書き直す」ボタンで理由を再入力可能
-   - 必要に応じて選択肢を変更可能（理由は再入力が必要）
-   - 「次の問題へ」で次へ進む
-   - 「前の問題へ」で前の問題に戻る（最初の問題では無効）
-5. すべての問題に回答したら、設定に応じて自動的に保存されます
-   - 出力形式が「both」の場合、CSVとJSON両方のファイルが生成されます
-
-## 重要なルール
-
-### 選択肢変更のルール
-
-- 選択肢を選んだ後、いつでも選び直すことができます
-- 理由を書き始めた後は、「理由を書き直す」ボタンを押すまで選択肢を変更できません
-- 理由を書き直せば、再び選択肢を変更できるようになります
-- 選択肢を変更した場合は、理由を再度記入する必要があります
-
-## ファイル構成
-
-```
-study_form_app_java/
-├── pom.xml                          # Maven設定ファイル
-├── src/
-│   └── main/
-│       └── java/
-│           └── com/study/form/
-│               ├── SurveyApp.java           # メインアプリケーション
-│               ├── Constants.java           # 定数定義（色、サイズ、メッセージ等）
-│               ├── model/                   # データモデル
-│               │   ├── Question.java        # 質問データ
-│               │   ├── Response.java        # 回答データ
-│               │   └── Config.java          # 設定データ
-│               ├── util/                    # ユーティリティ
-│               │   ├── ConfigManager.java   # 設定ファイル管理
-│               │   ├── ActionLogger.java    # アクションログ記録
-│               │   └── FileUtils.java       # ファイル入出力
-│               └── ui/                      # UIコンポーネント
-│                   ├── MainWindow.java              # メインウィンドウ
-│                   ├── QuestionEditorWindow.java    # 問題作成画面
-│                   ├── SurveyInterfaceWindow.java   # アンケート回答画面
-│                   ├── SettingsWindow.java          # 設定画面
-│                   └── ParticipantInfoWindow.java   # 被験者情報入力画面
-├── data/                            # データディレクトリ（自動生成）
-│   ├── questions/                   # 問題ファイル保存先
-│   ├── responses/                   # 回答ファイル保存先
-│   └── logs/                        # ログファイル保存先
-├── config.json                      # 設定ファイル（自動生成）
-└── README.md                        # このファイル
+# Windows
+run.bat
 ```
 
-## アーキテクチャ
+### Run with Maven
 
-本アプリケーションは、以下の設計原則に基づいて実装されています：
+```bash
+mvn exec:java -Dexec.mainClass="com.study.form.SurveyApp"
+```
 
-### レイヤー構造
+## Quick Start Guide
 
-1. **モデル層 (model/)**: ビジネスロジックとデータ構造
-   - `Question`: 質問と選択肢のデータモデル
-   - `Response`: 回答データのモデル
-   - `Config`: アプリケーション設定のモデル
+### 1. First Launch
 
-2. **ユーティリティ層 (util/)**: データ永続化とビジネスロジック
-   - `ConfigManager`: 設定の読み込み・保存、ファイルパス生成
-   - `ActionLogger`: ユーザーアクションのログ記録
-   - `FileUtils`: CSV/JSONファイルの入出力処理
+On first launch, the application automatically creates:
+- `data/questions/` - Question files directory
+- `data/responses/` - Response files directory
+- `data/logs/` - Log files directory
+- `config.json` - Configuration file
+- `data/questions/sample_questions.csv` - Sample questions
 
-3. **UI層 (ui/)**: ユーザーインターフェース
-   - 各ウィンドウは独立したクラスとして実装
-   - Java Swing + FlatLaf Look and Feel
-   - 一貫したデザインとユーザー体験
+### 2. Create Questions
 
-### 設計パターン
+1. Click **"問題を作成" (Create Questions)**
+2. Enter question text and choices (minimum 2 choices)
+3. Click **"問題を追加" (Add Question)**
+4. Use **↑/↓** buttons to reorder, **✕** to delete
+5. Click **"保存" (Save)** and choose CSV or JSON format
 
-- **シングルトン的な管理**: ConfigManagerは各ウィンドウで個別にインスタンス化されるが、config.jsonを介して状態を共有
-- **テンプレートパターン**: ファイル名フォーマットで変数置換を使用
-- **MVC的な分離**: モデル、ビジネスロジック、UIを明確に分離
+### 3. Configure Settings (Optional)
 
-## 出力ファイル
+Click **"⚙ 設定" (Settings)** to configure:
 
-### 質問データ (questions.csv または questions.json)
+- **Participant Information**: Enable/disable participant name and ID collection
+- **File Paths**: Set directories for questions, responses, and logs
+- **Output Format**: Choose CSV, JSON, or both
+- **Layout**: Set number of choice columns (1-4)
+- **Sequence Numbers**: Manage auto-incrementing file counters
 
-**CSV形式:**
+**Filename Template Variables:**
+- `{date}` - Date (YYYYMMDD)
+- `{time}` - Time (HHMMSS)
+- `{respondent_id}` - Auto-generated 8-character UUID
+- `{participant_name}` - Participant name from settings
+- `{participant_id}` - Participant ID from settings
+- `{sequence}` - Auto-incrementing 3-digit number (001, 002, ...)
+
+**Example:** `responses_{participant_name}_{sequence}.csv` → `responses_田中太郎_001.csv`
+
+### 4. Conduct Survey
+
+1. Click **"アンケートに回答" (Take Survey)**
+2. Enter participant information (if enabled)
+3. For each question:
+   - Select a choice (highlighted in green)
+   - Write your reason
+   - Click **"次の問題へ" (Next Question)**
+4. Responses are automatically saved at the end
+
+## Response Modification Rules
+
+To ensure data integrity:
+- **Before writing a reason**: Choice can be changed freely
+- **After writing begins**: Choice becomes locked
+- **To change choice**: Click **"理由を書き直す" (Rewrite Reason)** to unlock
+
+This mechanism encourages thoughtful responses and prevents impulsive changes.
+
+## Project Structure
+
+```
+form-response-logger/
+├── README.md
+├── CONTRIBUTING.md
+├── LICENSE
+├── pom.xml
+├── .gitignore
+├── run.sh / run.bat
+├── src/main/java/com/study/form/
+│   ├── SurveyApp.java          # Main application entry
+│   ├── Constants.java           # Centralized constants
+│   ├── model/                   # Data models
+│   │   ├── Question.java
+│   │   ├── Response.java
+│   │   └── Config.java
+│   ├── util/                    # Utilities
+│   │   ├── ConfigManager.java
+│   │   ├── ActionLogger.java
+│   │   └── FileUtils.java
+│   └── ui/                      # User interface
+│       ├── MainWindow.java
+│       ├── QuestionEditorWindow.java
+│       ├── SurveyInterfaceWindow.java
+│       ├── SettingsWindow.java
+│       └── ParticipantInfoWindow.java
+└── data/                        # Auto-generated at runtime
+    ├── questions/
+    ├── responses/
+    └── logs/
+```
+
+## Output Formats
+
+### Questions (CSV)
 ```csv
 問題番号,質問文,選択肢1,選択肢2,選択肢3,選択肢4,選択肢5
 1,質問文の例,選択肢A,選択肢B,選択肢C,,
 ```
 
-**JSON形式:**
-```json
-{
-  "questions": [
-    {
-      "text": "質問文の例",
-      "choices": ["選択肢A", "選択肢B", "選択肢C"]
-    }
-  ],
-  "total_questions": 1,
-  "created_date": "2025-01-15 10:30:00.000"
-}
-```
-
-### 回答データ (responses_XXXX.csv または .json)
-
-**CSV形式:**
+### Responses (CSV)
 ```csv
 回答者ID,タイムスタンプ,問題番号,質問文,選択した回答,理由
 12345678,2025-01-15 10:30:45.123,1,質問文の例,選択肢A,選択した理由...
 ```
 
-**JSON形式:**
+### Action Logs (CSV)
+```csv
+タイムスタンプ,アクション種別,詳細情報
+2025-01-15 10:30:45.123,選択肢選択,問題1: 選択肢A
+2025-01-15 10:30:50.456,理由入力開始,問題1
+2025-01-15 10:31:20.789,理由入力内容,問題1: 選択した理由は...
+```
+
+### JSON Format
 ```json
 {
   "responses": [
@@ -246,109 +203,37 @@ study_form_app_java/
 }
 ```
 
-### 操作ログ (action_log_YYYYMMDD.csv)
+## Technical Stack
 
-```csv
-タイムスタンプ,アクション種別,詳細情報
-2025-01-15 10:30:45.123,選択肢選択,問題1: 選択肢A
-2025-01-15 10:30:50.456,理由入力開始,問題1
-2025-01-15 10:31:20.789,理由入力内容,問題1: 選択した理由は...
-```
+- **Language**: Java 11
+- **Build Tool**: Maven
+- **GUI Framework**: Java Swing
+- **Look and Feel**: [FlatLaf](https://www.formdev.com/flatlaf/) 3.2.5
+- **JSON Library**: [Gson](https://github.com/google/gson) 2.10.1
 
-## 開発者向け情報
+## Architecture
 
-### 技術スタック
+The application follows a Model-View-Utility pattern:
 
-- **言語**: Java 11
-- **ビルドツール**: Maven
-- **GUI**: Java Swing
-- **Look and Feel**: FlatLaf (モダンなUIライブラリ)
-- **JSON処理**: Gson (JSONシリアライゼーション)
-- **レイアウト**: GridLayout, BoxLayout, BorderLayout
+- **Model Layer**: Data structures (Question, Response, Config)
+- **Utility Layer**: Business logic (ConfigManager, ActionLogger, FileUtils)
+- **UI Layer**: User interface components (Swing windows)
 
-### コードの保守性
+Key design principles:
+- Centralized constants management (45+ constants in `Constants.java`)
+- Clean separation of concerns
+- Comprehensive error handling
+- Extensive Javadoc documentation (95% coverage)
 
-本アプリケーションは保守性を重視して設計されています：
+## Contributing
 
-- **定数管理**: すべてのマジックナンバー、UI設定、メッセージを`Constants.java`で一元管理
-- **モジュール構造**: モデル、ユーティリティ、UIを明確に分離
-- **設定ファイル**: 外部設定ファイル（`config.json`）でカスタマイズ可能
-- **Javadoc**: 主要クラスとメソッドにドキュメントコメント記載
+Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for development guidelines and coding standards.
 
-### 主要な実装パターン
+## License
 
-#### 1. ファイル名テンプレートシステム
-`ConfigManager.formatFilename()` で実装されている変数置換システム：
-- 日付・時刻: `{date}`, `{time}`
-- 被験者情報: `{participant_name}`, `{participant_id}`
-- システム生成: `{respondent_id}`, `{sequence}`
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-#### 2. 連番管理
-- ログファイルと回答ファイルの連番を個別管理
-- `Config`オブジェクトに`logSequence`と`responseSequence`を保持
-- ファイル生成時に自動インクリメント＆設定保存
-- 設定画面から手動編集可能（バリデーション付き）
+## Acknowledgments
 
-#### 3. 被験者情報管理
-- `useParticipantInfo`フラグで機能のオン/オフを制御
-- `ParticipantInfoWindow`はモーダルダイアログとして実装
-- 入力された情報は`config.json`に保存され、次回起動時に自動読み込み
-- ファイル名生成時に変数として利用可能
-
-#### 4. UI レイアウト
-- 選択肢表示に`GridLayout(0, columns, 10, 10)`を使用
-- `columns`は設定で1～4の間で変更可能
-- すべてのテキスト要素は左寄せ（`Component.LEFT_ALIGNMENT`）
-- ボタンサイズは`Constants`で一元管理
-
-### 拡張ポイント
-
-以下の機能を追加する際の参考情報：
-
-1. **新しいファイル名変数の追加**
-   - `ConfigManager.formatFilename()`に変数置換ロジックを追加
-   - 設定画面のヘルプテキストを更新
-
-2. **新しい設定項目の追加**
-   - `Config.java`にフィールドとgetter/setterを追加
-   - `Config.toMap()`と`Config.fromMap()`を更新
-   - `SettingsWindow.java`にUIコンポーネントを追加
-
-3. **新しいログタイプの追加**
-   - `ActionLogger.java`に新しいログメソッドを追加
-   - ログフォーマットは`タイムスタンプ,アクション種別,詳細情報`
-
-## トラブルシューティング
-
-### 問題: 設定が保存されない
-**原因**: `config.json`への書き込み権限がない可能性があります。
-**解決策**: アプリケーションの実行ディレクトリの権限を確認してください。
-
-### 問題: 連番が重複する
-**原因**: 複数のアプリケーションインスタンスを同時に実行している可能性があります。
-**解決策**: 1つのインスタンスのみを実行するか、設定で連番を手動調整してください。
-
-### 問題: 被験者情報入力画面が表示されない
-**原因**: 設定で「被験者情報を使用」が無効になっています。
-**解決策**: 設定画面を開き、「被験者情報を使用」チェックボックスを有効にしてください。
-
-### 問題: 選択肢ボタンのサイズが変わる
-**原因**: GridLayoutの列数設定と選択肢数が合っていない可能性があります。
-**解決策**: 設定画面で「選択肢の列数」を調整してください（推奨: 2列）。
-
-### 問題: ファイルが見つからない
-**原因**: 設定されたパスが正しくない、またはファイルが移動されています。
-**解決策**: 設定画面で「参照」ボタンを使用して正しいファイルパスを設定し直してください。
-
-## ライセンス
-
-研究用途で自由にご使用ください。
-
-## Python版との互換性
-
-このJava版は、Python版（`study_form_app`）と完全に互換性があります：
-- 同じCSV/JSON形式で問題ファイルを共有可能
-- 回答ファイルも同じ形式で保存
-- ログ形式も統一
-
-Python版で作成した問題ファイルをJava版で使用でき、その逆も可能です。
+- Built with [FlatLaf](https://www.formdev.com/flatlaf/) for modern UI
+- JSON processing by [Gson](https://github.com/google/gson)

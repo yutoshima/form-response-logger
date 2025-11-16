@@ -1,402 +1,317 @@
-# 開発ガイドライン
+# Contributing to Form Response Logger
 
-本ドキュメントは、研究用アンケートシステム（Java版）の開発・保守を行う際のガイドラインです。
+Thank you for your interest in contributing to Form Response Logger! This document provides guidelines for contributing to the project.
 
-## 目次
+## Table of Contents
 
-1. [開発環境のセットアップ](#開発環境のセットアップ)
-2. [コーディング規約](#コーディング規約)
-3. [プロジェクト構造](#プロジェクト構造)
-4. [新機能の追加方法](#新機能の追加方法)
-5. [テストとビルド](#テストとビルド)
-6. [コミットガイドライン](#コミットガイドライン)
+1. [Getting Started](#getting-started)
+2. [Development Setup](#development-setup)
+3. [Code Style](#code-style)
+4. [Project Structure](#project-structure)
+5. [Making Changes](#making-changes)
+6. [Submitting Pull Requests](#submitting-pull-requests)
 
-## 開発環境のセットアップ
+## Getting Started
 
-### 必要な環境
+### Prerequisites
 
-- **Java**: OpenJDK 11以上
-- **Maven**: 3.6以上
-- **IDE**: IntelliJ IDEA、Eclipse、VS Code等（任意）
+- **Java**: OpenJDK 11 or higher
+- **Maven**: 3.6 or higher
+- **Git**: Latest version
+- **IDE**: IntelliJ IDEA, Eclipse, or VS Code (optional but recommended)
 
-### 初回セットアップ
+### Development Setup
 
 ```bash
-# リポジトリのクローン
-git clone <repository-url>
-cd study_form_app_java
+# Fork and clone the repository
+git clone https://github.com/your-username/form-response-logger.git
+cd form-response-logger
 
-# 依存関係のダウンロードとビルド
+# Build the project
 mvn clean install
 
-# アプリケーションの起動
+# Run the application
 mvn exec:java -Dexec.mainClass="com.study.form.SurveyApp"
 ```
 
-### IDEの設定
+### IDE Configuration
 
 #### IntelliJ IDEA
-1. `File` → `Open` でプロジェクトディレクトリを開く
-2. Mavenプロジェクトとして自動認識されます
-3. `Run` → `Edit Configurations` で実行構成を作成
+1. Open the project directory (`File` → `Open`)
+2. Maven project will be auto-detected
+3. Set up run configuration:
    - Main class: `com.study.form.SurveyApp`
 
 #### Eclipse
-1. `File` → `Import` → `Maven` → `Existing Maven Projects`
-2. プロジェクトディレクトリを選択
+1. Import project: `File` → `Import` → `Maven` → `Existing Maven Projects`
+2. Select the project directory
 
-## コーディング規約
+## Code Style
 
-### 基本原則
+### General Principles
 
-1. **可読性優先**: コードは書くよりも読まれることが多いため、可読性を重視
-2. **DRY原則**: 同じコードを繰り返さない（Don't Repeat Yourself）
-3. **単一責任の原則**: 1つのクラス/メソッドは1つの責任のみを持つ
-4. **定数の使用**: マジックナンバーや文字列は`Constants.java`で定義
+1. **Readability First**: Code is read more often than written
+2. **DRY Principle**: Don't Repeat Yourself
+3. **Single Responsibility**: Each class/method should have one responsibility
+4. **Use Constants**: No magic numbers or strings - use `Constants.java`
 
-### Javaコーディングスタイル
-
-#### 命名規則
+### Java Naming Conventions
 
 ```java
-// クラス名: PascalCase
+// Classes: PascalCase
 public class ConfigManager { }
 
-// メソッド名: camelCase
+// Methods: camelCase
 public void loadConfig() { }
 
-// 変数名: camelCase
+// Variables: camelCase
 private String questionsFile;
 
-// 定数: UPPER_SNAKE_CASE
+// Constants: UPPER_SNAKE_CASE
 public static final String CONFIG_FILE = "config.json";
 
-// パッケージ名: 小文字のみ
+// Packages: lowercase
 package com.study.form.util;
 ```
 
-#### インデントとフォーマット
+### Code Formatting
 
-- インデント: スペース4つ
-- 1行の長さ: 100文字を推奨（最大120文字）
-- 中括弧: K&Rスタイル（開き括弧は同じ行）
+- **Indentation**: 4 spaces
+- **Line length**: 100 characters recommended (120 max)
+- **Braces**: K&R style (opening brace on same line)
+- **Spacing**: Space after keywords, before opening braces
 
 ```java
-// 良い例
+// Good
 public void saveConfig() {
     if (config != null) {
-        // 処理
+        // process
     }
 }
 
-// 悪い例
+// Bad
 public void saveConfig()
 {
     if(config!=null){
-        // 処理
+        // process
     }
 }
 ```
 
-#### Javadocの記述
+### Javadoc
 
-全てのpublicクラスとメソッドにJavadocを記述してください。
+All public classes and methods should have Javadoc comments:
 
 ```java
 /**
- * 設定ファイルを読み込みます。
+ * Manages application configuration.
  *
- * <p>設定ファイルが存在しない場合は、デフォルト設定を生成して保存します。</p>
+ * <p>This class handles loading, saving, and managing the application's
+ * configuration settings stored in config.json.</p>
  *
- * @throws IOException ファイル読み込みに失敗した場合
+ * @author Your Name
+ * @version 1.0
+ * @since 1.0
  */
-public void loadConfig() throws IOException {
-    // 実装
+public class ConfigManager {
+
+    /**
+     * Loads configuration from file.
+     *
+     * <p>If the file doesn't exist or is invalid, creates default configuration.</p>
+     */
+    private void loadConfig() {
+        // implementation
+    }
 }
 ```
 
-### UIコンポーネントの規約
-
-1. **レイアウト**: 適切なLayoutManagerを使用
-   - GridLayout: 均等配置が必要な場合（選択肢ボタンなど）
-   - BoxLayout: 垂直/水平の単純な配置
-   - BorderLayout: 5つの領域への配置
-
-2. **色とフォント**: `Constants.java`で定義された定数を使用
-
-```java
-// 良い例
-button.setBackground(Constants.COLOR_SELECTED);
-label.setFont(new Font(Constants.FONT_FAMILY, Font.PLAIN, Constants.FONT_SIZE_LABEL));
-
-// 悪い例
-button.setBackground(new Color(76, 175, 80));
-label.setFont(new Font("Arial", Font.PLAIN, 14));
-```
-
-3. **ボタンサイズ**: Constantsで定義されたサイズを使用
-
-```java
-button.setPreferredSize(Constants.BUTTON_SIZE_MEDIUM);
-```
-
-## プロジェクト構造
+## Project Structure
 
 ```
 src/main/java/com/study/form/
-├── SurveyApp.java           # メインエントリーポイント
-├── Constants.java           # 定数定義（色、サイズ、メッセージ）
-├── model/                   # データモデル層
-│   ├── Question.java        # 質問データ
-│   ├── Response.java        # 回答データ
-│   └── Config.java          # 設定データ
-├── util/                    # ユーティリティ層
-│   ├── ConfigManager.java   # 設定管理
-│   ├── ActionLogger.java    # ログ記録
-│   └── FileUtils.java       # ファイルI/O
-└── ui/                      # UIコンポーネント層
-    ├── MainWindow.java              # メイン画面
-    ├── QuestionEditorWindow.java    # 問題作成画面
-    ├── SurveyInterfaceWindow.java   # アンケート回答画面
-    ├── SettingsWindow.java          # 設定画面
-    └── ParticipantInfoWindow.java   # 被験者情報入力画面
+├── SurveyApp.java           # Main entry point
+├── Constants.java           # Centralized constants (45+ constants)
+├── model/                   # Data models
+│   ├── Question.java        # Question and choices
+│   ├── Response.java        # Survey response data
+│   └── Config.java          # Application settings
+├── util/                    # Business logic utilities
+│   ├── ConfigManager.java   # Config file management
+│   ├── ActionLogger.java    # User action logging
+│   └── FileUtils.java       # CSV/JSON I/O
+└── ui/                      # User interface (Swing)
+    ├── MainWindow.java
+    ├── QuestionEditorWindow.java
+    ├── SurveyInterfaceWindow.java
+    ├── SettingsWindow.java
+    └── ParticipantInfoWindow.java
 ```
 
-### レイヤーの責任
+### Layer Responsibilities
 
-1. **model/**: データ構造のみを定義。ビジネスロジックは含めない
-2. **util/**: ビジネスロジックとデータ永続化を担当
-3. **ui/**: ユーザーインターフェースのみを担当。ビジネスロジックはutilに委譲
+- **Model**: Data structures only, no business logic
+- **Util**: Business logic, file I/O, data processing
+- **UI**: User interface, event handling, minimal logic
 
-## 新機能の追加方法
+## Making Changes
 
-### 1. 新しい設定項目の追加
+### Adding New Features
 
-設定項目を追加する場合は、以下の手順で行ってください：
+#### 1. Add a New Setting
 
-#### ステップ1: Config.javaにフィールドを追加
+**Step 1**: Update `Config.java`
+```java
+private String newSetting;
+
+public String getNewSetting() { return newSetting; }
+public void setNewSetting(String value) { newSetting = value; }
+
+// Update toMap() and fromMap() methods
+```
+
+**Step 2**: Add constant to `Constants.java` (if needed)
+```java
+public static final String DEFAULT_NEW_SETTING = "default_value";
+```
+
+**Step 3**: Update `SettingsWindow.java` to add UI component
+
+#### 2. Add a New Filename Variable
+
+**Step 1**: Update `ConfigManager.formatFilename()`
+```java
+filename = filename.replace("{new_variable}", actualValue);
+```
+
+**Step 2**: Document in README and settings help text
+
+#### 3. Add a New Log Action
+
+**Step 1**: Add constant to `Constants.java`
+```java
+public static final String LOG_ACTION_NEW_EVENT = "新しいイベント";
+```
+
+**Step 2**: Use `ActionLogger` to record
+```java
+actionLogger.logAction(Constants.LOG_ACTION_NEW_EVENT, "詳細情報");
+```
+
+### Error Handling
+
+Always use specific exception types:
 
 ```java
-// Config.java
-private boolean newFeatureEnabled;
-
-public boolean isNewFeatureEnabled() {
-    return newFeatureEnabled;
+// Good
+try (Writer writer = createUTF8Writer(filepath)) {
+    gson.toJson(data, writer);
+    return true;
+} catch (IOException e) {
+    System.err.println("保存に失敗しました: " + e.getMessage());
+    return false;
+} catch (Exception e) {
+    System.err.println("予期しないエラー: " + e.getMessage());
+    return false;
 }
 
-public void setNewFeatureEnabled(boolean newFeatureEnabled) {
-    this.newFeatureEnabled = newFeatureEnabled;
-}
-```
-
-#### ステップ2: toMap()とfromMap()を更新
-
-```java
-// toMap()
-map.put("new_feature_enabled", newFeatureEnabled);
-
-// fromMap()
-if (map.containsKey("new_feature_enabled"))
-    this.newFeatureEnabled = (Boolean) map.get("new_feature_enabled");
-```
-
-#### ステップ3: デフォルト値を設定
-
-```java
-// Config.javaのコンストラクタ
-public Config() {
-    // ...
-    this.newFeatureEnabled = false;
-}
-```
-
-#### ステップ4: SettingsWindow.javaにUIを追加
-
-```java
-private JCheckBox newFeatureCheckBox;
-
-// setupUI()内
-newFeatureCheckBox = new JCheckBox("新機能を有効にする");
-panel.add(createCheckBoxRow("新機能:", newFeatureCheckBox));
-
-// loadCurrentSettings()内
-newFeatureCheckBox.setSelected(config.isNewFeatureEnabled());
-
-// saveSettings()内
-config.setNewFeatureEnabled(newFeatureCheckBox.isSelected());
-```
-
-### 2. 新しいファイル名変数の追加
-
-ファイル名フォーマットに新しい変数を追加する場合：
-
-#### ステップ1: ConfigManager.formatFilename()を更新
-
-```java
-private String formatFilename(String format, String respondentId) {
-    // ...
-    String newVariable = "value"; // 新しい変数の値を取得
-
-    String filename = format
-        .replace("{date}", now.format(dateFormatter))
-        .replace("{time}", now.format(timeFormatter))
-        // ...
-        .replace("{new_variable}", newVariable);  // 新しい変数を追加
-
-    return filename;
+// Bad
+try {
+    // operation
+} catch (Exception e) {
+    e.printStackTrace();
 }
 ```
 
-#### ステップ2: README.mdとSettingsWindowのヘルプテキストを更新
+### Null Safety
+
+Always validate parameters:
 
 ```java
-// SettingsWindow.java
-JLabel helpLabel = new JLabel(
-    "<html><i>使用可能な変数: {date}, {time}, {participant_name}, " +
-    "{participant_id}, {sequence}, {new_variable}</i></html>"
-);
-```
-
-### 3. 新しいログタイプの追加
-
-#### ステップ1: ActionLogger.javaにメソッドを追加
-
-```java
-/**
- * 新しいアクションをログに記録します。
- *
- * @param questionNum 問題番号
- * @param detail 詳細情報
- */
-public void logNewAction(int questionNum, String detail) {
-    String timestamp = getTimestamp();
-    String message = String.format("%s,新アクション種別,問題%d: %s",
-        timestamp, questionNum, detail);
-    writeLog(message);
+public String getLogPath(String respondentId) {
+    if (respondentId == null) {
+        throw new IllegalArgumentException("respondentIdがnullです");
+    }
+    return formatFilePath(config.getLogDirectory(), config.getLogNameFormat(), respondentId);
 }
 ```
 
-## テストとビルド
+## Submitting Pull Requests
 
-### ビルドコマンド
+### Before Submitting
 
-```bash
-# クリーンビルド
-mvn clean package
+1. **Build succeeds**: `mvn clean package`
+2. **Code follows style guide**
+3. **Javadoc is complete**
+4. **No warnings** in IDE
+5. **Test manually** if adding UI changes
 
-# 依存関係を含むJAR生成
-mvn clean package shade:shade
+### Commit Messages
 
-# コンパイルのみ
-mvn compile
-
-# 実行（開発時）
-mvn exec:java -Dexec.mainClass="com.study.form.SurveyApp"
-```
-
-### 動作確認
-
-新機能を追加した場合は、以下の項目を確認してください：
-
-- [ ] アプリケーションが正常に起動する
-- [ ] 新機能が期待通りに動作する
-- [ ] 既存機能に影響がない
-- [ ] 設定ファイル（config.json）が正しく保存・読み込みされる
-- [ ] CSV/JSON形式でのデータ入出力が正常に動作する
-- [ ] Python版との互換性が保たれている（ファイル形式）
-
-### コードチェック
-
-```bash
-# Mavenでコンパイルエラーをチェック
-mvn clean compile
-
-# 警告も含めて確認
-mvn clean compile -Xlint:all
-```
-
-## コミットガイドライン
-
-### コミットメッセージのフォーマット
+Use clear, descriptive commit messages:
 
 ```
-<種別>: <簡潔な説明>
+Good:
+- Add sequence number editing to settings window
+- Fix CSV escaping for quotes in responses
+- Improve error handling in FileUtils
 
-<詳細な説明（任意）>
+Bad:
+- Update
+- Fix bug
+- Changes
 ```
 
-#### 種別
+### Pull Request Process
 
-- `feat`: 新機能
-- `fix`: バグ修正
-- `docs`: ドキュメントのみの変更
-- `style`: コードの動作に影響しない変更（フォーマット、セミコロン等）
-- `refactor`: バグ修正や機能追加ではないコード変更
-- `perf`: パフォーマンス改善
-- `test`: テストの追加や修正
-- `chore`: ビルドプロセスやツールの変更
+1. **Fork** the repository
+2. **Create a branch**: `git checkout -b feature/your-feature-name`
+3. **Make changes** following the guidelines above
+4. **Commit** with clear messages
+5. **Push**: `git push origin feature/your-feature-name`
+6. **Open Pull Request** with description of changes
 
-#### 例
+### PR Description Template
 
-```
-feat: 被験者情報入力機能を追加
+```markdown
+## Description
+Brief description of what this PR does
 
-アンケート開始前に被験者名とIDを入力できるダイアログを追加しました。
-設定で機能のON/OFFが可能です。
+## Changes
+- Change 1
+- Change 2
 
-- ParticipantInfoWindow.javaを新規作成
-- Config.javaにuseParticipantInfoフィールドを追加
-- ファイル名フォーマットに{participant_name}と{participant_id}変数を追加
-```
+## Testing
+How you tested these changes
 
-```
-fix: 選択肢ボタンのサイズが変わる問題を修正
-
-理由を書き始めた時に選択肢ボタンのサイズが変わる問題を修正しました。
-GridLayoutの使用とサイズ制約の明示的な設定により解決。
-
-refs: SurveyInterfaceWindow.java:261
+## Screenshots (if UI changes)
+Add screenshots if relevant
 ```
 
-### プルリクエスト
+## Code Quality Guidelines
 
-プルリクエストを作成する際は、以下を含めてください：
+### Current Metrics (Maintain or Improve)
 
-1. **変更内容の説明**: 何を、なぜ変更したか
-2. **テスト結果**: 動作確認した内容
-3. **スクリーンショット**: UI変更の場合
-4. **破壊的変更**: 既存機能への影響がある場合は明記
+- Javadoc coverage: 95%+
+- Magic numbers: 0 (use Constants.java)
+- Code duplication: Minimal
+- Average method length: < 20 lines
+- Max method length: < 40 lines
 
-## よくある質問
+### Best Practices
 
-### Q: 新しい依存ライブラリを追加したい
+1. **Use Constants**: All UI sizes, colors, messages in `Constants.java`
+2. **Extract Methods**: Break long methods into smaller, focused ones
+3. **Meaningful Names**: Variables and methods should be self-documenting
+4. **Comments**: Explain "why", not "what" (code shows "what")
+5. **Resource Management**: Always use try-with-resources for I/O
 
-A: `pom.xml`に依存関係を追加してください。
+## Questions?
 
-```xml
-<dependency>
-    <groupId>group-id</groupId>
-    <artifactId>artifact-id</artifactId>
-    <version>version</version>
-</dependency>
-```
+Feel free to open an issue for:
+- Bug reports
+- Feature requests
+- Questions about contributing
+- Suggestions for improvements
 
-### Q: UIの色やサイズを変更したい
-
-A: `Constants.java`の定数を変更してください。個別のクラスでハードコードしないでください。
-
-### Q: ファイル形式を変更したい
-
-A: Python版との互換性を保つため、CSV/JSON形式の変更は慎重に行ってください。
-
-### Q: データベース対応を追加したい
-
-A: `util/`パッケージに新しいクラスを作成し、既存のFileUtilsと同様のインターフェースを提供してください。
-
-## 連絡先
-
-質問や提案がある場合は、Issueを作成してください。
-
-## ライセンス
-
-本プロジェクトは研究用途で自由にご使用ください。
+Thank you for contributing to Form Response Logger!
