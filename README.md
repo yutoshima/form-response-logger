@@ -6,6 +6,8 @@ A desktop survey application for research with comprehensive logging capabilitie
 [![Java](https://img.shields.io/badge/Java-11+-orange.svg)](https://www.oracle.com/java/)
 [![Maven](https://img.shields.io/badge/Maven-3.6+-red.svg)](https://maven.apache.org/)
 
+English | [日本語](README_ja.md)
+
 ## Overview
 
 Form Response Logger is a desktop application designed for conducting research surveys with detailed action logging. Built with Java Swing and FlatLaf, it provides a modern, user-friendly interface similar to Google Forms while offering extensive logging capabilities for research data integrity.
