@@ -281,11 +281,15 @@ public class SettingsWindow extends JFrame {
 
         participantNameField.setText(config.getParticipantName() != null ? config.getParticipantName() : "");
         participantIdField.setText(config.getParticipantId() != null ? config.getParticipantId() : "");
-        questionsFileField.setText(config.getQuestionsFile());
-        logDirField.setText(config.getLogDirectory());
-        logFormatField.setText(config.getLogNameFormat());
-        responseDirField.setText(config.getResponseDirectory());
-        responseFormatField.setText(config.getResponseNameFormat());
+
+        // 問題ファイルのフルパスを表示（ディレクトリとファイル名を結合）
+        String questionsPath = configManager.getQuestionsPath();
+        questionsFileField.setText(questionsPath != null ? questionsPath : "");
+
+        logDirField.setText(config.getLogDirectory() != null ? config.getLogDirectory() : "");
+        logFormatField.setText(config.getLogNameFormat() != null ? config.getLogNameFormat() : "");
+        responseDirField.setText(config.getResponseDirectory() != null ? config.getResponseDirectory() : "");
+        responseFormatField.setText(config.getResponseNameFormat() != null ? config.getResponseNameFormat() : "");
 
         outputFormatCombo.setSelectedItem(config.getOutputFormat());
         defaultChoicesCombo.setSelectedItem(config.getDefaultChoices());
@@ -301,7 +305,18 @@ public class SettingsWindow extends JFrame {
 
         config.setParticipantName(participantNameField.getText());
         config.setParticipantId(participantIdField.getText());
-        config.setQuestionsFile(questionsFileField.getText());
+
+        // 問題ファイルのフルパスをディレクトリとファイル名に分割
+        String questionsPath = questionsFileField.getText();
+        if (questionsPath != null && !questionsPath.trim().isEmpty()) {
+            File questionsFile = new File(questionsPath);
+            String directory = questionsFile.getParent();
+            String filename = questionsFile.getName();
+            config.setQuestionsDirectory(directory);
+            config.setQuestionsFile(filename);
+            System.out.println("問題ファイル設定: ディレクトリ=" + directory + ", ファイル名=" + filename);
+        }
+
         config.setLogDirectory(logDirField.getText());
         config.setLogNameFormat(logFormatField.getText());
         config.setResponseDirectory(responseDirField.getText());
