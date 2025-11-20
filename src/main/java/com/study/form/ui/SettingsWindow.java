@@ -30,7 +30,8 @@ public class SettingsWindow extends JFrame {
     private JTextField responseSequenceField;
     private JCheckBox autoSaveCheckBox;
     private JCheckBox useParticipantInfoCheckBox;
-    
+    private JCheckBox useHtmlRenderingCheckBox;
+
     public SettingsWindow() {
         setTitle("設定");
         setSize(Constants.SETTINGS_WINDOW_SIZE);
@@ -218,6 +219,7 @@ public class SettingsWindow extends JFrame {
         responseSequenceField = new JTextField(10);
         autoSaveCheckBox = new JCheckBox("有効にすると設定に基づいて自動保存");
         useParticipantInfoCheckBox = new JCheckBox("有効にすると被験者名・IDを入力");
+        useHtmlRenderingCheckBox = new JCheckBox("有効にするとHTMLで表示（短文のみ）、無効にするとプレーンテキストで表示（長文対応）");
 
         panel.add(createComboRow("出力形式:", outputFormatCombo));
         panel.add(createIntComboRow("デフォルト選択肢数:", defaultChoicesCombo));
@@ -226,7 +228,8 @@ public class SettingsWindow extends JFrame {
         panel.add(createFieldRow("回答連番（次回）:", responseSequenceField, false));
         panel.add(createCheckBoxRow("自動保存:", autoSaveCheckBox));
         panel.add(createCheckBoxRow("被験者情報を使用:", useParticipantInfoCheckBox));
-        
+        panel.add(createCheckBoxRow("HTML表示:", useHtmlRenderingCheckBox));
+
         return panel;
     }
     
@@ -298,6 +301,7 @@ public class SettingsWindow extends JFrame {
         responseSequenceField.setText(String.valueOf(config.getResponseSequence()));
         autoSaveCheckBox.setSelected(config.isAutoSave());
         useParticipantInfoCheckBox.setSelected(config.isUseParticipantInfo());
+        useHtmlRenderingCheckBox.setSelected(config.isUseHtmlRendering());
     }
     
     private void saveSettings() {
@@ -345,6 +349,7 @@ public class SettingsWindow extends JFrame {
 
         config.setAutoSave(autoSaveCheckBox.isSelected());
         config.setUseParticipantInfo(useParticipantInfoCheckBox.isSelected());
+        config.setUseHtmlRendering(useHtmlRenderingCheckBox.isSelected());
 
         configManager.saveConfig();
 

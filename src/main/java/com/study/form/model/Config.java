@@ -41,6 +41,7 @@ public class Config {
     private int choiceColumns;
     private int logSequence;
     private int responseSequence;
+    private boolean useHtmlRendering;
 
     public Config() {
         // デフォルト値
@@ -54,6 +55,7 @@ public class Config {
         this.choiceColumns = 2;
         this.logSequence = 1;
         this.responseSequence = 1;
+        this.useHtmlRendering = false;
     }
     
     public String getQuestionsDirectory() {
@@ -200,6 +202,14 @@ public class Config {
         this.responseSequence = responseSequence;
     }
 
+    public boolean isUseHtmlRendering() {
+        return useHtmlRendering;
+    }
+
+    public void setUseHtmlRendering(boolean useHtmlRendering) {
+        this.useHtmlRendering = useHtmlRendering;
+    }
+
     /**
      * 設定オブジェクトをMapに変換します。
      *
@@ -228,6 +238,7 @@ public class Config {
         map.put("choice_columns", choiceColumns);
         map.put("log_sequence", logSequence);
         map.put("response_sequence", responseSequence);
+        map.put("use_html_rendering", useHtmlRendering);
         return map;
     }
 
@@ -304,5 +315,7 @@ public class Config {
                 this.responseSequence = (Integer) value;
             }
         }
+        if (map.containsKey("use_html_rendering"))
+            this.useHtmlRendering = (Boolean) map.get("use_html_rendering");
     }
 }

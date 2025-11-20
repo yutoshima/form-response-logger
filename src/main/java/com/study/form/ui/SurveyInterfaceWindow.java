@@ -32,6 +32,8 @@ public class SurveyInterfaceWindow extends JFrame {
     // UI コンポーネント
     private JLabel progressLabel;
     private JEditorPane questionEditorPane;
+    private JTextArea questionTextArea;
+    private JScrollPane questionScrollPane;
     private JPanel choicesPanel;
     private JTextArea reasonTextArea;
     private JButton rewriteButton;
@@ -139,25 +141,46 @@ public class SurveyInterfaceWindow extends JFrame {
         JPanel contentPanel = new JPanel();
         contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));
 
-        // 質問エディタペイン（HTML対応、縦スクロール対応）
-        questionEditorPane = new JEditorPane();
-        questionEditorPane.setContentType("text/html");
-        questionEditorPane.setEditable(false);
-        questionEditorPane.setFocusable(false);
-        questionEditorPane.setOpaque(false);
-        questionEditorPane.setBorder(new EmptyBorder(0, 0, Constants.PADDING_LARGE, 0));
+        // 設定に応じてHTML表示またはプレーンテキスト表示
+        boolean useHtml = configManager.getConfig().isUseHtmlRendering();
 
-        // フォントスタイルを設定
-        String fontFamily = Constants.FONT_FAMILY;
-        int fontSize = Constants.FONT_SIZE_SUBTITLE;
-        questionEditorPane.putClientProperty(JEditorPane.HONOR_DISPLAY_PROPERTIES, Boolean.TRUE);
-        questionEditorPane.setFont(new Font(fontFamily, Font.BOLD, fontSize));
+        if (useHtml) {
+            // HTML対応（短文用）
+            questionEditorPane = new JEditorPane();
+            questionEditorPane.setContentType("text/html");
+            questionEditorPane.setEditable(false);
+            questionEditorPane.setFocusable(false);
+            questionEditorPane.setOpaque(false);
+            questionEditorPane.setBorder(new EmptyBorder(0, 0, Constants.PADDING_LARGE, 0));
 
-        JScrollPane questionScrollPane = new JScrollPane(questionEditorPane);
-        questionScrollPane.setBorder(null);
-        questionScrollPane.setAlignmentX(Component.LEFT_ALIGNMENT);
-        questionScrollPane.setMaximumSize(new Dimension(Integer.MAX_VALUE, 100));
-        contentPanel.add(questionScrollPane);
+            // フォントスタイルを設定
+            String fontFamily = Constants.FONT_FAMILY;
+            int fontSize = Constants.FONT_SIZE_SUBTITLE;
+            questionEditorPane.putClientProperty(JEditorPane.HONOR_DISPLAY_PROPERTIES, Boolean.TRUE);
+            questionEditorPane.setFont(new Font(fontFamily, Font.BOLD, fontSize));
+
+            questionScrollPane = new JScrollPane(questionEditorPane);
+            questionScrollPane.setBorder(null);
+            questionScrollPane.setAlignmentX(Component.LEFT_ALIGNMENT);
+            questionScrollPane.setMaximumSize(new Dimension(Integer.MAX_VALUE, 100));
+            contentPanel.add(questionScrollPane);
+        } else {
+            // プレーンテキスト対応（長文用、縦スクロール対応）
+            questionTextArea = new JTextArea();
+            questionTextArea.setEditable(false);
+            questionTextArea.setFocusable(false);
+            questionTextArea.setLineWrap(true);
+            questionTextArea.setWrapStyleWord(true);
+            questionTextArea.setOpaque(false);
+            questionTextArea.setFont(new Font(Constants.FONT_FAMILY, Font.BOLD, Constants.FONT_SIZE_SUBTITLE));
+            questionTextArea.setBorder(new EmptyBorder(0, 0, Constants.PADDING_LARGE, 0));
+
+            questionScrollPane = new JScrollPane(questionTextArea);
+            questionScrollPane.setBorder(null);
+            questionScrollPane.setAlignmentX(Component.LEFT_ALIGNMENT);
+            questionScrollPane.setMaximumSize(new Dimension(Integer.MAX_VALUE, 150));
+            contentPanel.add(questionScrollPane);
+        }
 
         // 選択肢パネル
         choicesPanel = new JPanel();
@@ -265,27 +288,35 @@ public class SurveyInterfaceWindow extends JFrame {
         // 進捗表示
         progressLabel.setText("問題 " + (currentQuestionIndex + 1) + " / " + questions.size());
         
-        // 質問文表示（HTMLラップ）
+        // 質問文表示
         String questionText = question.getText();
-        String cssStyle = "body { font-family: '" + Constants.FONT_FAMILY +
-                         "'; font-size: " + Constants.FONT_SIZE_SUBTITLE + "pt; font-weight: normal; }";
+        boolean useHtml = configManager.getConfig().isUseHtmlRendering();
 
-        // HTMLタグが含まれていない場合は、自動的にラップ
-        if (!questionText.trim().toLowerCase().startsWith("<html")) {
-            questionText = "<html><head><style>" + cssStyle + "</style></head><body>" +
-                          questionText + "</body></html>";
-        } else {
-            // HTMLタグが既に含まれている場合は、スタイルを追加
-            if (!questionText.toLowerCase().contains("<style>")) {
-                questionText = questionText.replaceFirst("(?i)<head>",
-                    "<head><style>" + cssStyle + "</style>");
-                if (!questionText.toLowerCase().contains("<head>")) {
-                    questionText = questionText.replaceFirst("(?i)<html>",
-                        "<html><head><style>" + cssStyle + "</style></head>");
+        if (useHtml) {
+            // HTML表示モード（短文用）
+            String cssStyle = "body { font-family: '" + Constants.FONT_FAMILY +
+                             "'; font-size: " + Constants.FONT_SIZE_SUBTITLE + "pt; font-weight: normal; }";
+
+            // HTMLタグが含まれていない場合は、自動的にラップ
+            if (!questionText.trim().toLowerCase().startsWith("<html")) {
+                questionText = "<html><head><style>" + cssStyle + "</style></head><body>" +
+                              questionText + "</body></html>";
+            } else {
+                // HTMLタグが既に含まれている場合は、スタイルを追加
+                if (!questionText.toLowerCase().contains("<style>")) {
+                    questionText = questionText.replaceFirst("(?i)<head>",
+                        "<head><style>" + cssStyle + "</style>");
+                    if (!questionText.toLowerCase().contains("<head>")) {
+                        questionText = questionText.replaceFirst("(?i)<html>",
+                            "<html><head><style>" + cssStyle + "</style></head>");
+                    }
                 }
             }
+            questionEditorPane.setText(questionText);
+        } else {
+            // プレーンテキスト表示モード（長文用、縦スクロール対応）
+            questionTextArea.setText(questionText);
         }
-        questionEditorPane.setText(questionText);
         
         // 選択肢をクリア
         choicesPanel.removeAll();
