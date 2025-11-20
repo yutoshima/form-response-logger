@@ -182,9 +182,10 @@ public class SurveyInterfaceWindow extends JFrame {
             contentPanel.add(questionScrollPane);
         }
 
-        // 選択肢パネル（FlowLayoutで自動折り返し）
+        // 選択肢パネル（GridLayoutで統一サイズ）
         choicesPanel = new JPanel();
-        choicesPanel.setLayout(new FlowLayout(FlowLayout.LEFT, Constants.PADDING_MEDIUM, Constants.PADDING_MEDIUM));
+        int columns = configManager.getConfig().getChoiceColumns();
+        choicesPanel.setLayout(new GridLayout(0, columns, Constants.PADDING_MEDIUM, Constants.PADDING_MEDIUM));
         choicesPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
         contentPanel.add(choicesPanel);
 
@@ -348,13 +349,10 @@ public class SurveyInterfaceWindow extends JFrame {
     }
     
     private void createChoiceButton(String choiceText, int index) {
-        // HTMLタグで囲んで自動改行を有効化
-        String htmlText = "<html><body style='width: 100%; text-align: left;'>" + choiceText + "</body></html>";
+        // HTMLタグで囲んで自動改行を有効化（固定幅でテキストを折り返し）
+        String htmlText = "<html><body style='width: 200px; text-align: left;'>" + choiceText + "</body></html>";
         JButton button = new JButton(htmlText);
         button.setFont(new Font(Constants.FONT_FAMILY, Font.PLAIN, Constants.FONT_SIZE_BUTTON));
-
-        // サイズ設定（GridLayoutでは高さのみ指定）
-        button.setPreferredSize(new Dimension(0, Constants.CHOICE_BUTTON_HEIGHT));
 
         button.setHorizontalAlignment(SwingConstants.LEFT);
         button.setVerticalAlignment(SwingConstants.TOP);
