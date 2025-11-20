@@ -287,13 +287,16 @@ public class SurveyInterfaceWindow extends JFrame {
     }
     
     private void createChoiceButton(String choiceText, int index) {
-        JButton button = new JButton(choiceText);
+        // HTMLタグで囲んで自動改行を有効化
+        String htmlText = "<html><body style='width: 100%; text-align: left;'>" + choiceText + "</body></html>";
+        JButton button = new JButton(htmlText);
         button.setFont(new Font(Constants.FONT_FAMILY, Font.PLAIN, Constants.FONT_SIZE_BUTTON));
 
         // サイズ設定（GridLayoutでは高さのみ指定）
         button.setPreferredSize(new Dimension(0, Constants.CHOICE_BUTTON_HEIGHT));
 
         button.setHorizontalAlignment(SwingConstants.LEFT);
+        button.setVerticalAlignment(SwingConstants.TOP);
         button.setFocusPainted(false);
         button.setOpaque(true);
         button.setBorderPainted(false);

@@ -24,25 +24,34 @@ public class ActionLogger {
         if (!file.exists()) {
             File parent = file.getParentFile();
             if (parent != null && !parent.exists()) {
-                parent.mkdirs();
+                boolean created = parent.mkdirs();
+                System.out.println("ログディレクトリを作成: " + parent.getAbsolutePath() + " (成功: " + created + ")");
             }
-            
+
             try (PrintWriter writer = new PrintWriter(
                     new OutputStreamWriter(new FileOutputStream(file), "UTF-8"))) {
                 writer.println("タイムスタンプ,アクション種別,詳細情報");
+                System.out.println("ログファイルを初期化しました: " + logFile);
             } catch (Exception e) {
+                System.err.println("ログファイルの初期化に失敗しました: " + logFile);
                 e.printStackTrace();
             }
+        } else {
+            System.out.println("既存のログファイルを使用します: " + logFile);
         }
     }
     
     private void logAction(String actionType, String details) {
         String timestamp = LocalDateTime.now().format(TIMESTAMP_FORMAT);
-        
+        String logEntry = timestamp + "," + actionType + "," + escapeCSV(details);
+
         try (PrintWriter writer = new PrintWriter(
                 new OutputStreamWriter(new FileOutputStream(logFile, true), "UTF-8"))) {
-            writer.println(timestamp + "," + actionType + "," + escapeCSV(details));
+            writer.println(logEntry);
+            System.out.println("ログ記録: " + logEntry);
         } catch (Exception e) {
+            System.err.println("ログの書き込みに失敗しました: " + logFile);
+            System.err.println("ログ内容: " + logEntry);
             e.printStackTrace();
         }
     }
