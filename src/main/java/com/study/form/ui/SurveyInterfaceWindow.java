@@ -267,20 +267,21 @@ public class SurveyInterfaceWindow extends JFrame {
         
         // 質問文表示（HTMLラップ）
         String questionText = question.getText();
+        String cssStyle = "body { font-family: '" + Constants.FONT_FAMILY +
+                         "'; font-size: " + Constants.FONT_SIZE_SUBTITLE + "pt; font-weight: normal; }";
+
         // HTMLタグが含まれていない場合は、自動的にラップ
         if (!questionText.trim().toLowerCase().startsWith("<html")) {
-            questionText = "<html><head><style>" +
-                          "body { font-family: '" + Constants.FONT_FAMILY + "'; font-size: " + Constants.FONT_SIZE_SUBTITLE + "pt; }" +
-                          "</style></head><body>" +
+            questionText = "<html><head><style>" + cssStyle + "</style></head><body>" +
                           questionText + "</body></html>";
         } else {
             // HTMLタグが既に含まれている場合は、スタイルを追加
             if (!questionText.toLowerCase().contains("<style>")) {
                 questionText = questionText.replaceFirst("(?i)<head>",
-                    "<head><style>body { font-family: '" + Constants.FONT_FAMILY + "'; font-size: " + Constants.FONT_SIZE_SUBTITLE + "pt; }</style>");
+                    "<head><style>" + cssStyle + "</style>");
                 if (!questionText.toLowerCase().contains("<head>")) {
                     questionText = questionText.replaceFirst("(?i)<html>",
-                        "<html><head><style>body { font-family: '" + Constants.FONT_FAMILY + "'; font-size: " + Constants.FONT_SIZE_SUBTITLE + "pt; }</style></head>");
+                        "<html><head><style>" + cssStyle + "</style></head>");
                 }
             }
         }
