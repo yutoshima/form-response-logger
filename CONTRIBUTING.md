@@ -154,6 +154,71 @@ src/main/java/com/study/form/
 - **Util**: Business logic, file I/O, data processing
 - **UI**: User interface, event handling, minimal logic
 
+## Recent Updates
+
+### Latest Features (2025)
+
+- **HTML Support in Questions**: Questions now support HTML tags for rich formatting
+  - Bold (`<b>`), italic (`<i>`), underline (`<u>`)
+  - Line breaks (`<br>`), paragraphs (`<p>`)
+  - CSS styling for custom formatting
+  - See `data/questions/html_test.csv` for examples
+
+- **Question Editor Improvements**:
+  - Double-click to edit existing questions
+  - Edit mode with visual indicators
+  - Cancel button to abort editing
+
+- **Improved UI**:
+  - Question text now supports vertical scrolling for long content
+  - Reduced reason input area from 6 to 4 rows
+  - HTML rendering with proper font styling
+
+- **Better Logging**:
+  - Detailed console output for debugging
+  - Log directory and file creation messages
+
+- **Settings Management**:
+  - Fixed question file path saving (split directory and filename)
+  - Proper full path handling in settings window
+
+### Known HTML/CSS Support
+
+The question display uses `JEditorPane` with HTML support. Available tags and styles:
+
+```html
+<!-- Basic formatting -->
+<b>Bold text</b> or <strong>Bold</strong>
+<i>Italic text</i> or <em>Italic</em>
+<u>Underlined text</u>
+
+<!-- Structure -->
+<br> Line break
+<p>Paragraph</p>
+<h1>Heading 1</h1> through <h6>Heading 6</h6>
+
+<!-- Lists -->
+<ul><li>Unordered list item</li></ul>
+<ol><li>Ordered list item</li></ol>
+
+<!-- Styling -->
+<font color="red">Colored text</font>
+<span style="color: blue; font-size: 14pt;">Styled text</span>
+
+<!-- CSS in style tag -->
+<html>
+  <head>
+    <style>
+      body { font-family: 'Yu Gothic'; font-size: 16pt; }
+      .highlight { background-color: yellow; }
+    </style>
+  </head>
+  <body>
+    <p class="highlight">Highlighted paragraph</p>
+  </body>
+</html>
+```
+
 ## Making Changes
 
 ### Adding New Features

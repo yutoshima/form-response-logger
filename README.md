@@ -14,15 +14,19 @@ Form Response Logger is a desktop application designed for conducting research s
 
 ### Survey Creation & Management
 - **GUI-based Question Editor**: Create questions and choices with an intuitive interface
+- **HTML Support**: Use HTML tags for rich text formatting in questions (bold, italic, colors, etc.)
+- **Question Editing**: Double-click to edit existing questions with visual mode indicators
 - **Flexible Question Management**: Reorder and delete questions easily
 - **Multiple Export Formats**: Save questions as CSV or JSON
 - **Auto-loading**: Automatically load question files from configured directories
 
 ### Response Collection
 - **Visual Feedback**: Selected choices are highlighted for clarity
+- **HTML Question Display**: Questions displayed with vertical scrolling for long content
+- **Automatic Word Wrap**: Long questions and choices wrap automatically
 - **Reason Recording**: Require respondents to explain their choices
 - **Response Modification Rules**: Prevent impulsive changes after reasoning begins
-- **Complete Action Logging**: All user actions are timestamped and recorded
+- **Complete Action Logging**: All user actions are timestamped and recorded with detailed console output
 
 ### Data Management
 - **Participant Information**: Collect and manage participant names and IDs
@@ -87,9 +91,38 @@ On first launch, the application automatically creates:
 
 1. Click **"問題を作成" (Create Questions)**
 2. Enter question text and choices (minimum 2 choices)
+   - **Plain text**: Simple text questions
+   - **HTML formatting**: Use HTML tags for rich formatting (see below)
 3. Click **"問題を追加" (Add Question)**
-4. Use **↑/↓** buttons to reorder, **✕** to delete
-5. Click **"保存" (Save)** and choose CSV or JSON format
+4. **Edit questions**: Double-click a question in the list to edit it
+5. Use **↑/↓** buttons to reorder, **✕** to delete
+6. Click **"保存" (Save)** and choose CSV or JSON format
+
+#### HTML Formatting in Questions
+
+You can use HTML tags to format your questions:
+
+**Basic Example** (in CSV):
+```csv
+問題番号,質問文,選択肢1,選択肢2,選択肢3,選択肢4
+1,これは<b>重要</b>な質問です。<br>次の選択肢から選んでください。,選択肢A,選択肢B,選択肢C,選択肢D
+```
+
+**Supported HTML Tags**:
+- `<b>太字</b>` or `<strong>太字</strong>` - Bold text
+- `<i>斜体</i>` or `<em>斜体</em>` - Italic text
+- `<u>下線</u>` - Underlined text
+- `<br>` - Line break
+- `<font color="red">赤い文字</font>` - Colored text
+- `<p>段落</p>` - Paragraph
+
+**Advanced Example**:
+```csv
+問題番号,質問文,選択肢1,選択肢2
+1,"<html><body><h3>アンケート質問1</h3><p>以下の<b>重要な</b>項目について、<i>慎重に</i>お答えください。</p></body></html>",はい,いいえ
+```
+
+See `data/questions/html_test.csv` for more examples.
 
 ### 3. Configure Settings (Optional)
 
@@ -126,7 +159,7 @@ Click **"⚙ 設定" (Settings)** to configure:
 To ensure data integrity:
 - **Before writing a reason**: Choice can be changed freely
 - **After writing begins**: Choice becomes locked
-- **To change choice**: Click **"理由を書き直す" (Rewrite Reason)** to unlock
+- **To change choice**: Click **"選択肢を選び直す" (Select Again)** to unlock and reset
 
 This mechanism encourages thoughtful responses and prevents impulsive changes.
 
