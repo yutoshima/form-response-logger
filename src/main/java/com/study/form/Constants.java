@@ -100,8 +100,8 @@ public class Constants {
     public static final String MSG_QUESTION_ADDED = "問題を追加しました";
     public static final String MSG_NO_CHOICE_SELECTED = "選択肢を選んでください";
     public static final String MSG_NO_REASON = "理由を記入してください";
-    public static final String MSG_CANNOT_CHANGE_CHOICE = "理由を書き始めた後は選択肢を変更できません。\n「理由を書き直す」ボタンを押してください。";
-    public static final String MSG_CHANGE_DISABLED_STATUS = "⚠ 理由を書き直してから選択肢を変更してください";
-    public static final String MSG_REASON_STARTED_STATUS = "理由を書き直すまで選択肢は変更できません";
+    public static final String MSG_CANNOT_CHANGE_CHOICE = "理由を書き始めた後は選択肢を変更できません。\n「選択肢を選び直す」ボタンを押してください。";
+    public static final String MSG_CHANGE_DISABLED_STATUS = "⚠ 選択肢を選び直してから変更してください";
+    public static final String MSG_REASON_STARTED_STATUS = "選択肢を選び直すまで変更できません";
     public static final String MSG_CAN_CHANGE_STATUS = "選択肢を変更できます";
 }

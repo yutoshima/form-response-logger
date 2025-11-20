@@ -213,8 +213,8 @@ public class SurveyInterfaceWindow extends JFrame {
         JScrollPane reasonScrollPane = new JScrollPane(reasonTextArea);
         reasonPanel.add(reasonScrollPane, BorderLayout.CENTER);
 
-        // 書き直しボタン
-        rewriteButton = new JButton("理由を書き直す");
+        // 選び直しボタン
+        rewriteButton = new JButton("選択肢を選び直す");
         rewriteButton.setFont(new Font(Constants.FONT_FAMILY, Font.BOLD, Constants.FONT_SIZE_BUTTON));
         rewriteButton.setBackground(Constants.COLOR_GRAY);
         rewriteButton.setEnabled(false);
@@ -269,9 +269,20 @@ public class SurveyInterfaceWindow extends JFrame {
         String questionText = question.getText();
         // HTMLタグが含まれていない場合は、自動的にラップ
         if (!questionText.trim().toLowerCase().startsWith("<html")) {
-            questionText = "<html><body style='font-family: " + Constants.FONT_FAMILY +
-                          "; font-size: " + Constants.FONT_SIZE_SUBTITLE + "pt; font-weight: bold;'>" +
+            questionText = "<html><head><style>" +
+                          "body { font-family: '" + Constants.FONT_FAMILY + "'; font-size: " + Constants.FONT_SIZE_SUBTITLE + "pt; }" +
+                          "</style></head><body>" +
                           questionText + "</body></html>";
+        } else {
+            // HTMLタグが既に含まれている場合は、スタイルを追加
+            if (!questionText.toLowerCase().contains("<style>")) {
+                questionText = questionText.replaceFirst("(?i)<head>",
+                    "<head><style>body { font-family: '" + Constants.FONT_FAMILY + "'; font-size: " + Constants.FONT_SIZE_SUBTITLE + "pt; }</style>");
+                if (!questionText.toLowerCase().contains("<head>")) {
+                    questionText = questionText.replaceFirst("(?i)<html>",
+                        "<html><head><style>body { font-family: '" + Constants.FONT_FAMILY + "'; font-size: " + Constants.FONT_SIZE_SUBTITLE + "pt; }</style></head>");
+                }
+            }
         }
         questionEditorPane.setText(questionText);
         
