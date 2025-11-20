@@ -23,6 +23,12 @@ public class QuestionEditorWindow extends JFrame {
     private DefaultListModel<String> questionListModel;
     private JList<String> questionList;
     private ConfigManager configManager;
+
+    // 編集モード関連
+    private boolean isEditMode = false;
+    private int editingIndex = -1;
+    private JButton actionButton;
+    private JLabel modeLabel;
     
     public QuestionEditorWindow() {
         setTitle("問題作成エディタ");
@@ -80,18 +86,27 @@ public class QuestionEditorWindow extends JFrame {
             BorderFactory.createTitledBorder("質問文"),
             new EmptyBorder(10, 15, 15, 15)
         ));
-        
+
+        // ヘッダーパネル（モード表示を追加）
+        JPanel headerPanel = new JPanel(new BorderLayout());
         JLabel label = new JLabel("質問文");
         label.setFont(new Font(Constants.FONT_FAMILY, Font.BOLD, Constants.FONT_SIZE_NORMAL));
-        panel.add(label, BorderLayout.NORTH);
-        
+        headerPanel.add(label, BorderLayout.WEST);
+
+        modeLabel = new JLabel("【新規追加モード】");
+        modeLabel.setFont(new Font(Constants.FONT_FAMILY, Font.BOLD, Constants.FONT_SIZE_LABEL));
+        modeLabel.setForeground(Constants.COLOR_STATUS_SUCCESS);
+        headerPanel.add(modeLabel, BorderLayout.EAST);
+
+        panel.add(headerPanel, BorderLayout.NORTH);
+
         questionTextArea = new JTextArea(4, 40);
         questionTextArea.setFont(new Font(Constants.FONT_FAMILY, Font.PLAIN, Constants.FONT_SIZE_LABEL));
         questionTextArea.setLineWrap(true);
         questionTextArea.setWrapStyleWord(true);
         JScrollPane scrollPane = new JScrollPane(questionTextArea);
         panel.add(scrollPane, BorderLayout.CENTER);
-        
+
         return panel;
     }
     
@@ -176,6 +191,19 @@ public class QuestionEditorWindow extends JFrame {
         questionListModel = new DefaultListModel<>();
         questionList = new JList<>(questionListModel);
         questionList.setFont(new Font(Constants.FONT_FAMILY, Font.PLAIN, Constants.FONT_SIZE_LABEL));
+
+        // ダブルクリックで編集開始
+        questionList.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                if (evt.getClickCount() == 2) {
+                    int index = questionList.locationToIndex(evt.getPoint());
+                    if (index >= 0) {
+                        editQuestion(index);
+                    }
+                }
+            }
+        });
+
         JScrollPane scrollPane = new JScrollPane(questionList);
         scrollPane.setPreferredSize(new Dimension(0, Constants.EDITOR_QUESTION_LIST_HEIGHT));
         panel.add(scrollPane, BorderLayout.CENTER);
@@ -183,15 +211,24 @@ public class QuestionEditorWindow extends JFrame {
         // リスト操作ボタン
         JPanel listButtonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         
+        JButton editButton = new JButton("✎ 編集");
+        editButton.addActionListener(e -> {
+            int index = questionList.getSelectedIndex();
+            if (index >= 0) {
+                editQuestion(index);
+            }
+        });
+
         JButton upButton = new JButton("↑ 上へ");
         upButton.addActionListener(e -> moveQuestion(-1));
-        
+
         JButton downButton = new JButton("↓ 下へ");
         downButton.addActionListener(e -> moveQuestion(1));
-        
+
         JButton deleteButton = new JButton("✕ 削除");
         deleteButton.addActionListener(e -> deleteQuestion());
-        
+
+        listButtonPanel.add(editButton);
         listButtonPanel.add(upButton);
         listButtonPanel.add(downButton);
         listButtonPanel.add(deleteButton);
@@ -203,20 +240,30 @@ public class QuestionEditorWindow extends JFrame {
     
     private JPanel createButtonArea() {
         JPanel panel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
-        
-        JButton addButton = createStyledButton("問題を追加", true);
-        addButton.addActionListener(e -> addQuestion());
-        
+
+        actionButton = createStyledButton("問題を追加", true);
+        actionButton.addActionListener(e -> {
+            if (isEditMode) {
+                updateQuestion();
+            } else {
+                addQuestion();
+            }
+        });
+
+        JButton cancelButton = createStyledButton("キャンセル", false);
+        cancelButton.addActionListener(e -> cancelEdit());
+
         JButton saveButton = createStyledButton("保存", true);
         saveButton.addActionListener(e -> saveQuestions());
-        
+
         JButton loadButton = createStyledButton("読み込み", false);
         loadButton.addActionListener(e -> loadQuestions());
-        
-        panel.add(addButton);
+
+        panel.add(actionButton);
+        panel.add(cancelButton);
         panel.add(saveButton);
         panel.add(loadButton);
-        
+
         return panel;
     }
     
@@ -233,12 +280,12 @@ public class QuestionEditorWindow extends JFrame {
     
     private void addQuestion() {
         String questionText = questionTextArea.getText().trim();
-        
+
         if (questionText.isEmpty()) {
             JOptionPane.showMessageDialog(this, Constants.MSG_NO_QUESTION_TEXT);
             return;
         }
-        
+
         List<String> choices = new ArrayList<>();
         for (JTextField field : choiceFields) {
             String choice = field.getText().trim();
@@ -246,25 +293,114 @@ public class QuestionEditorWindow extends JFrame {
                 choices.add(choice);
             }
         }
-        
+
         if (choices.size() < Constants.MIN_CHOICES) {
             JOptionPane.showMessageDialog(this, Constants.MSG_MIN_CHOICES);
             return;
         }
-        
+
         Question question = new Question(questionText, choices);
         questions.add(question);
-        
+
         // リストに追加
         questionListModel.addElement((questions.size()) + ". " + questionText);
-        
+
         // 入力をクリア
+        clearForm();
+
+        JOptionPane.showMessageDialog(this, Constants.MSG_QUESTION_ADDED);
+    }
+
+    private void editQuestion(int index) {
+        if (index < 0 || index >= questions.size()) return;
+
+        isEditMode = true;
+        editingIndex = index;
+
+        Question question = questions.get(index);
+
+        // フォームに読み込む
+        questionTextArea.setText(question.getText());
+
+        // 既存の選択肢フィールドをクリア
+        choicesPanel.removeAll();
+        choiceFields.clear();
+
+        // 選択肢を読み込む
+        for (String choice : question.getChoices()) {
+            addChoiceField();
+            choiceFields.get(choiceFields.size() - 1).setText(choice);
+        }
+
+        choicesPanel.revalidate();
+        choicesPanel.repaint();
+
+        // UIを更新
+        updateModeUI();
+
+        // 問題リストの選択を更新
+        questionList.setSelectedIndex(index);
+    }
+
+    private void updateQuestion() {
+        String questionText = questionTextArea.getText().trim();
+
+        if (questionText.isEmpty()) {
+            JOptionPane.showMessageDialog(this, Constants.MSG_NO_QUESTION_TEXT);
+            return;
+        }
+
+        List<String> choices = new ArrayList<>();
+        for (JTextField field : choiceFields) {
+            String choice = field.getText().trim();
+            if (!choice.isEmpty()) {
+                choices.add(choice);
+            }
+        }
+
+        if (choices.size() < Constants.MIN_CHOICES) {
+            JOptionPane.showMessageDialog(this, Constants.MSG_MIN_CHOICES);
+            return;
+        }
+
+        // 問題を更新
+        Question question = new Question(questionText, choices);
+        questions.set(editingIndex, question);
+
+        // リストを更新
+        updateQuestionList();
+
+        // フォームをクリアして新規追加モードに戻る
+        cancelEdit();
+
+        JOptionPane.showMessageDialog(this, "問題を更新しました");
+    }
+
+    private void cancelEdit() {
+        isEditMode = false;
+        editingIndex = -1;
+        clearForm();
+        updateModeUI();
+        questionList.clearSelection();
+    }
+
+    private void clearForm() {
         questionTextArea.setText("");
         for (JTextField field : choiceFields) {
             field.setText("");
         }
-        
-        JOptionPane.showMessageDialog(this, Constants.MSG_QUESTION_ADDED);
+    }
+
+    private void updateModeUI() {
+        if (isEditMode) {
+            modeLabel.setText("【編集モード - 問題 " + (editingIndex + 1) + " を編集中】");
+            modeLabel.setForeground(Constants.COLOR_STATUS_WARNING);
+            actionButton.setText("問題を更新");
+        } else {
+            modeLabel.setText("【新規追加モード】");
+            modeLabel.setForeground(Constants.COLOR_STATUS_SUCCESS);
+            actionButton.setText("問題を追加");
+        }
     }
     
     private void moveQuestion(int direction) {
