@@ -182,10 +182,9 @@ public class SurveyInterfaceWindow extends JFrame {
             contentPanel.add(questionScrollPane);
         }
 
-        // 選択肢パネル
+        // 選択肢パネル（FlowLayoutで自動折り返し）
         choicesPanel = new JPanel();
-        int columns = configManager.getConfig().getChoiceColumns();
-        choicesPanel.setLayout(new GridLayout(0, columns, Constants.PADDING_MEDIUM, Constants.PADDING_MEDIUM));
+        choicesPanel.setLayout(new FlowLayout(FlowLayout.LEFT, Constants.PADDING_MEDIUM, Constants.PADDING_MEDIUM));
         choicesPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
         contentPanel.add(choicesPanel);
 
