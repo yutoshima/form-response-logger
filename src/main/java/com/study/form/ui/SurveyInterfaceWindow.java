@@ -31,7 +31,7 @@ public class SurveyInterfaceWindow extends JFrame {
     
     // UI コンポーネント
     private JLabel progressLabel;
-    private JLabel questionLabel;
+    private JTextArea questionTextArea;
     private JPanel choicesPanel;
     private JTextArea reasonTextArea;
     private JButton rewriteButton;
@@ -139,13 +139,23 @@ public class SurveyInterfaceWindow extends JFrame {
         JPanel contentPanel = new JPanel();
         contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));
 
-        // 質問ラベル
-        questionLabel = new JLabel();
-        questionLabel.setFont(new Font(Constants.FONT_FAMILY, Font.BOLD, Constants.FONT_SIZE_SUBTITLE));
-        questionLabel.setBorder(new EmptyBorder(0, 0, Constants.PADDING_LARGE, 0));
-        questionLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
-        questionLabel.setHorizontalAlignment(SwingConstants.LEFT);
-        contentPanel.add(questionLabel);
+        // 質問テキストエリア（縦スクロール対応）
+        questionTextArea = new JTextArea();
+        questionTextArea.setFont(new Font(Constants.FONT_FAMILY, Font.BOLD, Constants.FONT_SIZE_SUBTITLE));
+        questionTextArea.setLineWrap(true);
+        questionTextArea.setWrapStyleWord(true);
+        questionTextArea.setEditable(false);
+        questionTextArea.setFocusable(false);
+        questionTextArea.setOpaque(false);
+        questionTextArea.setBorder(new EmptyBorder(0, 0, Constants.PADDING_LARGE, 0));
+        questionTextArea.setRows(3);
+        questionTextArea.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        JScrollPane questionScrollPane = new JScrollPane(questionTextArea);
+        questionScrollPane.setBorder(null);
+        questionScrollPane.setAlignmentX(Component.LEFT_ALIGNMENT);
+        questionScrollPane.setMaximumSize(new Dimension(Integer.MAX_VALUE, 100));
+        contentPanel.add(questionScrollPane);
 
         // 選択肢パネル
         choicesPanel = new JPanel();
@@ -185,7 +195,7 @@ public class SurveyInterfaceWindow extends JFrame {
         reasonLabel.setFont(new Font(Constants.FONT_FAMILY, Font.BOLD, Constants.FONT_SIZE_NORMAL));
         reasonPanel.add(reasonLabel, BorderLayout.NORTH);
 
-        reasonTextArea = new JTextArea(6, 40);
+        reasonTextArea = new JTextArea(4, 40);
         reasonTextArea.setFont(new Font(Constants.FONT_FAMILY, Font.PLAIN, Constants.FONT_SIZE_LABEL));
         reasonTextArea.setLineWrap(true);
         reasonTextArea.setWrapStyleWord(true);
@@ -254,7 +264,7 @@ public class SurveyInterfaceWindow extends JFrame {
         progressLabel.setText("問題 " + (currentQuestionIndex + 1) + " / " + questions.size());
         
         // 質問文表示
-        questionLabel.setText("<html>" + question.getText() + "</html>");
+        questionTextArea.setText(question.getText());
         
         // 選択肢をクリア
         choicesPanel.removeAll();
