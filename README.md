@@ -24,7 +24,7 @@ Form Response Logger is a desktop application designed for conducting research s
 
 ### Response Collection
 - **Visual Feedback**: Selected choices are highlighted for clarity
-- **HTML Question Display**: Questions displayed with vertical scrolling for long content
+- **Display Mode Selection**: Choose between HTML rendering (short questions with formatting) or plain text (long questions with vertical scrolling)
 - **Automatic Word Wrap**: Long questions and choices wrap automatically
 - **Reason Recording**: Require respondents to explain their choices
 - **Response Modification Rules**: Prevent impulsive changes after reasoning begins
@@ -102,6 +102,8 @@ On first launch, the application automatically creates:
 
 #### HTML Formatting in Questions
 
+**Important**: HTML formatting is only available when "HTML Display" is enabled in settings. For long questions, use plain text mode instead.
+
 You can use HTML tags to format your questions:
 
 **Basic Example** (in CSV):
@@ -134,6 +136,9 @@ Click **"⚙ 設定" (Settings)** to configure:
 - **File Paths**: Set directories for questions, responses, and logs
 - **Output Format**: Choose CSV, JSON, or both
 - **Layout**: Set number of choice columns (1-4)
+- **Display Mode**:
+  - **HTML Display ON**: Enables HTML formatting (bold, colors, etc.) for short questions
+  - **HTML Display OFF**: Plain text mode with vertical scrolling for long questions
 - **Sequence Numbers**: Manage auto-incrementing file counters
 
 **Filename Template Variables:**
