@@ -106,16 +106,30 @@ public class SurveyInterfaceWindow extends JFrame {
     
     /**
      * UIコンポーネントを初期化してレイアウトします。
+     * Bootstrap風の固定幅・中央配置レイアウト
      */
     private void setupUI() {
+        // 外側のパネル（中央配置用）
+        JPanel outerPanel = new JPanel(new GridBagLayout());
+
+        // 内側のパネル（固定幅）
         JPanel mainPanel = new JPanel(new BorderLayout(Constants.PADDING_MEDIUM, Constants.PADDING_MEDIUM));
         mainPanel.setBorder(new EmptyBorder(30, 30, 30, 30));
+
+        // 固定幅を設定（Bootstrap md相当: 720px）
+        int fixedWidth = 720;
+        mainPanel.setPreferredSize(new Dimension(fixedWidth, 600));
+        mainPanel.setMinimumSize(new Dimension(fixedWidth, 400));
+        mainPanel.setMaximumSize(new Dimension(fixedWidth, Integer.MAX_VALUE));
 
         mainPanel.add(createHeaderPanel(), BorderLayout.NORTH);
         mainPanel.add(createContentPanel(), BorderLayout.CENTER);
         mainPanel.add(createNavigationPanel(), BorderLayout.SOUTH);
 
-        add(mainPanel);
+        // 中央に配置
+        outerPanel.add(mainPanel);
+
+        add(outerPanel);
     }
 
     /**
@@ -349,30 +363,36 @@ public class SurveyInterfaceWindow extends JFrame {
     }
     
     private void createChoiceButton(String choiceText, int index) {
-        // HTMLで改行を有効化（word-wrap: break-word で確実に折り返し）
-        String htmlText = "<html><body style='width: 100%; word-wrap: break-word;'>" + choiceText + "</body></html>";
-        JButton button = new JButton(htmlText);
-        button.setFont(new Font(Constants.FONT_FAMILY, Font.PLAIN, Constants.FONT_SIZE_BUTTON));
+        // JTextAreaで確実にテキスト折り返し
+        JTextArea textArea = new JTextArea(choiceText);
+        textArea.setFont(new Font(Constants.FONT_FAMILY, Font.PLAIN, Constants.FONT_SIZE_BUTTON));
+        textArea.setLineWrap(true);
+        textArea.setWrapStyleWord(true);
+        textArea.setEditable(false);
+        textArea.setOpaque(false);
+        textArea.setBorder(new EmptyBorder(8, 12, 8, 12));
 
-        // 最大幅を明示的に設定
-        button.setMaximumSize(new Dimension(Integer.MAX_VALUE, Integer.MAX_VALUE));
-        button.setPreferredSize(null); // preferredSizeを自動計算させる
-
-        button.setHorizontalAlignment(SwingConstants.LEFT);
-        button.setVerticalAlignment(SwingConstants.TOP);
+        // ボタン風のパネル
+        JButton button = new JButton();
+        button.setLayout(new BorderLayout());
+        button.add(textArea, BorderLayout.CENTER);
         button.setFocusPainted(false);
         button.setOpaque(true);
         button.setBorderPainted(false);
         button.setContentAreaFilled(true);
-
-        // デフォルトの色設定
         button.setBackground(Constants.COLOR_DEFAULT);
         button.setForeground(Constants.COLOR_DEFAULT_TEXT);
+        button.setBorder(new EmptyBorder(4, 8, 4, 8));
 
-        // 余白のみ設定（ボーダーなし）
-        button.setBorder(new EmptyBorder(12, 20, 12, 20));
-
+        // クリックイベント（ボタンとテキストエリア両方に設定）
         button.addActionListener(e -> selectChoice(choiceText, index));
+        textArea.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseClicked(java.awt.event.MouseEvent e) {
+                selectChoice(choiceText, index);
+            }
+        });
+        textArea.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
 
         choiceButtons.add(button);
         choicesPanel.add(button);
