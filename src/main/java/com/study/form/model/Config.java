@@ -44,6 +44,14 @@ public class Config {
     private boolean useHtmlRendering;
     private int contentWidth;
 
+    // ボタン文言設定
+    private String buttonCreateQuestions;
+    private String buttonTakeSurvey;
+    private String buttonNextQuestion;
+    private String buttonPrevQuestion;
+    private String buttonReselect;
+    private String buttonFinishSurvey;
+
     public Config() {
         // デフォルト値
         this.appearanceMode = "System";
@@ -58,6 +66,12 @@ public class Config {
         this.responseSequence = 1;
         this.useHtmlRendering = false;
         this.contentWidth = 720;
+        this.buttonCreateQuestions = "問題を作成";
+        this.buttonTakeSurvey = "アンケートに回答";
+        this.buttonNextQuestion = "次の問題へ";
+        this.buttonPrevQuestion = "前の問題へ";
+        this.buttonReselect = "選択肢を選び直す";
+        this.buttonFinishSurvey = "回答を終了する";
     }
     
     public String getQuestionsDirectory() {
@@ -220,6 +234,54 @@ public class Config {
         this.contentWidth = contentWidth;
     }
 
+    public String getButtonCreateQuestions() {
+        return buttonCreateQuestions != null ? buttonCreateQuestions : "問題を作成";
+    }
+
+    public void setButtonCreateQuestions(String buttonCreateQuestions) {
+        this.buttonCreateQuestions = buttonCreateQuestions;
+    }
+
+    public String getButtonTakeSurvey() {
+        return buttonTakeSurvey != null ? buttonTakeSurvey : "アンケートに回答";
+    }
+
+    public void setButtonTakeSurvey(String buttonTakeSurvey) {
+        this.buttonTakeSurvey = buttonTakeSurvey;
+    }
+
+    public String getButtonNextQuestion() {
+        return buttonNextQuestion != null ? buttonNextQuestion : "次の問題へ";
+    }
+
+    public void setButtonNextQuestion(String buttonNextQuestion) {
+        this.buttonNextQuestion = buttonNextQuestion;
+    }
+
+    public String getButtonPrevQuestion() {
+        return buttonPrevQuestion != null ? buttonPrevQuestion : "前の問題へ";
+    }
+
+    public void setButtonPrevQuestion(String buttonPrevQuestion) {
+        this.buttonPrevQuestion = buttonPrevQuestion;
+    }
+
+    public String getButtonReselect() {
+        return buttonReselect != null ? buttonReselect : "選択肢を選び直す";
+    }
+
+    public void setButtonReselect(String buttonReselect) {
+        this.buttonReselect = buttonReselect;
+    }
+
+    public String getButtonFinishSurvey() {
+        return buttonFinishSurvey != null ? buttonFinishSurvey : "回答を終了する";
+    }
+
+    public void setButtonFinishSurvey(String buttonFinishSurvey) {
+        this.buttonFinishSurvey = buttonFinishSurvey;
+    }
+
     /**
      * 設定オブジェクトをMapに変換します。
      *
@@ -250,6 +312,12 @@ public class Config {
         map.put("response_sequence", responseSequence);
         map.put("use_html_rendering", useHtmlRendering);
         map.put("content_width", contentWidth);
+        map.put("button_create_questions", buttonCreateQuestions);
+        map.put("button_take_survey", buttonTakeSurvey);
+        map.put("button_next_question", buttonNextQuestion);
+        map.put("button_prev_question", buttonPrevQuestion);
+        map.put("button_reselect", buttonReselect);
+        map.put("button_finish_survey", buttonFinishSurvey);
         return map;
     }
 
@@ -336,5 +404,17 @@ public class Config {
                 this.contentWidth = (Integer) value;
             }
         }
+        if (map.containsKey("button_create_questions"))
+            this.buttonCreateQuestions = (String) map.get("button_create_questions");
+        if (map.containsKey("button_take_survey"))
+            this.buttonTakeSurvey = (String) map.get("button_take_survey");
+        if (map.containsKey("button_next_question"))
+            this.buttonNextQuestion = (String) map.get("button_next_question");
+        if (map.containsKey("button_prev_question"))
+            this.buttonPrevQuestion = (String) map.get("button_prev_question");
+        if (map.containsKey("button_reselect"))
+            this.buttonReselect = (String) map.get("button_reselect");
+        if (map.containsKey("button_finish_survey"))
+            this.buttonFinishSurvey = (String) map.get("button_finish_survey");
     }
 }

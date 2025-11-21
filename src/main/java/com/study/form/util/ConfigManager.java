@@ -84,6 +84,7 @@ public class ConfigManager {
         defaultConfig.setFontSize("medium");
         defaultConfig.setAutoSave(true);
         defaultConfig.setDefaultChoices(4);
+        // ボタン文言はConfig()コンストラクタでデフォルト値が設定済み
         return defaultConfig;
     }
     

@@ -33,6 +33,14 @@ public class SettingsWindow extends JFrame {
     private JCheckBox useHtmlRenderingCheckBox;
     private JComboBox<String> contentWidthCombo;
 
+    // ボタン文言設定
+    private JTextField buttonCreateQuestionsField;
+    private JTextField buttonTakeSurveyField;
+    private JTextField buttonNextQuestionField;
+    private JTextField buttonPrevQuestionField;
+    private JTextField buttonReselectField;
+    private JTextField buttonFinishSurveyField;
+
     public SettingsWindow() {
         setTitle("設定");
         setSize(Constants.SETTINGS_WINDOW_SIZE);
@@ -68,9 +76,21 @@ public class SettingsWindow extends JFrame {
         settingsPanel.add(createSection("データ設定"));
         settingsPanel.add(createDataSettings());
         settingsPanel.add(Box.createVerticalStrut(20));
-        
-        JScrollPane scrollPane = new JScrollPane(settingsPanel);
+
+        // ボタン文言設定
+        settingsPanel.add(createSection("ボタン文言設定"));
+        settingsPanel.add(createButtonLabelSettings());
+        settingsPanel.add(Box.createVerticalStrut(20));
+
+        // スクロール対応のため、settingsPanelを上部に寄せるラッパーパネル
+        JPanel wrapperPanel = new JPanel(new BorderLayout());
+        wrapperPanel.add(settingsPanel, BorderLayout.NORTH);
+
+        JScrollPane scrollPane = new JScrollPane(wrapperPanel);
         scrollPane.getVerticalScrollBar().setUnitIncrement(16);
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        scrollPane.setBorder(null);
         mainPanel.add(scrollPane, BorderLayout.CENTER);
         
         // ボタンパネル
@@ -238,7 +258,33 @@ public class SettingsWindow extends JFrame {
 
         return panel;
     }
-    
+
+    private JPanel createButtonLabelSettings() {
+        JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        panel.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createTitledBorder("ボタン文言設定"),
+            new EmptyBorder(10, 15, 15, 15)
+        ));
+        panel.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        buttonCreateQuestionsField = new JTextField(20);
+        buttonTakeSurveyField = new JTextField(20);
+        buttonNextQuestionField = new JTextField(20);
+        buttonPrevQuestionField = new JTextField(20);
+        buttonReselectField = new JTextField(20);
+        buttonFinishSurveyField = new JTextField(20);
+
+        panel.add(createFieldRow("問題作成ボタン:", buttonCreateQuestionsField, false));
+        panel.add(createFieldRow("アンケート開始ボタン:", buttonTakeSurveyField, false));
+        panel.add(createFieldRow("次の問題ボタン:", buttonNextQuestionField, false));
+        panel.add(createFieldRow("前の問題ボタン:", buttonPrevQuestionField, false));
+        panel.add(createFieldRow("選び直すボタン:", buttonReselectField, false));
+        panel.add(createFieldRow("回答終了ボタン:", buttonFinishSurveyField, false));
+
+        return panel;
+    }
+
     /**
      * 汎用的な設定行を作成します。
      *
@@ -320,6 +366,14 @@ public class SettingsWindow extends JFrame {
         } else {
             contentWidthCombo.setSelectedIndex(3);
         }
+
+        // ボタン文言設定の読み込み
+        buttonCreateQuestionsField.setText(config.getButtonCreateQuestions());
+        buttonTakeSurveyField.setText(config.getButtonTakeSurvey());
+        buttonNextQuestionField.setText(config.getButtonNextQuestion());
+        buttonPrevQuestionField.setText(config.getButtonPrevQuestion());
+        buttonReselectField.setText(config.getButtonReselect());
+        buttonFinishSurveyField.setText(config.getButtonFinishSurvey());
     }
     
     private void saveSettings() {
@@ -373,6 +427,14 @@ public class SettingsWindow extends JFrame {
         int selectedWidthIndex = contentWidthCombo.getSelectedIndex();
         int[] widthValues = {540, 720, 960, 1140};
         config.setContentWidth(widthValues[selectedWidthIndex]);
+
+        // ボタン文言設定の保存
+        config.setButtonCreateQuestions(buttonCreateQuestionsField.getText());
+        config.setButtonTakeSurvey(buttonTakeSurveyField.getText());
+        config.setButtonNextQuestion(buttonNextQuestionField.getText());
+        config.setButtonPrevQuestion(buttonPrevQuestionField.getText());
+        config.setButtonReselect(buttonReselectField.getText());
+        config.setButtonFinishSurvey(buttonFinishSurveyField.getText());
 
         configManager.saveConfig();
 

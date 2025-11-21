@@ -1,6 +1,7 @@
 package com.study.form.ui;
 
 import com.study.form.Constants;
+import com.study.form.util.ConfigManager;
 
 import javax.swing.*;
 import java.awt.*;
@@ -9,8 +10,11 @@ import java.awt.*;
  * メインウィンドウ
  */
 public class MainWindow extends JFrame {
-    
+
+    private ConfigManager configManager;
+
     public MainWindow() {
+        configManager = new ConfigManager();
         setTitle("研究用アンケートシステム");
         setSize(Constants.MAIN_WINDOW_SIZE);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -38,11 +42,11 @@ public class MainWindow extends JFrame {
         gbc.insets = new Insets(15, 0, 15, 0);
         gbc.fill = GridBagConstraints.HORIZONTAL;
         
-        // ボタンを作成
-        JButton createButton = createStyledButton("問題を作成");
+        // ボタンを作成（設定から文言を取得）
+        JButton createButton = createStyledButton(configManager.getConfig().getButtonCreateQuestions());
         createButton.addActionListener(e -> openQuestionEditor());
-        
-        JButton answerButton = createStyledButton("アンケートに回答");
+
+        JButton answerButton = createStyledButton(configManager.getConfig().getButtonTakeSurvey());
         answerButton.addActionListener(e -> openSurveyInterface());
         
         JButton settingsButton = createStyledButton("⚙ 設定");

@@ -260,8 +260,8 @@ public class SurveyInterfaceWindow extends JFrame {
         JScrollPane reasonScrollPane = new JScrollPane(reasonTextArea);
         reasonPanel.add(reasonScrollPane, BorderLayout.CENTER);
 
-        // 選び直しボタン
-        rewriteButton = new JButton("選択肢を選び直す");
+        // 選び直しボタン（設定から文言を取得）
+        rewriteButton = new JButton(configManager.getConfig().getButtonReselect());
         rewriteButton.setFont(new Font(Constants.FONT_FAMILY, Font.BOLD, Constants.FONT_SIZE_BUTTON));
         rewriteButton.setBackground(Constants.COLOR_GRAY);
         rewriteButton.setEnabled(false);
@@ -283,7 +283,7 @@ public class SurveyInterfaceWindow extends JFrame {
         JPanel navPanel = new JPanel(new BorderLayout());
         navPanel.setBorder(new EmptyBorder(Constants.PADDING_LARGE, 0, 0, 0));
 
-        prevButton = new JButton("前の問題へ");
+        prevButton = new JButton(configManager.getConfig().getButtonPrevQuestion());
         prevButton.setFont(new Font(Constants.FONT_FAMILY, Font.PLAIN, Constants.FONT_SIZE_BUTTON));
         prevButton.setPreferredSize(new Dimension(150, 45));
         prevButton.setBackground(Constants.COLOR_GRAY);
@@ -291,7 +291,7 @@ public class SurveyInterfaceWindow extends JFrame {
         prevButton.addActionListener(e -> prevQuestion());
         navPanel.add(prevButton, BorderLayout.WEST);
 
-        nextButton = new JButton("次の問題へ");
+        nextButton = new JButton(configManager.getConfig().getButtonNextQuestion());
         nextButton.setFont(new Font(Constants.FONT_FAMILY, Font.BOLD, Constants.FONT_SIZE_BUTTON));
         nextButton.setPreferredSize(new Dimension(150, 45));
         nextButton.setEnabled(false);
@@ -367,7 +367,14 @@ public class SurveyInterfaceWindow extends JFrame {
         
         // 前へボタンの状態
         prevButton.setEnabled(currentQuestionIndex > 0);
-        
+
+        // 最終問題の場合は終了ボタンに変更
+        if (currentQuestionIndex == questions.size() - 1) {
+            nextButton.setText(configManager.getConfig().getButtonFinishSurvey());
+        } else {
+            nextButton.setText(configManager.getConfig().getButtonNextQuestion());
+        }
+
         choicesPanel.revalidate();
         choicesPanel.repaint();
     }
