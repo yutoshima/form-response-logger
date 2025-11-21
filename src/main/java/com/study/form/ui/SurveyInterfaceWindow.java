@@ -379,33 +379,54 @@ public class SurveyInterfaceWindow extends JFrame {
         textArea.setLineWrap(true);
         textArea.setWrapStyleWord(true);
         textArea.setEditable(false);
-        textArea.setOpaque(false);
-        textArea.setBorder(new EmptyBorder(8, 12, 8, 12));
+        textArea.setFocusable(false);
+        textArea.setBorder(new EmptyBorder(12, 16, 12, 16));
+        textArea.setBackground(Constants.COLOR_DEFAULT);
+        textArea.setForeground(Constants.COLOR_DEFAULT_TEXT);
+        textArea.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
 
-        // ボタン風のパネル
-        JButton button = new JButton();
-        button.setLayout(new BorderLayout());
-        button.add(textArea, BorderLayout.CENTER);
-        button.setFocusPainted(false);
-        button.setOpaque(true);
-        button.setBorderPainted(false);
-        button.setContentAreaFilled(true);
-        button.setBackground(Constants.COLOR_DEFAULT);
-        button.setForeground(Constants.COLOR_DEFAULT_TEXT);
-        button.setBorder(new EmptyBorder(4, 8, 4, 8));
+        // シンプルなパネル（枠なし、角丸風の見た目）
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.setBackground(Constants.COLOR_DEFAULT);
+        panel.add(textArea, BorderLayout.CENTER);
+        panel.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
 
-        // クリックイベント（ボタンとテキストエリア両方に設定）
-        button.addActionListener(e -> selectChoice(choiceText, index));
-        textArea.addMouseListener(new java.awt.event.MouseAdapter() {
+        // クリックイベント
+        java.awt.event.MouseAdapter clickAdapter = new java.awt.event.MouseAdapter() {
             @Override
             public void mouseClicked(java.awt.event.MouseEvent e) {
                 selectChoice(choiceText, index);
             }
-        });
-        textArea.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+            @Override
+            public void mouseEntered(java.awt.event.MouseEvent e) {
+                if (selectedChoice == null || !selectedChoice.equals(choiceText)) {
+                    Color hoverColor = Constants.COLOR_DEFAULT.darker();
+                    panel.setBackground(hoverColor);
+                    textArea.setBackground(hoverColor);
+                }
+            }
+            @Override
+            public void mouseExited(java.awt.event.MouseEvent e) {
+                if (selectedChoice != null && selectedChoice.equals(choiceText)) {
+                    panel.setBackground(Constants.COLOR_SELECTED);
+                    textArea.setBackground(Constants.COLOR_SELECTED);
+                } else {
+                    panel.setBackground(Constants.COLOR_DEFAULT);
+                    textArea.setBackground(Constants.COLOR_DEFAULT);
+                }
+            }
+        };
+        panel.addMouseListener(clickAdapter);
+        textArea.addMouseListener(clickAdapter);
 
-        choiceButtons.add(button);
-        choicesPanel.add(button);
+        // ダミーのJButtonを作成（既存の選択ロジック用）
+        JButton dummyButton = new JButton();
+        dummyButton.setVisible(false);
+        dummyButton.putClientProperty("panel", panel);
+        dummyButton.putClientProperty("textArea", textArea);
+
+        choiceButtons.add(dummyButton);
+        choicesPanel.add(panel);
     }
     
     private void selectChoice(String choiceText, int index) {
@@ -433,14 +454,20 @@ public class SurveyInterfaceWindow extends JFrame {
     private void updateChoiceButtonColors(int selectedIndex) {
         for (int i = 0; i < choiceButtons.size(); i++) {
             JButton button = choiceButtons.get(i);
-            if (i == selectedIndex) {
-                button.setBackground(Constants.COLOR_SELECTED);
-                button.setForeground(Constants.COLOR_SELECTED_TEXT);
-            } else {
-                button.setBackground(Constants.COLOR_DEFAULT);
-                button.setForeground(Constants.COLOR_DEFAULT_TEXT);
+            JPanel panel = (JPanel) button.getClientProperty("panel");
+            JTextArea textArea = (JTextArea) button.getClientProperty("textArea");
+
+            if (panel != null && textArea != null) {
+                if (i == selectedIndex) {
+                    panel.setBackground(Constants.COLOR_SELECTED);
+                    textArea.setBackground(Constants.COLOR_SELECTED);
+                    textArea.setForeground(Constants.COLOR_SELECTED_TEXT);
+                } else {
+                    panel.setBackground(Constants.COLOR_DEFAULT);
+                    textArea.setBackground(Constants.COLOR_DEFAULT);
+                    textArea.setForeground(Constants.COLOR_DEFAULT_TEXT);
+                }
             }
-            // ボーダーは変更しない（統一された余白を維持）
         }
     }
     
