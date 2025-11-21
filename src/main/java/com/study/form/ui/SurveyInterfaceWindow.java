@@ -349,10 +349,14 @@ public class SurveyInterfaceWindow extends JFrame {
     }
     
     private void createChoiceButton(String choiceText, int index) {
-        // HTMLタグで囲んで自動改行を有効化（固定幅でテキストを折り返し）
-        String htmlText = "<html><body style='width: 200px; text-align: left;'>" + choiceText + "</body></html>";
+        // HTMLで改行を有効化（word-wrap: break-word で確実に折り返し）
+        String htmlText = "<html><body style='width: 100%; word-wrap: break-word;'>" + choiceText + "</body></html>";
         JButton button = new JButton(htmlText);
         button.setFont(new Font(Constants.FONT_FAMILY, Font.PLAIN, Constants.FONT_SIZE_BUTTON));
+
+        // 最大幅を明示的に設定
+        button.setMaximumSize(new Dimension(Integer.MAX_VALUE, Integer.MAX_VALUE));
+        button.setPreferredSize(null); // preferredSizeを自動計算させる
 
         button.setHorizontalAlignment(SwingConstants.LEFT);
         button.setVerticalAlignment(SwingConstants.TOP);
