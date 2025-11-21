@@ -31,6 +31,7 @@ public class SettingsWindow extends JFrame {
     private JCheckBox autoSaveCheckBox;
     private JCheckBox useParticipantInfoCheckBox;
     private JCheckBox useHtmlRenderingCheckBox;
+    private JComboBox<String> contentWidthCombo;
 
     public SettingsWindow() {
         setTitle("設定");
@@ -221,9 +222,14 @@ public class SettingsWindow extends JFrame {
         useParticipantInfoCheckBox = new JCheckBox("有効にすると被験者名・IDを入力");
         useHtmlRenderingCheckBox = new JCheckBox("有効にするとHTMLで表示（短文のみ）、無効にするとプレーンテキストで表示（長文対応）");
 
+        // コンテンツ横幅の選択肢（Bootstrap風サイズ）
+        String[] widthOptions = {"小 (540px)", "中 (720px)", "大 (960px)", "特大 (1140px)"};
+        contentWidthCombo = new JComboBox<>(widthOptions);
+
         panel.add(createComboRow("出力形式:", outputFormatCombo));
         panel.add(createIntComboRow("デフォルト選択肢数:", defaultChoicesCombo));
         panel.add(createIntComboRow("選択肢の列数:", choiceColumnsCombo));
+        panel.add(createComboRow("コンテンツ横幅:", contentWidthCombo));
         panel.add(createFieldRow("ログ連番（次回）:", logSequenceField, false));
         panel.add(createFieldRow("回答連番（次回）:", responseSequenceField, false));
         panel.add(createCheckBoxRow("自動保存:", autoSaveCheckBox));
@@ -302,6 +308,18 @@ public class SettingsWindow extends JFrame {
         autoSaveCheckBox.setSelected(config.isAutoSave());
         useParticipantInfoCheckBox.setSelected(config.isUseParticipantInfo());
         useHtmlRenderingCheckBox.setSelected(config.isUseHtmlRendering());
+
+        // 横幅設定の読み込み
+        int width = config.getContentWidth();
+        if (width <= 540) {
+            contentWidthCombo.setSelectedIndex(0);
+        } else if (width <= 720) {
+            contentWidthCombo.setSelectedIndex(1);
+        } else if (width <= 960) {
+            contentWidthCombo.setSelectedIndex(2);
+        } else {
+            contentWidthCombo.setSelectedIndex(3);
+        }
     }
     
     private void saveSettings() {
@@ -350,6 +368,11 @@ public class SettingsWindow extends JFrame {
         config.setAutoSave(autoSaveCheckBox.isSelected());
         config.setUseParticipantInfo(useParticipantInfoCheckBox.isSelected());
         config.setUseHtmlRendering(useHtmlRenderingCheckBox.isSelected());
+
+        // 横幅設定の保存
+        int selectedWidthIndex = contentWidthCombo.getSelectedIndex();
+        int[] widthValues = {540, 720, 960, 1140};
+        config.setContentWidth(widthValues[selectedWidthIndex]);
 
         configManager.saveConfig();
 

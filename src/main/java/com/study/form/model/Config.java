@@ -42,6 +42,7 @@ public class Config {
     private int logSequence;
     private int responseSequence;
     private boolean useHtmlRendering;
+    private int contentWidth;
 
     public Config() {
         // デフォルト値
@@ -56,6 +57,7 @@ public class Config {
         this.logSequence = 1;
         this.responseSequence = 1;
         this.useHtmlRendering = false;
+        this.contentWidth = 720;
     }
     
     public String getQuestionsDirectory() {
@@ -210,6 +212,14 @@ public class Config {
         this.useHtmlRendering = useHtmlRendering;
     }
 
+    public int getContentWidth() {
+        return contentWidth > 0 ? contentWidth : 720;
+    }
+
+    public void setContentWidth(int contentWidth) {
+        this.contentWidth = contentWidth;
+    }
+
     /**
      * 設定オブジェクトをMapに変換します。
      *
@@ -239,6 +249,7 @@ public class Config {
         map.put("log_sequence", logSequence);
         map.put("response_sequence", responseSequence);
         map.put("use_html_rendering", useHtmlRendering);
+        map.put("content_width", contentWidth);
         return map;
     }
 
@@ -317,5 +328,13 @@ public class Config {
         }
         if (map.containsKey("use_html_rendering"))
             this.useHtmlRendering = (Boolean) map.get("use_html_rendering");
+        if (map.containsKey("content_width")) {
+            Object value = map.get("content_width");
+            if (value instanceof Double) {
+                this.contentWidth = ((Double) value).intValue();
+            } else if (value instanceof Integer) {
+                this.contentWidth = (Integer) value;
+            }
+        }
     }
 }

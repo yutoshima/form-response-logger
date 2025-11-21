@@ -109,25 +109,35 @@ public class SurveyInterfaceWindow extends JFrame {
      * Bootstrap風の固定幅・中央配置レイアウト
      */
     private void setupUI() {
-        // 外側のパネル（中央配置用）
-        JPanel outerPanel = new JPanel(new GridBagLayout());
+        // 外側のパネル（横方向のみ中央配置、縦は最大）
+        JPanel outerPanel = new JPanel(new BorderLayout());
+
+        // 左右の余白パネル
+        JPanel leftSpacer = new JPanel();
+        JPanel rightSpacer = new JPanel();
 
         // 内側のパネル（固定幅）
         JPanel mainPanel = new JPanel(new BorderLayout(Constants.PADDING_MEDIUM, Constants.PADDING_MEDIUM));
         mainPanel.setBorder(new EmptyBorder(30, 30, 30, 30));
 
-        // 固定幅を設定（Bootstrap md相当: 720px）
-        int fixedWidth = 720;
-        mainPanel.setPreferredSize(new Dimension(fixedWidth, 600));
-        mainPanel.setMinimumSize(new Dimension(fixedWidth, 400));
+        // 設定から横幅を取得（デフォルト: 720px）
+        int fixedWidth = configManager.getConfig().getContentWidth();
+        mainPanel.setPreferredSize(new Dimension(fixedWidth, 0));
+        mainPanel.setMinimumSize(new Dimension(fixedWidth, 0));
         mainPanel.setMaximumSize(new Dimension(fixedWidth, Integer.MAX_VALUE));
 
         mainPanel.add(createHeaderPanel(), BorderLayout.NORTH);
         mainPanel.add(createContentPanel(), BorderLayout.CENTER);
         mainPanel.add(createNavigationPanel(), BorderLayout.SOUTH);
 
-        // 中央に配置
-        outerPanel.add(mainPanel);
+        // 中央に配置（BoxLayoutで左右に余白を入れる）
+        JPanel centerWrapper = new JPanel();
+        centerWrapper.setLayout(new BoxLayout(centerWrapper, BoxLayout.X_AXIS));
+        centerWrapper.add(Box.createHorizontalGlue());
+        centerWrapper.add(mainPanel);
+        centerWrapper.add(Box.createHorizontalGlue());
+
+        outerPanel.add(centerWrapper, BorderLayout.CENTER);
 
         add(outerPanel);
     }
