@@ -5,22 +5,6 @@ import java.util.Map;
 
 /**
  * アプリケーション設定データモデル
- *
- * <p>このクラスは、アンケートアプリケーションの全ての設定情報を保持します。
- * 設定はJSON形式で{@code config.json}ファイルに永続化されます。</p>
- *
- * <p>主な設定項目：</p>
- * <ul>
- *   <li>ファイルパス設定（問題、ログ、回答ファイル）</li>
- *   <li>被験者情報（名前、ID）</li>
- *   <li>UI設定（外観、フォントサイズ、選択肢の列数）</li>
- *   <li>データ設定（出力形式、デフォルト選択肢数）</li>
- *   <li>連番管理（ログ連番、回答連番）</li>
- * </ul>
- *
- * @author Survey App Development Team
- * @version 1.0
- * @since 1.0
  */
 public class Config {
     private String questionsDirectory;
@@ -44,7 +28,6 @@ public class Config {
     private boolean useHtmlRendering;
     private int contentWidth;
 
-    // ボタン文言設定
     private String buttonCreateQuestions;
     private String buttonTakeSurvey;
     private String buttonNextQuestion;
@@ -53,7 +36,6 @@ public class Config {
     private String buttonFinishSurvey;
 
     public Config() {
-        // デフォルト値
         this.appearanceMode = "System";
         this.colorTheme = "blue";
         this.outputFormat = "csv";
@@ -282,14 +264,6 @@ public class Config {
         this.buttonFinishSurvey = buttonFinishSurvey;
     }
 
-    /**
-     * 設定オブジェクトをMapに変換します。
-     *
-     * <p>このメソッドは、設定をJSON形式でファイルに保存する際に使用されます。
-     * 全てのフィールドがスネークケースのキーでMapに格納されます。</p>
-     *
-     * @return 設定データを含むMap（キーはスネークケース）
-     */
     public Map<String, Object> toMap() {
         Map<String, Object> map = new HashMap<>();
         map.put("questions_directory", questionsDirectory);
@@ -321,18 +295,6 @@ public class Config {
         return map;
     }
 
-    /**
-     * Mapから設定オブジェクトにデータを読み込みます。
-     *
-     * <p>このメソッドは、JSON形式の設定ファイルから読み込んだデータを
-     * このオブジェクトに反映する際に使用されます。
-     * 存在しないキーは無視され、既存のデフォルト値が維持されます。</p>
-     *
-     * <p>数値型（default_choices、choice_columns、log_sequence、response_sequence）は
-     * DoubleとIntegerの両方の型に対応しています。</p>
-     *
-     * @param map 設定データを含むMap（JSONから読み込まれた形式）
-     */
     public void fromMap(Map<String, Object> map) {
         if (map.containsKey("questions_directory"))
             this.questionsDirectory = (String) map.get("questions_directory");
@@ -362,48 +324,13 @@ public class Config {
             this.autoSave = (Boolean) map.get("auto_save");
         if (map.containsKey("use_participant_info"))
             this.useParticipantInfo = (Boolean) map.get("use_participant_info");
-        if (map.containsKey("default_choices")) {
-            Object value = map.get("default_choices");
-            if (value instanceof Double) {
-                this.defaultChoices = ((Double) value).intValue();
-            } else if (value instanceof Integer) {
-                this.defaultChoices = (Integer) value;
-            }
-        }
-        if (map.containsKey("choice_columns")) {
-            Object value = map.get("choice_columns");
-            if (value instanceof Double) {
-                this.choiceColumns = ((Double) value).intValue();
-            } else if (value instanceof Integer) {
-                this.choiceColumns = (Integer) value;
-            }
-        }
-        if (map.containsKey("log_sequence")) {
-            Object value = map.get("log_sequence");
-            if (value instanceof Double) {
-                this.logSequence = ((Double) value).intValue();
-            } else if (value instanceof Integer) {
-                this.logSequence = (Integer) value;
-            }
-        }
-        if (map.containsKey("response_sequence")) {
-            Object value = map.get("response_sequence");
-            if (value instanceof Double) {
-                this.responseSequence = ((Double) value).intValue();
-            } else if (value instanceof Integer) {
-                this.responseSequence = (Integer) value;
-            }
-        }
+        this.defaultChoices = getInt(map, "default_choices", this.defaultChoices);
+        this.choiceColumns = getInt(map, "choice_columns", this.choiceColumns);
+        this.logSequence = getInt(map, "log_sequence", this.logSequence);
+        this.responseSequence = getInt(map, "response_sequence", this.responseSequence);
+        this.contentWidth = getInt(map, "content_width", this.contentWidth);
         if (map.containsKey("use_html_rendering"))
             this.useHtmlRendering = (Boolean) map.get("use_html_rendering");
-        if (map.containsKey("content_width")) {
-            Object value = map.get("content_width");
-            if (value instanceof Double) {
-                this.contentWidth = ((Double) value).intValue();
-            } else if (value instanceof Integer) {
-                this.contentWidth = (Integer) value;
-            }
-        }
         if (map.containsKey("button_create_questions"))
             this.buttonCreateQuestions = (String) map.get("button_create_questions");
         if (map.containsKey("button_take_survey"))
@@ -416,5 +343,13 @@ public class Config {
             this.buttonReselect = (String) map.get("button_reselect");
         if (map.containsKey("button_finish_survey"))
             this.buttonFinishSurvey = (String) map.get("button_finish_survey");
+    }
+
+    private int getInt(Map<String, Object> map, String key, int defaultValue) {
+        if (!map.containsKey(key)) return defaultValue;
+        Object value = map.get(key);
+        if (value instanceof Double) return ((Double) value).intValue();
+        if (value instanceof Integer) return (Integer) value;
+        return defaultValue;
     }
 }

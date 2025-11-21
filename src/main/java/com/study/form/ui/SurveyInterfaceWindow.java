@@ -29,7 +29,6 @@ public class SurveyInterfaceWindow extends JFrame {
     private ActionLogger logger;
     private ConfigManager configManager;
     
-    // UI コンポーネント
     private JLabel progressLabel;
     private JEditorPane questionEditorPane;
     private JTextArea questionTextArea;
@@ -41,7 +40,6 @@ public class SurveyInterfaceWindow extends JFrame {
     private JButton nextButton;
     private JButton prevButton;
     
-    // 状態管理
     private String selectedChoice = null;
     private boolean reasonStarted = false;
     private List<JButton> choiceButtons = new ArrayList<>();
@@ -104,23 +102,11 @@ public class SurveyInterfaceWindow extends JFrame {
         displayQuestion();
     }
     
-    /**
-     * UIコンポーネントを初期化してレイアウトします。
-     * Bootstrap風の固定幅・中央配置レイアウト
-     */
     private void setupUI() {
-        // 外側のパネル（横方向のみ中央配置、縦は最大）
         JPanel outerPanel = new JPanel(new BorderLayout());
-
-        // 左右の余白パネル
-        JPanel leftSpacer = new JPanel();
-        JPanel rightSpacer = new JPanel();
-
-        // 内側のパネル（固定幅）
         JPanel mainPanel = new JPanel(new BorderLayout(Constants.PADDING_MEDIUM, Constants.PADDING_MEDIUM));
         mainPanel.setBorder(new EmptyBorder(30, 30, 30, 30));
 
-        // 設定から横幅を取得（デフォルト: 720px）
         int fixedWidth = configManager.getConfig().getContentWidth();
         mainPanel.setPreferredSize(new Dimension(fixedWidth, 0));
         mainPanel.setMinimumSize(new Dimension(fixedWidth, 0));
@@ -130,7 +116,6 @@ public class SurveyInterfaceWindow extends JFrame {
         mainPanel.add(createContentPanel(), BorderLayout.CENTER);
         mainPanel.add(createNavigationPanel(), BorderLayout.SOUTH);
 
-        // 中央に配置（BoxLayoutで左右に余白を入れる）
         JPanel centerWrapper = new JPanel();
         centerWrapper.setLayout(new BoxLayout(centerWrapper, BoxLayout.X_AXIS));
         centerWrapper.add(Box.createHorizontalGlue());
@@ -138,15 +123,9 @@ public class SurveyInterfaceWindow extends JFrame {
         centerWrapper.add(Box.createHorizontalGlue());
 
         outerPanel.add(centerWrapper, BorderLayout.CENTER);
-
         add(outerPanel);
     }
 
-    /**
-     * 進捗表示を含むヘッダーパネルを作成します。
-     *
-     * @return ヘッダーパネル
-     */
     private JPanel createHeaderPanel() {
         JPanel headerPanel = new JPanel(new BorderLayout());
         progressLabel = new JLabel();
@@ -156,20 +135,13 @@ public class SurveyInterfaceWindow extends JFrame {
         return headerPanel;
     }
 
-    /**
-     * 質問、選択肢、理由入力を含むコンテンツパネルを作成します。
-     *
-     * @return スクロール可能なコンテンツパネル
-     */
     private JScrollPane createContentPanel() {
         JPanel contentPanel = new JPanel();
         contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));
 
-        // 設定に応じてHTML表示またはプレーンテキスト表示
         boolean useHtml = configManager.getConfig().isUseHtmlRendering();
 
         if (useHtml) {
-            // HTML対応（短文用）
             questionEditorPane = new JEditorPane();
             questionEditorPane.setContentType("text/html");
             questionEditorPane.setEditable(false);
@@ -177,7 +149,6 @@ public class SurveyInterfaceWindow extends JFrame {
             questionEditorPane.setOpaque(false);
             questionEditorPane.setBorder(new EmptyBorder(0, 0, Constants.PADDING_LARGE, 0));
 
-            // フォントスタイルを設定
             String fontFamily = Constants.FONT_FAMILY;
             int fontSize = Constants.FONT_SIZE_SUBTITLE;
             questionEditorPane.putClientProperty(JEditorPane.HONOR_DISPLAY_PROPERTIES, Boolean.TRUE);
@@ -189,7 +160,6 @@ public class SurveyInterfaceWindow extends JFrame {
             questionScrollPane.setMaximumSize(new Dimension(Integer.MAX_VALUE, 100));
             contentPanel.add(questionScrollPane);
         } else {
-            // プレーンテキスト対応（長文用、縦スクロール対応）
             questionTextArea = new JTextArea();
             questionTextArea.setEditable(false);
             questionTextArea.setFocusable(false);
@@ -206,7 +176,6 @@ public class SurveyInterfaceWindow extends JFrame {
             contentPanel.add(questionScrollPane);
         }
 
-        // 選択肢パネル（GridLayoutで統一サイズ）
         choicesPanel = new JPanel();
         int columns = configManager.getConfig().getChoiceColumns();
         choicesPanel.setLayout(new GridLayout(0, columns, Constants.PADDING_MEDIUM, Constants.PADDING_MEDIUM));
@@ -214,11 +183,8 @@ public class SurveyInterfaceWindow extends JFrame {
         contentPanel.add(choicesPanel);
 
         contentPanel.add(Box.createVerticalStrut(Constants.VERTICAL_STRUT_LARGE));
-
-        // 理由入力パネル
         contentPanel.add(createReasonPanel());
 
-        // 状態ラベル
         statusLabel = new JLabel(" ");
         statusLabel.setFont(new Font(Constants.FONT_FAMILY, Font.PLAIN, Constants.FONT_SIZE_LABEL));
         statusLabel.setForeground(Constants.COLOR_STATUS_ERROR);
@@ -231,11 +197,6 @@ public class SurveyInterfaceWindow extends JFrame {
         return scrollPane;
     }
 
-    /**
-     * 理由入力エリアとボタンを含むパネルを作成します。
-     *
-     * @return 理由入力パネル
-     */
     private JPanel createReasonPanel() {
         JPanel reasonPanel = new JPanel(new BorderLayout(Constants.PADDING_SMALL, Constants.PADDING_SMALL));
         reasonPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
@@ -249,8 +210,6 @@ public class SurveyInterfaceWindow extends JFrame {
         reasonTextArea.setLineWrap(true);
         reasonTextArea.setWrapStyleWord(true);
         reasonTextArea.setEnabled(false);
-
-        // 理由入力の監視
         reasonTextArea.getDocument().addDocumentListener(new DocumentListener() {
             public void changedUpdate(DocumentEvent e) { onReasonKeyPress(); }
             public void removeUpdate(DocumentEvent e) { onReasonKeyPress(); }
@@ -260,7 +219,6 @@ public class SurveyInterfaceWindow extends JFrame {
         JScrollPane reasonScrollPane = new JScrollPane(reasonTextArea);
         reasonPanel.add(reasonScrollPane, BorderLayout.CENTER);
 
-        // 選び直しボタン（設定から文言を取得）
         rewriteButton = new JButton(configManager.getConfig().getButtonReselect());
         rewriteButton.setFont(new Font(Constants.FONT_FAMILY, Font.BOLD, Constants.FONT_SIZE_BUTTON));
         rewriteButton.setBackground(Constants.COLOR_GRAY);
@@ -274,11 +232,6 @@ public class SurveyInterfaceWindow extends JFrame {
         return reasonPanel;
     }
 
-    /**
-     * ナビゲーションボタンを含むパネルを作成します。
-     *
-     * @return ナビゲーションパネル
-     */
     private JPanel createNavigationPanel() {
         JPanel navPanel = new JPanel(new BorderLayout());
         navPanel.setBorder(new EmptyBorder(Constants.PADDING_LARGE, 0, 0, 0));
