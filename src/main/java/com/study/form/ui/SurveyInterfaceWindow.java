@@ -324,6 +324,7 @@ public class SurveyInterfaceWindow extends JFrame {
                 currentRow.setLayout(new GridLayout(1, columns, Constants.PADDING_MEDIUM, Constants.PADDING_MEDIUM));
                 currentRow.setAlignmentX(Component.LEFT_ALIGNMENT);
                 currentRow.setMaximumSize(new Dimension(Integer.MAX_VALUE, 60));
+                currentRow.setBorder(BorderFactory.createEmptyBorder(0, Constants.PADDING_MEDIUM, 0, Constants.PADDING_MEDIUM));
                 choicesPanel.add(currentRow);
                 if (i > 0) {
                     choicesPanel.add(Box.createVerticalStrut(Constants.PADDING_MEDIUM));
