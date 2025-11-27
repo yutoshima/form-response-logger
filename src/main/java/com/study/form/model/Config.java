@@ -27,6 +27,7 @@ public class Config {
     private int responseSequence;
     private boolean useHtmlRendering;
     private int contentWidth;
+    private boolean randomizeChoices;
 
     private String buttonCreateQuestions;
     private String buttonTakeSurvey;
@@ -48,6 +49,7 @@ public class Config {
         this.responseSequence = 1;
         this.useHtmlRendering = false;
         this.contentWidth = 720;
+        this.randomizeChoices = false;
         this.buttonCreateQuestions = "問題を作成";
         this.buttonTakeSurvey = "アンケートに回答";
         this.buttonNextQuestion = "次の問題へ";
@@ -216,6 +218,14 @@ public class Config {
         this.contentWidth = contentWidth;
     }
 
+    public boolean isRandomizeChoices() {
+        return randomizeChoices;
+    }
+
+    public void setRandomizeChoices(boolean randomizeChoices) {
+        this.randomizeChoices = randomizeChoices;
+    }
+
     public String getButtonCreateQuestions() {
         return buttonCreateQuestions != null ? buttonCreateQuestions : "問題を作成";
     }
@@ -286,6 +296,7 @@ public class Config {
         map.put("response_sequence", responseSequence);
         map.put("use_html_rendering", useHtmlRendering);
         map.put("content_width", contentWidth);
+        map.put("randomize_choices", randomizeChoices);
         map.put("button_create_questions", buttonCreateQuestions);
         map.put("button_take_survey", buttonTakeSurvey);
         map.put("button_next_question", buttonNextQuestion);
@@ -331,6 +342,8 @@ public class Config {
         this.contentWidth = getInt(map, "content_width", this.contentWidth);
         if (map.containsKey("use_html_rendering"))
             this.useHtmlRendering = (Boolean) map.get("use_html_rendering");
+        if (map.containsKey("randomize_choices"))
+            this.randomizeChoices = (Boolean) map.get("randomize_choices");
         if (map.containsKey("button_create_questions"))
             this.buttonCreateQuestions = (String) map.get("button_create_questions");
         if (map.containsKey("button_take_survey"))

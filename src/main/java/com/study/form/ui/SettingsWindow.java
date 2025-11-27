@@ -31,6 +31,7 @@ public class SettingsWindow extends JFrame {
     private JCheckBox autoSaveCheckBox;
     private JCheckBox useParticipantInfoCheckBox;
     private JCheckBox useHtmlRenderingCheckBox;
+    private JCheckBox randomizeChoicesCheckBox;
     private JComboBox<String> contentWidthCombo;
 
     // ボタン文言設定
@@ -241,6 +242,7 @@ public class SettingsWindow extends JFrame {
         autoSaveCheckBox = new JCheckBox("有効にすると設定に基づいて自動保存");
         useParticipantInfoCheckBox = new JCheckBox("有効にすると被験者名・IDを入力");
         useHtmlRenderingCheckBox = new JCheckBox("有効にするとHTMLで表示（短文のみ）、無効にするとプレーンテキストで表示（長文対応）");
+        randomizeChoicesCheckBox = new JCheckBox("有効にすると選択肢をランダムに並べる");
 
         // コンテンツ横幅の選択肢（Bootstrap風サイズ）
         String[] widthOptions = {"小 (540px)", "中 (720px)", "大 (960px)", "特大 (1140px)"};
@@ -255,6 +257,7 @@ public class SettingsWindow extends JFrame {
         panel.add(createCheckBoxRow("自動保存:", autoSaveCheckBox));
         panel.add(createCheckBoxRow("被験者情報を使用:", useParticipantInfoCheckBox));
         panel.add(createCheckBoxRow("HTML表示:", useHtmlRenderingCheckBox));
+        panel.add(createCheckBoxRow("選択肢をランダム表示:", randomizeChoicesCheckBox));
 
         return panel;
     }
@@ -354,6 +357,7 @@ public class SettingsWindow extends JFrame {
         autoSaveCheckBox.setSelected(config.isAutoSave());
         useParticipantInfoCheckBox.setSelected(config.isUseParticipantInfo());
         useHtmlRenderingCheckBox.setSelected(config.isUseHtmlRendering());
+        randomizeChoicesCheckBox.setSelected(config.isRandomizeChoices());
 
         // 横幅設定の読み込み
         int width = config.getContentWidth();
@@ -422,6 +426,7 @@ public class SettingsWindow extends JFrame {
         config.setAutoSave(autoSaveCheckBox.isSelected());
         config.setUseParticipantInfo(useParticipantInfoCheckBox.isSelected());
         config.setUseHtmlRendering(useHtmlRenderingCheckBox.isSelected());
+        config.setRandomizeChoices(randomizeChoicesCheckBox.isSelected());
 
         // 横幅設定の保存
         int selectedWidthIndex = contentWidthCombo.getSelectedIndex();

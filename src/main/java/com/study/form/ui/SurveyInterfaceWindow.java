@@ -14,6 +14,7 @@ import javax.swing.event.DocumentListener;
 import java.awt.*;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -298,10 +299,18 @@ public class SurveyInterfaceWindow extends JFrame {
         // 選択肢をクリア
         choicesPanel.removeAll();
         choiceButtons.clear();
-        
+
+        // 選択肢を取得
+        List<String> choices = new ArrayList<>(question.getChoices());
+
+        // ランダム表示が有効な場合はシャッフル
+        if (configManager.getConfig().isRandomizeChoices()) {
+            Collections.shuffle(choices);
+        }
+
         // 選択肢を表示
-        for (int i = 0; i < question.getChoices().size(); i++) {
-            String choice = question.getChoices().get(i);
+        for (int i = 0; i < choices.size(); i++) {
+            String choice = choices.get(i);
             createChoiceButton(choice, i);
         }
         
