@@ -177,8 +177,7 @@ public class SurveyInterfaceWindow extends JFrame {
         }
 
         choicesPanel = new JPanel();
-        int columns = configManager.getConfig().getChoiceColumns();
-        choicesPanel.setLayout(new GridLayout(0, columns, Constants.PADDING_MEDIUM, Constants.PADDING_MEDIUM));
+        choicesPanel.setLayout(new BoxLayout(choicesPanel, BoxLayout.Y_AXIS));
         choicesPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
         contentPanel.add(choicesPanel);
 
@@ -314,10 +313,32 @@ public class SurveyInterfaceWindow extends JFrame {
             Collections.shuffle(choices);
         }
 
-        // 選択肢を表示
+        // 選択肢を表示（列数に応じて行ごとに配置）
+        int columns = configManager.getConfig().getChoiceColumns();
+        JPanel currentRow = null;
+
         for (int i = 0; i < choices.size(); i++) {
+            if (i % columns == 0) {
+                currentRow = new JPanel();
+                currentRow.setLayout(new GridLayout(1, columns, Constants.PADDING_MEDIUM, Constants.PADDING_MEDIUM));
+                currentRow.setAlignmentX(Component.LEFT_ALIGNMENT);
+                currentRow.setMaximumSize(new Dimension(Integer.MAX_VALUE, 60));
+                choicesPanel.add(currentRow);
+                if (i > 0) {
+                    choicesPanel.add(Box.createVerticalStrut(Constants.PADDING_MEDIUM));
+                }
+            }
+
             String choice = choices.get(i);
-            createChoiceButton(choice, i);
+            createChoiceButton(choice, i, currentRow);
+        }
+
+        // 最後の行が列数に満たない場合、空のパネルで埋める
+        if (currentRow != null && choices.size() % columns != 0) {
+            int remaining = columns - (choices.size() % columns);
+            for (int i = 0; i < remaining; i++) {
+                currentRow.add(new JPanel());
+            }
         }
         
         // 状態をリセット
@@ -347,7 +368,7 @@ public class SurveyInterfaceWindow extends JFrame {
         choicesPanel.repaint();
     }
     
-    private void createChoiceButton(String choiceText, int index) {
+    private void createChoiceButton(String choiceText, int index, JPanel parentRow) {
         // JTextAreaで確実にテキスト折り返し
         JTextArea textArea = new JTextArea(choiceText);
         textArea.setFont(new Font(Constants.FONT_FAMILY, Font.PLAIN, Constants.FONT_SIZE_BUTTON));
@@ -401,7 +422,7 @@ public class SurveyInterfaceWindow extends JFrame {
         dummyButton.putClientProperty("textArea", textArea);
 
         choiceButtons.add(dummyButton);
-        choicesPanel.add(panel);
+        parentRow.add(panel);
     }
     
     private void selectChoice(String choiceText, int index) {
