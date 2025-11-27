@@ -179,6 +179,7 @@ public class SurveyInterfaceWindow extends JFrame {
         choicesPanel = new JPanel();
         choicesPanel.setLayout(new BoxLayout(choicesPanel, BoxLayout.Y_AXIS));
         choicesPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        choicesPanel.setBorder(BorderFactory.createEmptyBorder(Constants.PADDING_MEDIUM, 0, Constants.PADDING_MEDIUM, 0));
         contentPanel.add(choicesPanel);
 
         contentPanel.add(Box.createVerticalStrut(Constants.VERTICAL_STRUT_LARGE));
