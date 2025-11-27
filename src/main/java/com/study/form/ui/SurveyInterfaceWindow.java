@@ -37,6 +37,7 @@ public class SurveyInterfaceWindow extends JFrame {
     private JPanel choicesPanel;
     private JTextArea reasonTextArea;
     private JButton rewriteButton;
+    private JButton insertChoiceButton;
     private JLabel statusLabel;
     private JButton nextButton;
     private JButton prevButton;
@@ -229,9 +230,16 @@ public class SurveyInterfaceWindow extends JFrame {
         rewriteButton.setEnabled(false);
         rewriteButton.addActionListener(e -> rewriteReason());
 
-        JPanel rewritePanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
-        rewritePanel.add(rewriteButton);
-        reasonPanel.add(rewritePanel, BorderLayout.SOUTH);
+        insertChoiceButton = new JButton("選択肢を挿入");
+        insertChoiceButton.setFont(new Font(Constants.FONT_FAMILY, Font.PLAIN, Constants.FONT_SIZE_BUTTON));
+        insertChoiceButton.setBackground(Constants.COLOR_GRAY);
+        insertChoiceButton.setEnabled(false);
+        insertChoiceButton.addActionListener(e -> insertChoiceToReason());
+
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
+        buttonPanel.add(rewriteButton);
+        buttonPanel.add(insertChoiceButton);
+        reasonPanel.add(buttonPanel, BorderLayout.SOUTH);
 
         return reasonPanel;
     }
@@ -327,6 +335,7 @@ public class SurveyInterfaceWindow extends JFrame {
         
         // ボタンの状態を更新
         rewriteButton.setEnabled(false);
+        insertChoiceButton.setEnabled(false);
         nextButton.setEnabled(false);
         statusLabel.setText(" ");
         
@@ -352,7 +361,7 @@ public class SurveyInterfaceWindow extends JFrame {
         textArea.setWrapStyleWord(true);
         textArea.setEditable(false);
         textArea.setFocusable(false);
-        textArea.setBorder(new EmptyBorder(12, 16, 12, 16));
+        textArea.setBorder(new EmptyBorder(10, 16, 10, 16));
         textArea.setBackground(Constants.COLOR_DEFAULT);
         textArea.setForeground(Constants.COLOR_DEFAULT_TEXT);
         textArea.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
@@ -360,6 +369,9 @@ public class SurveyInterfaceWindow extends JFrame {
         // シンプルなパネル（枠なし、角丸風の見た目）
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBackground(Constants.COLOR_DEFAULT);
+        panel.setPreferredSize(new Dimension(0, 50));
+        panel.setMinimumSize(new Dimension(0, 50));
+        panel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 50));
         panel.add(textArea, BorderLayout.CENTER);
         panel.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
 
@@ -448,6 +460,7 @@ public class SurveyInterfaceWindow extends JFrame {
         reasonTextArea.setText("");
         reasonStarted = false;
         rewriteButton.setEnabled(false);
+        insertChoiceButton.setEnabled(true);
         nextButton.setEnabled(false);
         statusLabel.setText(" ");
     }
@@ -469,17 +482,38 @@ public class SurveyInterfaceWindow extends JFrame {
     private void rewriteReason() {
         // ログに記録
         logger.logRewriteReason(currentQuestionIndex + 1);
-        
+
         // 理由をクリア
         reasonTextArea.setText("");
         reasonStarted = false;
-        
+
         // ボタンの状態を更新
         rewriteButton.setEnabled(false);
+        insertChoiceButton.setEnabled(true);
         nextButton.setEnabled(false);
-        
+
         statusLabel.setText(Constants.MSG_CAN_CHANGE_STATUS);
         statusLabel.setForeground(Constants.COLOR_STATUS_SUCCESS);
+    }
+
+    private void insertChoiceToReason() {
+        if (selectedChoice != null && reasonTextArea.isEnabled()) {
+            // カーソル位置に選択肢を挿入
+            int caretPosition = reasonTextArea.getCaretPosition();
+            String currentText = reasonTextArea.getText();
+            String beforeCaret = currentText.substring(0, caretPosition);
+            String afterCaret = currentText.substring(caretPosition);
+
+            // 「」で囲んで挿入
+            String insertText = "「" + selectedChoice + "」";
+            reasonTextArea.setText(beforeCaret + insertText + afterCaret);
+
+            // カーソルを挿入したテキストの後ろに移動
+            reasonTextArea.setCaretPosition(caretPosition + insertText.length());
+
+            // テキストエリアにフォーカスを戻す
+            reasonTextArea.requestFocusInWindow();
+        }
     }
     
     private void nextQuestion() {
