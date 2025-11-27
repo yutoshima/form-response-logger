@@ -204,8 +204,6 @@ public class SurveyInterfaceWindow extends JFrame {
     private JPanel createReasonPanel() {
         JPanel reasonPanel = new JPanel(new BorderLayout(Constants.PADDING_SMALL, Constants.PADDING_SMALL));
         reasonPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
-        reasonPanel.setPreferredSize(new Dimension(Integer.MAX_VALUE, 150));
-        reasonPanel.setMinimumSize(new Dimension(0, 150));
         reasonPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 150));
 
         JLabel reasonLabel = new JLabel("選択した理由を記入してください");
