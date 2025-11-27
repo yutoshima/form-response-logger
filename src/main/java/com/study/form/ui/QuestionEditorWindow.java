@@ -31,11 +31,11 @@ public class QuestionEditorWindow extends JFrame {
     private JLabel modeLabel;
     
     public QuestionEditorWindow() {
-        setTitle("問題作成エディタ");
+        configManager = new ConfigManager();
+        setTitle(configManager.getConfig().getTitleQuestionEditor());
         setSize(Constants.EDITOR_WINDOW_SIZE);
         setLocationRelativeTo(null);
-        
-        configManager = new ConfigManager();
+
         setupUI();
     }
     

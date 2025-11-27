@@ -15,11 +15,11 @@ public class MainWindow extends JFrame {
 
     public MainWindow() {
         configManager = new ConfigManager();
-        setTitle("研究用アンケートシステム");
+        setTitle(configManager.getConfig().getTitleMain());
         setSize(Constants.MAIN_WINDOW_SIZE);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
-        
+
         setupUI();
     }
     
@@ -29,7 +29,7 @@ public class MainWindow extends JFrame {
         mainPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
         
         // タイトル
-        JLabel titleLabel = new JLabel("研究用アンケートシステム", SwingConstants.CENTER);
+        JLabel titleLabel = new JLabel(configManager.getConfig().getTitleMain(), SwingConstants.CENTER);
         titleLabel.setFont(new Font(Constants.FONT_FAMILY, Font.BOLD, Constants.FONT_SIZE_TITLE));
         titleLabel.setBorder(BorderFactory.createEmptyBorder(40, 0, 40, 0));
         mainPanel.add(titleLabel, BorderLayout.NORTH);

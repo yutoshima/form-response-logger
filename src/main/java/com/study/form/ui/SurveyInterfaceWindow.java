@@ -46,11 +46,10 @@ public class SurveyInterfaceWindow extends JFrame {
     private List<JButton> choiceButtons = new ArrayList<>();
     
     public SurveyInterfaceWindow() {
-        setTitle("アンケート回答");
+        configManager = new ConfigManager();
+        setTitle(configManager.getConfig().getTitleSurvey());
         setSize(Constants.SURVEY_WINDOW_SIZE);
         setLocationRelativeTo(null);
-
-        configManager = new ConfigManager();
 
         // 設定で被験者情報を使用する場合のみ入力画面を表示
         if (configManager.getConfig().isUseParticipantInfo()) {
@@ -327,8 +326,8 @@ public class SurveyInterfaceWindow extends JFrame {
         nextButton.setEnabled(false);
         statusLabel.setText(" ");
         
-        // 前へボタンの状態
-        prevButton.setEnabled(currentQuestionIndex > 0);
+        // 前へボタンの状態（設定で有効になっている場合のみ）
+        prevButton.setEnabled(configManager.getConfig().isEnablePrevButton() && currentQuestionIndex > 0);
 
         // 最終問題の場合は終了ボタンに変更
         if (currentQuestionIndex == questions.size() - 1) {

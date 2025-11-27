@@ -32,6 +32,7 @@ public class SettingsWindow extends JFrame {
     private JCheckBox useParticipantInfoCheckBox;
     private JCheckBox useHtmlRenderingCheckBox;
     private JCheckBox randomizeChoicesCheckBox;
+    private JCheckBox enablePrevButtonCheckBox;
     private JComboBox<String> contentWidthCombo;
 
     // ボタン文言設定
@@ -42,13 +43,26 @@ public class SettingsWindow extends JFrame {
     private JTextField buttonReselectField;
     private JTextField buttonFinishSurveyField;
 
+    // タイトル設定
+    private JTextField titleMainField;
+    private JTextField titleQuestionEditorField;
+    private JTextField titleSettingsField;
+    private JTextField titleSurveyField;
+
+    // ログアクション名設定
+    private JTextField logActionChoiceSelectionField;
+    private JTextField logActionReasonStartField;
+    private JTextField logActionReasonTextField;
+    private JTextField logActionReasonRewriteField;
+    private JTextField logActionQuestionMoveField;
+    private JTextField logActionSubmitField;
+
     public SettingsWindow() {
-        setTitle("設定");
+        configManager = new ConfigManager();
+        setTitle(configManager.getConfig().getTitleSettings());
         setSize(Constants.SETTINGS_WINDOW_SIZE);
         setLocationRelativeTo(null);
-        
-        configManager = new ConfigManager();
-        
+
         setupUI();
         loadCurrentSettings();
     }
@@ -81,6 +95,16 @@ public class SettingsWindow extends JFrame {
         // ボタン文言設定
         settingsPanel.add(createSection("ボタン文言設定"));
         settingsPanel.add(createButtonLabelSettings());
+        settingsPanel.add(Box.createVerticalStrut(20));
+
+        // タイトル設定
+        settingsPanel.add(createSection("タイトル設定"));
+        settingsPanel.add(createTitleSettings());
+        settingsPanel.add(Box.createVerticalStrut(20));
+
+        // ログアクション名設定
+        settingsPanel.add(createSection("ログアクション名設定"));
+        settingsPanel.add(createLogActionSettings());
         settingsPanel.add(Box.createVerticalStrut(20));
 
         // スクロール対応のため、settingsPanelを上部に寄せるラッパーパネル
@@ -243,6 +267,7 @@ public class SettingsWindow extends JFrame {
         useParticipantInfoCheckBox = new JCheckBox("有効にすると被験者名・IDを入力");
         useHtmlRenderingCheckBox = new JCheckBox("有効にするとHTMLで表示（短文のみ）、無効にするとプレーンテキストで表示（長文対応）");
         randomizeChoicesCheckBox = new JCheckBox("有効にすると選択肢をランダムに並べる");
+        enablePrevButtonCheckBox = new JCheckBox("有効にすると前の問題に戻るボタンを表示");
 
         // コンテンツ横幅の選択肢（Bootstrap風サイズ）
         String[] widthOptions = {"小 (540px)", "中 (720px)", "大 (960px)", "特大 (1140px)"};
@@ -258,6 +283,7 @@ public class SettingsWindow extends JFrame {
         panel.add(createCheckBoxRow("被験者情報を使用:", useParticipantInfoCheckBox));
         panel.add(createCheckBoxRow("HTML表示:", useHtmlRenderingCheckBox));
         panel.add(createCheckBoxRow("選択肢をランダム表示:", randomizeChoicesCheckBox));
+        panel.add(createCheckBoxRow("前の問題ボタンを有効化:", enablePrevButtonCheckBox));
 
         return panel;
     }
@@ -284,6 +310,54 @@ public class SettingsWindow extends JFrame {
         panel.add(createFieldRow("前の問題ボタン:", buttonPrevQuestionField, false));
         panel.add(createFieldRow("選び直すボタン:", buttonReselectField, false));
         panel.add(createFieldRow("回答終了ボタン:", buttonFinishSurveyField, false));
+
+        return panel;
+    }
+
+    private JPanel createTitleSettings() {
+        JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        panel.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createTitledBorder("タイトル設定"),
+            new EmptyBorder(10, 15, 15, 15)
+        ));
+        panel.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        titleMainField = new JTextField(30);
+        titleQuestionEditorField = new JTextField(30);
+        titleSettingsField = new JTextField(30);
+        titleSurveyField = new JTextField(30);
+
+        panel.add(createFieldRow("メイン画面タイトル:", titleMainField, false));
+        panel.add(createFieldRow("問題作成画面タイトル:", titleQuestionEditorField, false));
+        panel.add(createFieldRow("設定画面タイトル:", titleSettingsField, false));
+        panel.add(createFieldRow("アンケート画面タイトル:", titleSurveyField, false));
+
+        return panel;
+    }
+
+    private JPanel createLogActionSettings() {
+        JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        panel.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createTitledBorder("ログアクション名設定"),
+            new EmptyBorder(10, 15, 15, 15)
+        ));
+        panel.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        logActionChoiceSelectionField = new JTextField(20);
+        logActionReasonStartField = new JTextField(20);
+        logActionReasonTextField = new JTextField(20);
+        logActionReasonRewriteField = new JTextField(20);
+        logActionQuestionMoveField = new JTextField(20);
+        logActionSubmitField = new JTextField(20);
+
+        panel.add(createFieldRow("選択肢選択:", logActionChoiceSelectionField, false));
+        panel.add(createFieldRow("理由入力開始:", logActionReasonStartField, false));
+        panel.add(createFieldRow("理由入力内容:", logActionReasonTextField, false));
+        panel.add(createFieldRow("理由書き直し:", logActionReasonRewriteField, false));
+        panel.add(createFieldRow("問題移動:", logActionQuestionMoveField, false));
+        panel.add(createFieldRow("アンケート送信:", logActionSubmitField, false));
 
         return panel;
     }
@@ -358,6 +432,7 @@ public class SettingsWindow extends JFrame {
         useParticipantInfoCheckBox.setSelected(config.isUseParticipantInfo());
         useHtmlRenderingCheckBox.setSelected(config.isUseHtmlRendering());
         randomizeChoicesCheckBox.setSelected(config.isRandomizeChoices());
+        enablePrevButtonCheckBox.setSelected(config.isEnablePrevButton());
 
         // 横幅設定の読み込み
         int width = config.getContentWidth();
@@ -378,6 +453,20 @@ public class SettingsWindow extends JFrame {
         buttonPrevQuestionField.setText(config.getButtonPrevQuestion());
         buttonReselectField.setText(config.getButtonReselect());
         buttonFinishSurveyField.setText(config.getButtonFinishSurvey());
+
+        // タイトル設定の読み込み
+        titleMainField.setText(config.getTitleMain());
+        titleQuestionEditorField.setText(config.getTitleQuestionEditor());
+        titleSettingsField.setText(config.getTitleSettings());
+        titleSurveyField.setText(config.getTitleSurvey());
+
+        // ログアクション名設定の読み込み
+        logActionChoiceSelectionField.setText(config.getLogActionChoiceSelection());
+        logActionReasonStartField.setText(config.getLogActionReasonStart());
+        logActionReasonTextField.setText(config.getLogActionReasonText());
+        logActionReasonRewriteField.setText(config.getLogActionReasonRewrite());
+        logActionQuestionMoveField.setText(config.getLogActionQuestionMove());
+        logActionSubmitField.setText(config.getLogActionSubmit());
     }
     
     private void saveSettings() {
@@ -427,6 +516,7 @@ public class SettingsWindow extends JFrame {
         config.setUseParticipantInfo(useParticipantInfoCheckBox.isSelected());
         config.setUseHtmlRendering(useHtmlRenderingCheckBox.isSelected());
         config.setRandomizeChoices(randomizeChoicesCheckBox.isSelected());
+        config.setEnablePrevButton(enablePrevButtonCheckBox.isSelected());
 
         // 横幅設定の保存
         int selectedWidthIndex = contentWidthCombo.getSelectedIndex();
@@ -440,6 +530,20 @@ public class SettingsWindow extends JFrame {
         config.setButtonPrevQuestion(buttonPrevQuestionField.getText());
         config.setButtonReselect(buttonReselectField.getText());
         config.setButtonFinishSurvey(buttonFinishSurveyField.getText());
+
+        // タイトル設定の保存
+        config.setTitleMain(titleMainField.getText());
+        config.setTitleQuestionEditor(titleQuestionEditorField.getText());
+        config.setTitleSettings(titleSettingsField.getText());
+        config.setTitleSurvey(titleSurveyField.getText());
+
+        // ログアクション名設定の保存
+        config.setLogActionChoiceSelection(logActionChoiceSelectionField.getText());
+        config.setLogActionReasonStart(logActionReasonStartField.getText());
+        config.setLogActionReasonText(logActionReasonTextField.getText());
+        config.setLogActionReasonRewrite(logActionReasonRewriteField.getText());
+        config.setLogActionQuestionMove(logActionQuestionMoveField.getText());
+        config.setLogActionSubmit(logActionSubmitField.getText());
 
         configManager.saveConfig();
 

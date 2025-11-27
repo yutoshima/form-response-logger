@@ -28,6 +28,7 @@ public class Config {
     private boolean useHtmlRendering;
     private int contentWidth;
     private boolean randomizeChoices;
+    private boolean enablePrevButton;
 
     private String buttonCreateQuestions;
     private String buttonTakeSurvey;
@@ -35,6 +36,18 @@ public class Config {
     private String buttonPrevQuestion;
     private String buttonReselect;
     private String buttonFinishSurvey;
+
+    private String titleMain;
+    private String titleQuestionEditor;
+    private String titleSettings;
+    private String titleSurvey;
+
+    private String logActionChoiceSelection;
+    private String logActionReasonStart;
+    private String logActionReasonText;
+    private String logActionReasonRewrite;
+    private String logActionQuestionMove;
+    private String logActionSubmit;
 
     public Config() {
         this.appearanceMode = "System";
@@ -50,12 +63,23 @@ public class Config {
         this.useHtmlRendering = false;
         this.contentWidth = 720;
         this.randomizeChoices = false;
+        this.enablePrevButton = false;
         this.buttonCreateQuestions = "問題を作成";
         this.buttonTakeSurvey = "アンケートに回答";
         this.buttonNextQuestion = "次の問題へ";
         this.buttonPrevQuestion = "前の問題へ";
         this.buttonReselect = "選択肢を選び直す";
         this.buttonFinishSurvey = "回答を終了する";
+        this.titleMain = "研究用アンケートシステム";
+        this.titleQuestionEditor = "問題作成";
+        this.titleSettings = "設定";
+        this.titleSurvey = "アンケート回答";
+        this.logActionChoiceSelection = "選択肢選択";
+        this.logActionReasonStart = "理由入力開始";
+        this.logActionReasonText = "理由入力内容";
+        this.logActionReasonRewrite = "理由書き直し";
+        this.logActionQuestionMove = "問題移動";
+        this.logActionSubmit = "アンケート送信";
     }
     
     public String getQuestionsDirectory() {
@@ -226,6 +250,14 @@ public class Config {
         this.randomizeChoices = randomizeChoices;
     }
 
+    public boolean isEnablePrevButton() {
+        return enablePrevButton;
+    }
+
+    public void setEnablePrevButton(boolean enablePrevButton) {
+        this.enablePrevButton = enablePrevButton;
+    }
+
     public String getButtonCreateQuestions() {
         return buttonCreateQuestions != null ? buttonCreateQuestions : "問題を作成";
     }
@@ -274,6 +306,86 @@ public class Config {
         this.buttonFinishSurvey = buttonFinishSurvey;
     }
 
+    public String getTitleMain() {
+        return titleMain != null ? titleMain : "研究用アンケートシステム";
+    }
+
+    public void setTitleMain(String titleMain) {
+        this.titleMain = titleMain;
+    }
+
+    public String getTitleQuestionEditor() {
+        return titleQuestionEditor != null ? titleQuestionEditor : "問題作成";
+    }
+
+    public void setTitleQuestionEditor(String titleQuestionEditor) {
+        this.titleQuestionEditor = titleQuestionEditor;
+    }
+
+    public String getTitleSettings() {
+        return titleSettings != null ? titleSettings : "設定";
+    }
+
+    public void setTitleSettings(String titleSettings) {
+        this.titleSettings = titleSettings;
+    }
+
+    public String getTitleSurvey() {
+        return titleSurvey != null ? titleSurvey : "アンケート回答";
+    }
+
+    public void setTitleSurvey(String titleSurvey) {
+        this.titleSurvey = titleSurvey;
+    }
+
+    public String getLogActionChoiceSelection() {
+        return logActionChoiceSelection != null ? logActionChoiceSelection : "選択肢選択";
+    }
+
+    public void setLogActionChoiceSelection(String logActionChoiceSelection) {
+        this.logActionChoiceSelection = logActionChoiceSelection;
+    }
+
+    public String getLogActionReasonStart() {
+        return logActionReasonStart != null ? logActionReasonStart : "理由入力開始";
+    }
+
+    public void setLogActionReasonStart(String logActionReasonStart) {
+        this.logActionReasonStart = logActionReasonStart;
+    }
+
+    public String getLogActionReasonText() {
+        return logActionReasonText != null ? logActionReasonText : "理由入力内容";
+    }
+
+    public void setLogActionReasonText(String logActionReasonText) {
+        this.logActionReasonText = logActionReasonText;
+    }
+
+    public String getLogActionReasonRewrite() {
+        return logActionReasonRewrite != null ? logActionReasonRewrite : "理由書き直し";
+    }
+
+    public void setLogActionReasonRewrite(String logActionReasonRewrite) {
+        this.logActionReasonRewrite = logActionReasonRewrite;
+    }
+
+    public String getLogActionQuestionMove() {
+        return logActionQuestionMove != null ? logActionQuestionMove : "問題移動";
+    }
+
+    public void setLogActionQuestionMove(String logActionQuestionMove) {
+        this.logActionQuestionMove = logActionQuestionMove;
+    }
+
+    public String getLogActionSubmit() {
+        return logActionSubmit != null ? logActionSubmit : "アンケート送信";
+    }
+
+    public void setLogActionSubmit(String logActionSubmit) {
+        this.logActionSubmit = logActionSubmit;
+    }
+
     public Map<String, Object> toMap() {
         Map<String, Object> map = new HashMap<>();
         map.put("questions_directory", questionsDirectory);
@@ -297,12 +409,23 @@ public class Config {
         map.put("use_html_rendering", useHtmlRendering);
         map.put("content_width", contentWidth);
         map.put("randomize_choices", randomizeChoices);
+        map.put("enable_prev_button", enablePrevButton);
         map.put("button_create_questions", buttonCreateQuestions);
         map.put("button_take_survey", buttonTakeSurvey);
         map.put("button_next_question", buttonNextQuestion);
         map.put("button_prev_question", buttonPrevQuestion);
         map.put("button_reselect", buttonReselect);
         map.put("button_finish_survey", buttonFinishSurvey);
+        map.put("title_main", titleMain);
+        map.put("title_question_editor", titleQuestionEditor);
+        map.put("title_settings", titleSettings);
+        map.put("title_survey", titleSurvey);
+        map.put("log_action_choice_selection", logActionChoiceSelection);
+        map.put("log_action_reason_start", logActionReasonStart);
+        map.put("log_action_reason_text", logActionReasonText);
+        map.put("log_action_reason_rewrite", logActionReasonRewrite);
+        map.put("log_action_question_move", logActionQuestionMove);
+        map.put("log_action_submit", logActionSubmit);
         return map;
     }
 
@@ -344,6 +467,8 @@ public class Config {
             this.useHtmlRendering = (Boolean) map.get("use_html_rendering");
         if (map.containsKey("randomize_choices"))
             this.randomizeChoices = (Boolean) map.get("randomize_choices");
+        if (map.containsKey("enable_prev_button"))
+            this.enablePrevButton = (Boolean) map.get("enable_prev_button");
         if (map.containsKey("button_create_questions"))
             this.buttonCreateQuestions = (String) map.get("button_create_questions");
         if (map.containsKey("button_take_survey"))
@@ -356,6 +481,26 @@ public class Config {
             this.buttonReselect = (String) map.get("button_reselect");
         if (map.containsKey("button_finish_survey"))
             this.buttonFinishSurvey = (String) map.get("button_finish_survey");
+        if (map.containsKey("title_main"))
+            this.titleMain = (String) map.get("title_main");
+        if (map.containsKey("title_question_editor"))
+            this.titleQuestionEditor = (String) map.get("title_question_editor");
+        if (map.containsKey("title_settings"))
+            this.titleSettings = (String) map.get("title_settings");
+        if (map.containsKey("title_survey"))
+            this.titleSurvey = (String) map.get("title_survey");
+        if (map.containsKey("log_action_choice_selection"))
+            this.logActionChoiceSelection = (String) map.get("log_action_choice_selection");
+        if (map.containsKey("log_action_reason_start"))
+            this.logActionReasonStart = (String) map.get("log_action_reason_start");
+        if (map.containsKey("log_action_reason_text"))
+            this.logActionReasonText = (String) map.get("log_action_reason_text");
+        if (map.containsKey("log_action_reason_rewrite"))
+            this.logActionReasonRewrite = (String) map.get("log_action_reason_rewrite");
+        if (map.containsKey("log_action_question_move"))
+            this.logActionQuestionMove = (String) map.get("log_action_question_move");
+        if (map.containsKey("log_action_submit"))
+            this.logActionSubmit = (String) map.get("log_action_submit");
     }
 
     private int getInt(Map<String, Object> map, String key, int defaultValue) {
