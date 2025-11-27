@@ -320,15 +320,23 @@ public class SurveyInterfaceWindow extends JFrame {
 
         for (int i = 0; i < choices.size(); i++) {
             if (i % columns == 0) {
-                currentRow = new JPanel();
-                currentRow.setLayout(new GridLayout(1, columns, Constants.PADDING_MEDIUM, Constants.PADDING_MEDIUM));
-                currentRow.setAlignmentX(Component.LEFT_ALIGNMENT);
-                currentRow.setMaximumSize(new Dimension(Integer.MAX_VALUE, 60));
-                currentRow.setBorder(BorderFactory.createEmptyBorder(0, Constants.PADDING_MEDIUM, 0, Constants.PADDING_MEDIUM));
-                choicesPanel.add(currentRow);
+                // 前の行の後に余白を追加（最初の行以外）
                 if (i > 0) {
                     choicesPanel.add(Box.createVerticalStrut(Constants.PADDING_MEDIUM));
                 }
+
+                currentRow = new JPanel();
+                if (columns == 1) {
+                    // 列数が1の場合はBoxLayoutを使用してマージンを設定
+                    currentRow.setLayout(new BoxLayout(currentRow, BoxLayout.X_AXIS));
+                    currentRow.setBorder(BorderFactory.createEmptyBorder(0, Constants.PADDING_MEDIUM, 0, Constants.PADDING_MEDIUM));
+                } else {
+                    // 列数が2以上の場合はGridLayoutを使用
+                    currentRow.setLayout(new GridLayout(1, columns, Constants.PADDING_MEDIUM, Constants.PADDING_MEDIUM));
+                }
+                currentRow.setAlignmentX(Component.LEFT_ALIGNMENT);
+                currentRow.setMaximumSize(new Dimension(Integer.MAX_VALUE, 60));
+                choicesPanel.add(currentRow);
             }
 
             String choice = choices.get(i);
@@ -336,7 +344,7 @@ public class SurveyInterfaceWindow extends JFrame {
         }
 
         // 最後の行が列数に満たない場合、空のパネルで埋める
-        if (currentRow != null && choices.size() % columns != 0) {
+        if (currentRow != null && columns > 1 && choices.size() % columns != 0) {
             int remaining = columns - (choices.size() % columns);
             for (int i = 0; i < remaining; i++) {
                 currentRow.add(new JPanel());
