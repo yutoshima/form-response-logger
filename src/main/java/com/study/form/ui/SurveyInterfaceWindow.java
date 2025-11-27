@@ -37,7 +37,6 @@ public class SurveyInterfaceWindow extends JFrame {
     private JPanel choicesPanel;
     private JTextArea reasonTextArea;
     private JButton rewriteButton;
-    private JButton insertChoiceButton;
     private JLabel statusLabel;
     private JButton nextButton;
     private JButton prevButton;
@@ -193,6 +192,9 @@ public class SurveyInterfaceWindow extends JFrame {
         statusLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
         contentPanel.add(statusLabel);
 
+        // 理由欄の下に空要素を追加して、余白を埋める
+        contentPanel.add(Box.createVerticalGlue());
+
         JScrollPane scrollPane = new JScrollPane(contentPanel);
         scrollPane.getVerticalScrollBar().setUnitIncrement(16);
         return scrollPane;
@@ -201,7 +203,6 @@ public class SurveyInterfaceWindow extends JFrame {
     private JPanel createReasonPanel() {
         JPanel reasonPanel = new JPanel(new BorderLayout(Constants.PADDING_SMALL, Constants.PADDING_SMALL));
         reasonPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
-        reasonPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 180));
 
         JLabel reasonLabel = new JLabel("選択した理由を記入してください");
         reasonLabel.setFont(new Font(Constants.FONT_FAMILY, Font.BOLD, Constants.FONT_SIZE_NORMAL));
@@ -230,15 +231,8 @@ public class SurveyInterfaceWindow extends JFrame {
         rewriteButton.setEnabled(false);
         rewriteButton.addActionListener(e -> rewriteReason());
 
-        insertChoiceButton = new JButton("選択肢を挿入");
-        insertChoiceButton.setFont(new Font(Constants.FONT_FAMILY, Font.PLAIN, Constants.FONT_SIZE_BUTTON));
-        insertChoiceButton.setBackground(Constants.COLOR_GRAY);
-        insertChoiceButton.setEnabled(false);
-        insertChoiceButton.addActionListener(e -> insertChoiceToReason());
-
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
         buttonPanel.add(rewriteButton);
-        buttonPanel.add(insertChoiceButton);
         reasonPanel.add(buttonPanel, BorderLayout.SOUTH);
 
         return reasonPanel;
@@ -335,7 +329,6 @@ public class SurveyInterfaceWindow extends JFrame {
         
         // ボタンの状態を更新
         rewriteButton.setEnabled(false);
-        insertChoiceButton.setEnabled(false);
         nextButton.setEnabled(false);
         statusLabel.setText(" ");
         
@@ -460,7 +453,6 @@ public class SurveyInterfaceWindow extends JFrame {
         reasonTextArea.setText("");
         reasonStarted = false;
         rewriteButton.setEnabled(false);
-        insertChoiceButton.setEnabled(true);
         nextButton.setEnabled(false);
         statusLabel.setText(" ");
     }
@@ -489,31 +481,10 @@ public class SurveyInterfaceWindow extends JFrame {
 
         // ボタンの状態を更新
         rewriteButton.setEnabled(false);
-        insertChoiceButton.setEnabled(true);
         nextButton.setEnabled(false);
 
         statusLabel.setText(Constants.MSG_CAN_CHANGE_STATUS);
         statusLabel.setForeground(Constants.COLOR_STATUS_SUCCESS);
-    }
-
-    private void insertChoiceToReason() {
-        if (selectedChoice != null && reasonTextArea.isEnabled()) {
-            // カーソル位置に選択肢を挿入
-            int caretPosition = reasonTextArea.getCaretPosition();
-            String currentText = reasonTextArea.getText();
-            String beforeCaret = currentText.substring(0, caretPosition);
-            String afterCaret = currentText.substring(caretPosition);
-
-            // 「」で囲んで挿入
-            String insertText = "「" + selectedChoice + "」";
-            reasonTextArea.setText(beforeCaret + insertText + afterCaret);
-
-            // カーソルを挿入したテキストの後ろに移動
-            reasonTextArea.setCaretPosition(caretPosition + insertText.length());
-
-            // テキストエリアにフォーカスを戻す
-            reasonTextArea.requestFocusInWindow();
-        }
     }
     
     private void nextQuestion() {
