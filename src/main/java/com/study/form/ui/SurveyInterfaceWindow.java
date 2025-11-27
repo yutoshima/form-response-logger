@@ -180,7 +180,6 @@ public class SurveyInterfaceWindow extends JFrame {
         int columns = configManager.getConfig().getChoiceColumns();
         choicesPanel.setLayout(new GridLayout(0, columns, Constants.PADDING_MEDIUM, Constants.PADDING_MEDIUM));
         choicesPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
-        choicesPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 300));
         contentPanel.add(choicesPanel);
 
         contentPanel.add(Box.createVerticalStrut(Constants.VERTICAL_STRUT_LARGE));
