@@ -363,9 +363,6 @@ public class SurveyInterfaceWindow extends JFrame {
         // シンプルなパネル（枠なし、角丸風の見た目）
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBackground(Constants.COLOR_DEFAULT);
-        panel.setPreferredSize(new Dimension(0, 50));
-        panel.setMinimumSize(new Dimension(0, 50));
-        panel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 50));
         panel.add(textArea, BorderLayout.CENTER);
         panel.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
 
