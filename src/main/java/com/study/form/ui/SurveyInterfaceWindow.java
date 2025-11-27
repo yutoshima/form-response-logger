@@ -200,12 +200,13 @@ public class SurveyInterfaceWindow extends JFrame {
     private JPanel createReasonPanel() {
         JPanel reasonPanel = new JPanel(new BorderLayout(Constants.PADDING_SMALL, Constants.PADDING_SMALL));
         reasonPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        reasonPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 180));
 
         JLabel reasonLabel = new JLabel("選択した理由を記入してください");
         reasonLabel.setFont(new Font(Constants.FONT_FAMILY, Font.BOLD, Constants.FONT_SIZE_NORMAL));
         reasonPanel.add(reasonLabel, BorderLayout.NORTH);
 
-        reasonTextArea = new JTextArea(4, 40);
+        reasonTextArea = new JTextArea(3, 40);
         reasonTextArea.setFont(new Font(Constants.FONT_FAMILY, Font.PLAIN, Constants.FONT_SIZE_LABEL));
         reasonTextArea.setLineWrap(true);
         reasonTextArea.setWrapStyleWord(true);
@@ -217,6 +218,9 @@ public class SurveyInterfaceWindow extends JFrame {
         });
 
         JScrollPane reasonScrollPane = new JScrollPane(reasonTextArea);
+        reasonScrollPane.setPreferredSize(new Dimension(0, 90));
+        reasonScrollPane.setMinimumSize(new Dimension(0, 90));
+        reasonScrollPane.setMaximumSize(new Dimension(Integer.MAX_VALUE, 90));
         reasonPanel.add(reasonScrollPane, BorderLayout.CENTER);
 
         rewriteButton = new JButton(configManager.getConfig().getButtonReselect());
@@ -225,7 +229,7 @@ public class SurveyInterfaceWindow extends JFrame {
         rewriteButton.setEnabled(false);
         rewriteButton.addActionListener(e -> rewriteReason());
 
-        JPanel rewritePanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JPanel rewritePanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
         rewritePanel.add(rewriteButton);
         reasonPanel.add(rewritePanel, BorderLayout.SOUTH);
 
