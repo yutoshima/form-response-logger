@@ -180,6 +180,7 @@ public class SurveyInterfaceWindow extends JFrame {
         int columns = configManager.getConfig().getChoiceColumns();
         choicesPanel.setLayout(new GridLayout(0, columns, Constants.PADDING_MEDIUM, Constants.PADDING_MEDIUM));
         choicesPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        choicesPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 300));
         contentPanel.add(choicesPanel);
 
         contentPanel.add(Box.createVerticalStrut(Constants.VERTICAL_STRUT_LARGE));
@@ -203,7 +204,9 @@ public class SurveyInterfaceWindow extends JFrame {
     private JPanel createReasonPanel() {
         JPanel reasonPanel = new JPanel(new BorderLayout(Constants.PADDING_SMALL, Constants.PADDING_SMALL));
         reasonPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
-        reasonPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 160));
+        reasonPanel.setPreferredSize(new Dimension(Integer.MAX_VALUE, 150));
+        reasonPanel.setMinimumSize(new Dimension(0, 150));
+        reasonPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 150));
 
         JLabel reasonLabel = new JLabel("選択した理由を記入してください");
         reasonLabel.setFont(new Font(Constants.FONT_FAMILY, Font.BOLD, Constants.FONT_SIZE_NORMAL));
@@ -221,9 +224,9 @@ public class SurveyInterfaceWindow extends JFrame {
         });
 
         JScrollPane reasonScrollPane = new JScrollPane(reasonTextArea);
-        reasonScrollPane.setPreferredSize(new Dimension(0, 90));
-        reasonScrollPane.setMinimumSize(new Dimension(0, 90));
-        reasonScrollPane.setMaximumSize(new Dimension(Integer.MAX_VALUE, 90));
+        reasonScrollPane.setPreferredSize(new Dimension(0, 80));
+        reasonScrollPane.setMinimumSize(new Dimension(0, 80));
+        reasonScrollPane.setMaximumSize(new Dimension(Integer.MAX_VALUE, 80));
         reasonPanel.add(reasonScrollPane, BorderLayout.CENTER);
 
         rewriteButton = new JButton(configManager.getConfig().getButtonReselect());
