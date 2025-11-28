@@ -157,7 +157,7 @@ public class SurveyInterfaceWindow extends JFrame {
             questionScrollPane = new JScrollPane(questionEditorPane);
             questionScrollPane.setBorder(null);
             questionScrollPane.setAlignmentX(Component.LEFT_ALIGNMENT);
-            questionScrollPane.setMaximumSize(new Dimension(Integer.MAX_VALUE, 100));
+            questionScrollPane.setMaximumSize(new Dimension(Integer.MAX_VALUE, 120));
             contentPanel.add(questionScrollPane);
         } else {
             questionTextArea = new JTextArea();
@@ -172,7 +172,7 @@ public class SurveyInterfaceWindow extends JFrame {
             questionScrollPane = new JScrollPane(questionTextArea);
             questionScrollPane.setBorder(null);
             questionScrollPane.setAlignmentX(Component.LEFT_ALIGNMENT);
-            questionScrollPane.setMaximumSize(new Dimension(Integer.MAX_VALUE, 150));
+            questionScrollPane.setMaximumSize(new Dimension(Integer.MAX_VALUE, 180));
             contentPanel.add(questionScrollPane);
         }
 
@@ -182,7 +182,7 @@ public class SurveyInterfaceWindow extends JFrame {
         choicesPanel.setBorder(BorderFactory.createEmptyBorder(Constants.PADDING_MEDIUM, 0, Constants.PADDING_MEDIUM, 0));
         contentPanel.add(choicesPanel);
 
-        contentPanel.add(Box.createVerticalStrut(Constants.VERTICAL_STRUT_LARGE));
+        contentPanel.add(Box.createVerticalStrut(Constants.PADDING_EXTRA_LARGE));
         contentPanel.add(createReasonPanel());
 
         statusLabel = new JLabel(" ");
