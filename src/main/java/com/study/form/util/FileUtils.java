@@ -110,7 +110,7 @@ public class FileUtils {
     // 質問データのCSV読み込み
     public static List<Question> loadQuestionsFromCSV(String filepath) {
         List<Question> questions = new ArrayList<>();
-        
+
         try (BufferedReader reader = new BufferedReader(
                 new InputStreamReader(new FileInputStream(filepath), StandardCharsets.UTF_8))) {
             // BOMをスキップ
@@ -118,18 +118,18 @@ public class FileUtils {
             if (reader.read() != 0xFEFF) {
                 reader.reset();
             }
-            
+
             // ヘッダーをスキップ
             reader.readLine();
-            
+
             String line;
-            while ((line = reader.readLine()) != null) {
+            while ((line = readCSVRecord(reader)) != null) {
                 String[] parts = parseCSVLine(line);
                 if (parts.length < 2) continue;
-                
+
                 Question question = new Question();
                 question.setText(parts[1]);
-                
+
                 List<String> choices = new ArrayList<>();
                 for (int i = 2; i < parts.length; i++) {
                     if (parts[i] != null && !parts[i].trim().isEmpty()) {
@@ -142,7 +142,7 @@ public class FileUtils {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        
+
         return questions;
     }
     
@@ -295,15 +295,48 @@ public class FileUtils {
         return text;
     }
     
+    // 複数行にわたるCSVレコードを読み取る
+    private static String readCSVRecord(BufferedReader reader) throws IOException {
+        StringBuilder record = new StringBuilder();
+        String line;
+        boolean inQuotes = false;
+
+        while ((line = reader.readLine()) != null) {
+            if (record.length() > 0) {
+                record.append("\n");
+            }
+            record.append(line);
+
+            // ダブルクォートの数をカウントして、クォート内かどうかを判定
+            for (int i = 0; i < line.length(); i++) {
+                if (line.charAt(i) == '"') {
+                    // エスケープされたダブルクォート（""）をスキップ
+                    if (i + 1 < line.length() && line.charAt(i + 1) == '"') {
+                        i++;
+                    } else {
+                        inQuotes = !inQuotes;
+                    }
+                }
+            }
+
+            // クォートが閉じていればレコード完了
+            if (!inQuotes) {
+                break;
+            }
+        }
+
+        return record.length() > 0 ? record.toString() : null;
+    }
+
     // CSV行のパース
     private static String[] parseCSVLine(String line) {
         List<String> result = new ArrayList<>();
         StringBuilder current = new StringBuilder();
         boolean inQuotes = false;
-        
+
         for (int i = 0; i < line.length(); i++) {
             char c = line.charAt(i);
-            
+
             if (c == '"') {
                 if (inQuotes && i + 1 < line.length() && line.charAt(i + 1) == '"') {
                     current.append('"');
@@ -318,7 +351,7 @@ public class FileUtils {
                 current.append(c);
             }
         }
-        
+
         result.add(current.toString());
         return result.toArray(new String[0]);
     }
