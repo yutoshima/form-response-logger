@@ -59,21 +59,42 @@ public class SurveyApp {
     }
     
     private static void createSampleQuestionsFile() {
-        String samplePath = Constants.QUESTIONS_DIR + File.separator + Constants.DEFAULT_QUESTIONS_FILE;
+        String samplePath = getSampleFilePath();
         File sampleFile = new File(samplePath);
-        
+
         if (!sampleFile.exists()) {
-            try (java.io.PrintWriter writer = new java.io.PrintWriter(
-                    new java.io.OutputStreamWriter(
-                        new java.io.FileOutputStream(sampleFile), 
-                        java.nio.charset.StandardCharsets.UTF_8))) {
-                writer.write('\ufeff'); // BOM
-                writer.println("問題番号,質問文,選択肢1,選択肢2,選択肢3,選択肢4,選択肢5");
-                writer.println("1,Javaプログラミングの経験はありますか？,全くない,少しある,ある程度ある,かなりある,");
-                writer.println("2,GUIアプリケーション開発の経験はありますか？,全くない,少しある,ある程度ある,かなりある,");
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            writeSampleQuestionsFile(sampleFile);
         }
+    }
+
+    private static String getSampleFilePath() {
+        return Constants.QUESTIONS_DIR + File.separator + Constants.DEFAULT_QUESTIONS_FILE;
+    }
+
+    private static void writeSampleQuestionsFile(File sampleFile) {
+        try (java.io.PrintWriter writer = createUTF8Writer(sampleFile)) {
+            writeSampleFileHeader(writer);
+            writeSampleFileContent(writer);
+        } catch (Exception e) {
+            System.err.println("サンプル問題ファイルの作成に失敗しました: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    private static java.io.PrintWriter createUTF8Writer(File file) throws java.io.IOException {
+        return new java.io.PrintWriter(
+            new java.io.OutputStreamWriter(
+                new java.io.FileOutputStream(file),
+                java.nio.charset.StandardCharsets.UTF_8));
+    }
+
+    private static void writeSampleFileHeader(java.io.PrintWriter writer) {
+        writer.write('\ufeff'); // BOM
+        writer.println("問題番号,質問文,選択肢1,選択肢2,選択肢3,選択肢4,選択肢5");
+    }
+
+    private static void writeSampleFileContent(java.io.PrintWriter writer) {
+        writer.println("1,Javaプログラミングの経験はありますか？,全くない,少しある,ある程度ある,かなりある,");
+        writer.println("2,GUIアプリケーション開発の経験はありますか？,全くない,少しある,ある程度ある,かなりある,");
     }
 }
