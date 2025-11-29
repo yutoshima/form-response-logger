@@ -1,5 +1,8 @@
 package com.study.form.model;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * 回答データモデル
  */
@@ -8,18 +11,20 @@ public class Response {
     private String timestamp;
     private int questionNum;
     private String questionText;
-    private String selectedChoice;
+    private List<String> selectedChoices;
     private String reason;
     
-    public Response() {}
-    
+    public Response() {
+        this.selectedChoices = new ArrayList<>();
+    }
+
     public Response(String respondentId, String timestamp, int questionNum,
-                    String questionText, String selectedChoice, String reason) {
+                    String questionText, List<String> selectedChoices, String reason) {
         this.respondentId = respondentId;
         this.timestamp = timestamp;
         this.questionNum = questionNum;
         this.questionText = questionText;
-        this.selectedChoice = selectedChoice;
+        this.selectedChoices = new ArrayList<>(selectedChoices);
         this.reason = reason;
     }
     
@@ -55,12 +60,28 @@ public class Response {
         this.questionText = questionText;
     }
     
-    public String getSelectedChoice() {
-        return selectedChoice;
+    public List<String> getSelectedChoices() {
+        return selectedChoices;
     }
-    
+
+    public void setSelectedChoices(List<String> selectedChoices) {
+        this.selectedChoices = selectedChoices;
+    }
+
+    public String getSelectedChoice() {
+        if (selectedChoices == null || selectedChoices.isEmpty()) {
+            return "";
+        }
+        return String.join("; ", selectedChoices);
+    }
+
     public void setSelectedChoice(String selectedChoice) {
-        this.selectedChoice = selectedChoice;
+        if (selectedChoice == null || selectedChoice.isEmpty()) {
+            this.selectedChoices = new ArrayList<>();
+        } else {
+            this.selectedChoices = new ArrayList<>();
+            this.selectedChoices.add(selectedChoice);
+        }
     }
     
     public String getReason() {
