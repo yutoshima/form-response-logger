@@ -1,6 +1,7 @@
-package com.study.form.util;
+package form.util;
 
-import com.study.form.Constants;
+import form.Constants;
+import form.model.Config;
 
 import java.io.*;
 import java.time.LocalDateTime;
@@ -10,14 +11,14 @@ import java.time.format.DateTimeFormatter;
  * アクションロガー - ユーザーアクションをログに記録
  */
 public class ActionLogger {
-    private String logFile;
-    private ConfigManager configManager;
+    private final String logFile;
+    private final Config config;
     private static final DateTimeFormatter TIMESTAMP_FORMAT =
         DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
 
-    public ActionLogger(String logFile) {
+    public ActionLogger(String logFile, Config config) {
         this.logFile = logFile;
-        this.configManager = new ConfigManager();
+        this.config = config;
         initializeLogFile();
     }
     
@@ -66,11 +67,11 @@ public class ActionLogger {
     }
     
     public void logChoiceSelection(int questionNum, String choice) {
-        logAction(configManager.getConfig().getLogActionChoiceSelection(), "問題" + questionNum + ": " + choice);
+        logAction(config.getLogActionChoiceSelection(), "問題" + questionNum + ": " + choice);
     }
 
     public void logReasonStart(int questionNum) {
-        logAction(configManager.getConfig().getLogActionReasonStart(), "問題" + questionNum);
+        logAction(config.getLogActionReasonStart(), "問題" + questionNum);
     }
 
     public void logReasonText(int questionNum, String reasonText) {
@@ -78,18 +79,18 @@ public class ActionLogger {
         if (reasonText.length() > Constants.LOG_TEXT_PREVIEW_LENGTH) {
             preview = reasonText.substring(0, Constants.LOG_TEXT_PREVIEW_LENGTH) + "...";
         }
-        logAction(configManager.getConfig().getLogActionReasonText(), "問題" + questionNum + ": " + preview);
+        logAction(config.getLogActionReasonText(), "問題" + questionNum + ": " + preview);
     }
 
     public void logRewriteReason(int questionNum) {
-        logAction(configManager.getConfig().getLogActionReasonRewrite(), "問題" + questionNum);
+        logAction(config.getLogActionReasonRewrite(), "問題" + questionNum);
     }
 
     public void logNextQuestion(int fromNum, int toNum) {
-        logAction(configManager.getConfig().getLogActionQuestionMove(), "問題" + fromNum + " → 問題" + toNum);
+        logAction(config.getLogActionQuestionMove(), "問題" + fromNum + " → 問題" + toNum);
     }
 
     public void logSubmit() {
-        logAction(configManager.getConfig().getLogActionSubmit(), "完了");
+        logAction(config.getLogActionSubmit(), "完了");
     }
 }

@@ -54,7 +54,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>com.study.form.SurveyApp</mainClass>
+                            <mainClass>form.SurveyApp</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
@@ -72,7 +72,7 @@
                         <configuration>
                             <transformers>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>com.study.form.SurveyApp</mainClass>
+                                    <mainClass>form.SurveyApp</mainClass>
                                 </transformer>
                             </transformers>
                         </configuration>

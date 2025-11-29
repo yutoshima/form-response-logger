@@ -1,7 +1,7 @@
-package com.study.form.ui;
+package form.ui;
 
-import com.study.form.Constants;
-import com.study.form.util.ConfigManager;
+import form.Constants;
+import form.util.ConfigManager;
 
 import javax.swing.*;
 import java.awt.*;

@@ -1,8 +1,8 @@
-package com.study.form.ui;
+package form.ui;
 
-import com.study.form.Constants;
-import com.study.form.model.Config;
-import com.study.form.util.ConfigManager;
+import form.Constants;
+import form.model.Config;
+import form.util.ConfigManager;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -481,89 +481,11 @@ public class SettingsWindow extends JFrame {
     private void saveSettings() {
         Config config = configManager.getConfig();
 
-        config.setParticipantName(participantNameField.getText());
-        config.setParticipantId(participantIdField.getText());
-
-        // 問題ファイルのフルパスをディレクトリとファイル名に分割
-        String questionsPath = questionsFileField.getText();
-        if (questionsPath != null && !questionsPath.trim().isEmpty()) {
-            File questionsFile = new File(questionsPath);
-            String directory = questionsFile.getParent();
-            String filename = questionsFile.getName();
-            config.setQuestionsDirectory(directory);
-            config.setQuestionsFile(filename);
-            System.out.println("問題ファイル設定: ディレクトリ=" + directory + ", ファイル名=" + filename);
-        }
-
-        config.setLogDirectory(logDirField.getText());
-        config.setLogNameFormat(logFormatField.getText());
-        config.setResponseDirectory(responseDirField.getText());
-        config.setResponseNameFormat(responseFormatField.getText());
-
-        config.setOutputFormat((String) outputFormatCombo.getSelectedItem());
-        config.setDefaultChoices((Integer) defaultChoicesCombo.getSelectedItem());
-        config.setChoiceColumns((Integer) choiceColumnsCombo.getSelectedItem());
-
-        // 最大・最小選択可能数の設定（バリデーション付き）
-        int maxSelectable = (Integer) maxSelectableChoicesCombo.getSelectedItem();
-        int minSelectable = (Integer) minSelectableChoicesCombo.getSelectedItem();
-        if (minSelectable > maxSelectable) {
-            JOptionPane.showMessageDialog(this, "必須選択数(最小)は複数選択可能数(最大)以下である必要があります",
-                "入力エラー", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-        config.setMaxSelectableChoices(maxSelectable);
-        config.setMinSelectableChoices(minSelectable);
-
-        // 連番の設定（数値検証付き）
-        try {
-            int logSeq = Integer.parseInt(logSequenceField.getText());
-            int responseSeq = Integer.parseInt(responseSequenceField.getText());
-            if (logSeq < 1 || responseSeq < 1) {
-                JOptionPane.showMessageDialog(this, "連番は1以上の数値を入力してください",
-                    "入力エラー", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-            config.setLogSequence(logSeq);
-            config.setResponseSequence(responseSeq);
-        } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this, "連番には数値を入力してください",
-                "入力エラー", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-
-        config.setAutoSave(autoSaveCheckBox.isSelected());
-        config.setUseParticipantInfo(useParticipantInfoCheckBox.isSelected());
-        config.setUseHtmlRendering(useHtmlRenderingCheckBox.isSelected());
-        config.setRandomizeChoices(randomizeChoicesCheckBox.isSelected());
-        config.setEnablePrevButton(enablePrevButtonCheckBox.isSelected());
-
-        // 横幅設定の保存
-        int selectedWidthIndex = contentWidthCombo.getSelectedIndex();
-        int[] widthValues = {540, 720, 960, 1140};
-        config.setContentWidth(widthValues[selectedWidthIndex]);
-
-        // ボタン文言設定の保存
-        config.setButtonCreateQuestions(buttonCreateQuestionsField.getText());
-        config.setButtonTakeSurvey(buttonTakeSurveyField.getText());
-        config.setButtonNextQuestion(buttonNextQuestionField.getText());
-        config.setButtonPrevQuestion(buttonPrevQuestionField.getText());
-        config.setButtonReselect(buttonReselectField.getText());
-        config.setButtonFinishSurvey(buttonFinishSurveyField.getText());
-
-        // タイトル設定の保存
-        config.setTitleMain(titleMainField.getText());
-        config.setTitleQuestionEditor(titleQuestionEditorField.getText());
-        config.setTitleSettings(titleSettingsField.getText());
-        config.setTitleSurvey(titleSurveyField.getText());
-
-        // ログアクション名設定の保存
-        config.setLogActionChoiceSelection(logActionChoiceSelectionField.getText());
-        config.setLogActionReasonStart(logActionReasonStartField.getText());
-        config.setLogActionReasonText(logActionReasonTextField.getText());
-        config.setLogActionReasonRewrite(logActionReasonRewriteField.getText());
-        config.setLogActionQuestionMove(logActionQuestionMoveField.getText());
-        config.setLogActionSubmit(logActionSubmitField.getText());
+        saveFileSettings(config);
+        saveDataSettings(config);
+        saveButtonLabelSettings(config);
+        saveTitleSettings(config);
+        saveLogActionSettings(config);
 
         configManager.saveConfig();
 
@@ -571,5 +493,98 @@ public class SettingsWindow extends JFrame {
             JOptionPane.INFORMATION_MESSAGE);
 
         dispose();
+    }
+
+    private void saveFileSettings(Config config) {
+        config.setParticipantName(participantNameField.getText());
+        config.setParticipantId(participantIdField.getText());
+
+        String questionsPath = questionsFileField.getText();
+        if (questionsPath != null && !questionsPath.trim().isEmpty()) {
+            File questionsFile = new File(questionsPath);
+            config.setQuestionsDirectory(questionsFile.getParent());
+            config.setQuestionsFile(questionsFile.getName());
+        }
+
+        config.setLogDirectory(logDirField.getText());
+        config.setLogNameFormat(logFormatField.getText());
+        config.setResponseDirectory(responseDirField.getText());
+        config.setResponseNameFormat(responseFormatField.getText());
+    }
+
+    private void saveDataSettings(Config config) {
+        config.setOutputFormat((String) outputFormatCombo.getSelectedItem());
+        config.setDefaultChoices((Integer) defaultChoicesCombo.getSelectedItem());
+        config.setChoiceColumns((Integer) choiceColumnsCombo.getSelectedItem());
+
+        if (!validateSelectableChoices()) return;
+        config.setMaxSelectableChoices((Integer) maxSelectableChoicesCombo.getSelectedItem());
+        config.setMinSelectableChoices((Integer) minSelectableChoicesCombo.getSelectedItem());
+
+        if (!validateAndSaveSequences(config)) return;
+
+        config.setAutoSave(autoSaveCheckBox.isSelected());
+        config.setUseParticipantInfo(useParticipantInfoCheckBox.isSelected());
+        config.setUseHtmlRendering(useHtmlRenderingCheckBox.isSelected());
+        config.setRandomizeChoices(randomizeChoicesCheckBox.isSelected());
+        config.setEnablePrevButton(enablePrevButtonCheckBox.isSelected());
+
+        int[] widthValues = {540, 720, 960, 1140};
+        config.setContentWidth(widthValues[contentWidthCombo.getSelectedIndex()]);
+    }
+
+    private boolean validateSelectableChoices() {
+        int maxSelectable = (Integer) maxSelectableChoicesCombo.getSelectedItem();
+        int minSelectable = (Integer) minSelectableChoicesCombo.getSelectedItem();
+        if (minSelectable > maxSelectable) {
+            JOptionPane.showMessageDialog(this, "必須選択数(最小)は複数選択可能数(最大)以下である必要があります",
+                "入力エラー", JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
+        return true;
+    }
+
+    private boolean validateAndSaveSequences(Config config) {
+        try {
+            int logSeq = Integer.parseInt(logSequenceField.getText());
+            int responseSeq = Integer.parseInt(responseSequenceField.getText());
+            if (logSeq < 1 || responseSeq < 1) {
+                JOptionPane.showMessageDialog(this, "連番は1以上の数値を入力してください",
+                    "入力エラー", JOptionPane.ERROR_MESSAGE);
+                return false;
+            }
+            config.setLogSequence(logSeq);
+            config.setResponseSequence(responseSeq);
+            return true;
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "連番には数値を入力してください",
+                "入力エラー", JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
+    }
+
+    private void saveButtonLabelSettings(Config config) {
+        config.setButtonCreateQuestions(buttonCreateQuestionsField.getText());
+        config.setButtonTakeSurvey(buttonTakeSurveyField.getText());
+        config.setButtonNextQuestion(buttonNextQuestionField.getText());
+        config.setButtonPrevQuestion(buttonPrevQuestionField.getText());
+        config.setButtonReselect(buttonReselectField.getText());
+        config.setButtonFinishSurvey(buttonFinishSurveyField.getText());
+    }
+
+    private void saveTitleSettings(Config config) {
+        config.setTitleMain(titleMainField.getText());
+        config.setTitleQuestionEditor(titleQuestionEditorField.getText());
+        config.setTitleSettings(titleSettingsField.getText());
+        config.setTitleSurvey(titleSurveyField.getText());
+    }
+
+    private void saveLogActionSettings(Config config) {
+        config.setLogActionChoiceSelection(logActionChoiceSelectionField.getText());
+        config.setLogActionReasonStart(logActionReasonStartField.getText());
+        config.setLogActionReasonText(logActionReasonTextField.getText());
+        config.setLogActionReasonRewrite(logActionReasonRewriteField.getText());
+        config.setLogActionQuestionMove(logActionQuestionMoveField.getText());
+        config.setLogActionSubmit(logActionSubmitField.getText());
     }
 }

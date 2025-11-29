@@ -1,4 +1,4 @@
-package com.study.form.model;
+package form.model;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -285,7 +285,7 @@ public class Config {
     }
 
     public String getButtonCreateQuestions() {
-        return buttonCreateQuestions != null ? buttonCreateQuestions : "問題を作成";
+        return getOrDefault(buttonCreateQuestions, "問題を作成");
     }
 
     public void setButtonCreateQuestions(String buttonCreateQuestions) {
@@ -293,7 +293,7 @@ public class Config {
     }
 
     public String getButtonTakeSurvey() {
-        return buttonTakeSurvey != null ? buttonTakeSurvey : "アンケートに回答";
+        return getOrDefault(buttonTakeSurvey, "アンケートに回答");
     }
 
     public void setButtonTakeSurvey(String buttonTakeSurvey) {
@@ -301,7 +301,7 @@ public class Config {
     }
 
     public String getButtonNextQuestion() {
-        return buttonNextQuestion != null ? buttonNextQuestion : "次の問題へ";
+        return getOrDefault(buttonNextQuestion, "次の問題へ");
     }
 
     public void setButtonNextQuestion(String buttonNextQuestion) {
@@ -309,7 +309,7 @@ public class Config {
     }
 
     public String getButtonPrevQuestion() {
-        return buttonPrevQuestion != null ? buttonPrevQuestion : "前の問題へ";
+        return getOrDefault(buttonPrevQuestion, "前の問題へ");
     }
 
     public void setButtonPrevQuestion(String buttonPrevQuestion) {
@@ -317,7 +317,7 @@ public class Config {
     }
 
     public String getButtonReselect() {
-        return buttonReselect != null ? buttonReselect : "選択肢を選び直す";
+        return getOrDefault(buttonReselect, "選択肢を選び直す");
     }
 
     public void setButtonReselect(String buttonReselect) {
@@ -325,7 +325,7 @@ public class Config {
     }
 
     public String getButtonFinishSurvey() {
-        return buttonFinishSurvey != null ? buttonFinishSurvey : "回答を終了する";
+        return getOrDefault(buttonFinishSurvey, "回答を終了する");
     }
 
     public void setButtonFinishSurvey(String buttonFinishSurvey) {
@@ -333,7 +333,7 @@ public class Config {
     }
 
     public String getTitleMain() {
-        return titleMain != null ? titleMain : "研究用アンケートシステム";
+        return getOrDefault(titleMain, "研究用アンケートシステム");
     }
 
     public void setTitleMain(String titleMain) {
@@ -341,7 +341,7 @@ public class Config {
     }
 
     public String getTitleQuestionEditor() {
-        return titleQuestionEditor != null ? titleQuestionEditor : "問題作成";
+        return getOrDefault(titleQuestionEditor, "問題作成");
     }
 
     public void setTitleQuestionEditor(String titleQuestionEditor) {
@@ -349,7 +349,7 @@ public class Config {
     }
 
     public String getTitleSettings() {
-        return titleSettings != null ? titleSettings : "設定";
+        return getOrDefault(titleSettings, "設定");
     }
 
     public void setTitleSettings(String titleSettings) {
@@ -357,7 +357,7 @@ public class Config {
     }
 
     public String getTitleSurvey() {
-        return titleSurvey != null ? titleSurvey : "アンケート回答";
+        return getOrDefault(titleSurvey, "アンケート回答");
     }
 
     public void setTitleSurvey(String titleSurvey) {
@@ -365,7 +365,7 @@ public class Config {
     }
 
     public String getLogActionChoiceSelection() {
-        return logActionChoiceSelection != null ? logActionChoiceSelection : "選択肢選択";
+        return getOrDefault(logActionChoiceSelection, "選択肢選択");
     }
 
     public void setLogActionChoiceSelection(String logActionChoiceSelection) {
@@ -373,7 +373,7 @@ public class Config {
     }
 
     public String getLogActionReasonStart() {
-        return logActionReasonStart != null ? logActionReasonStart : "理由入力開始";
+        return getOrDefault(logActionReasonStart, "理由入力開始");
     }
 
     public void setLogActionReasonStart(String logActionReasonStart) {
@@ -381,7 +381,7 @@ public class Config {
     }
 
     public String getLogActionReasonText() {
-        return logActionReasonText != null ? logActionReasonText : "理由入力内容";
+        return getOrDefault(logActionReasonText, "理由入力内容");
     }
 
     public void setLogActionReasonText(String logActionReasonText) {
@@ -389,7 +389,7 @@ public class Config {
     }
 
     public String getLogActionReasonRewrite() {
-        return logActionReasonRewrite != null ? logActionReasonRewrite : "理由書き直し";
+        return getOrDefault(logActionReasonRewrite, "理由書き直し");
     }
 
     public void setLogActionReasonRewrite(String logActionReasonRewrite) {
@@ -397,7 +397,7 @@ public class Config {
     }
 
     public String getLogActionQuestionMove() {
-        return logActionQuestionMove != null ? logActionQuestionMove : "問題移動";
+        return getOrDefault(logActionQuestionMove, "問題移動");
     }
 
     public void setLogActionQuestionMove(String logActionQuestionMove) {
@@ -405,11 +405,15 @@ public class Config {
     }
 
     public String getLogActionSubmit() {
-        return logActionSubmit != null ? logActionSubmit : "アンケート送信";
+        return getOrDefault(logActionSubmit, "アンケート送信");
     }
 
     public void setLogActionSubmit(String logActionSubmit) {
         this.logActionSubmit = logActionSubmit;
+    }
+
+    private String getOrDefault(String value, String defaultValue) {
+        return value != null ? value : defaultValue;
     }
 
     public Map<String, Object> toMap() {
@@ -458,79 +462,54 @@ public class Config {
     }
 
     public void fromMap(Map<String, Object> map) {
-        if (map.containsKey("questions_directory"))
-            this.questionsDirectory = (String) map.get("questions_directory");
-        if (map.containsKey("questions_file"))
-            this.questionsFile = (String) map.get("questions_file");
-        if (map.containsKey("log_directory"))
-            this.logDirectory = (String) map.get("log_directory");
-        if (map.containsKey("log_name_format"))
-            this.logNameFormat = (String) map.get("log_name_format");
-        if (map.containsKey("response_directory"))
-            this.responseDirectory = (String) map.get("response_directory");
-        if (map.containsKey("response_name_format"))
-            this.responseNameFormat = (String) map.get("response_name_format");
-        if (map.containsKey("participant_name"))
-            this.participantName = (String) map.get("participant_name");
-        if (map.containsKey("participant_id"))
-            this.participantId = (String) map.get("participant_id");
-        if (map.containsKey("appearance_mode"))
-            this.appearanceMode = (String) map.get("appearance_mode");
-        if (map.containsKey("color_theme"))
-            this.colorTheme = (String) map.get("color_theme");
-        if (map.containsKey("output_format"))
-            this.outputFormat = (String) map.get("output_format");
-        if (map.containsKey("font_size"))
-            this.fontSize = (String) map.get("font_size");
-        if (map.containsKey("auto_save"))
-            this.autoSave = (Boolean) map.get("auto_save");
-        if (map.containsKey("use_participant_info"))
-            this.useParticipantInfo = (Boolean) map.get("use_participant_info");
+        this.questionsDirectory = getString(map, "questions_directory");
+        this.questionsFile = getString(map, "questions_file");
+        this.logDirectory = getString(map, "log_directory");
+        this.logNameFormat = getString(map, "log_name_format");
+        this.responseDirectory = getString(map, "response_directory");
+        this.responseNameFormat = getString(map, "response_name_format");
+        this.participantName = getString(map, "participant_name");
+        this.participantId = getString(map, "participant_id");
+        this.appearanceMode = getString(map, "appearance_mode");
+        this.colorTheme = getString(map, "color_theme");
+        this.outputFormat = getString(map, "output_format");
+        this.fontSize = getString(map, "font_size");
+        this.autoSave = getBoolean(map, "auto_save", this.autoSave);
+        this.useParticipantInfo = getBoolean(map, "use_participant_info", this.useParticipantInfo);
         this.defaultChoices = getInt(map, "default_choices", this.defaultChoices);
         this.choiceColumns = getInt(map, "choice_columns", this.choiceColumns);
         this.logSequence = getInt(map, "log_sequence", this.logSequence);
         this.responseSequence = getInt(map, "response_sequence", this.responseSequence);
         this.contentWidth = getInt(map, "content_width", this.contentWidth);
-        if (map.containsKey("use_html_rendering"))
-            this.useHtmlRendering = (Boolean) map.get("use_html_rendering");
-        if (map.containsKey("randomize_choices"))
-            this.randomizeChoices = (Boolean) map.get("randomize_choices");
-        if (map.containsKey("enable_prev_button"))
-            this.enablePrevButton = (Boolean) map.get("enable_prev_button");
+        this.useHtmlRendering = getBoolean(map, "use_html_rendering", this.useHtmlRendering);
+        this.randomizeChoices = getBoolean(map, "randomize_choices", this.randomizeChoices);
+        this.enablePrevButton = getBoolean(map, "enable_prev_button", this.enablePrevButton);
         this.maxSelectableChoices = getInt(map, "max_selectable_choices", this.maxSelectableChoices);
         this.minSelectableChoices = getInt(map, "min_selectable_choices", this.minSelectableChoices);
-        if (map.containsKey("button_create_questions"))
-            this.buttonCreateQuestions = (String) map.get("button_create_questions");
-        if (map.containsKey("button_take_survey"))
-            this.buttonTakeSurvey = (String) map.get("button_take_survey");
-        if (map.containsKey("button_next_question"))
-            this.buttonNextQuestion = (String) map.get("button_next_question");
-        if (map.containsKey("button_prev_question"))
-            this.buttonPrevQuestion = (String) map.get("button_prev_question");
-        if (map.containsKey("button_reselect"))
-            this.buttonReselect = (String) map.get("button_reselect");
-        if (map.containsKey("button_finish_survey"))
-            this.buttonFinishSurvey = (String) map.get("button_finish_survey");
-        if (map.containsKey("title_main"))
-            this.titleMain = (String) map.get("title_main");
-        if (map.containsKey("title_question_editor"))
-            this.titleQuestionEditor = (String) map.get("title_question_editor");
-        if (map.containsKey("title_settings"))
-            this.titleSettings = (String) map.get("title_settings");
-        if (map.containsKey("title_survey"))
-            this.titleSurvey = (String) map.get("title_survey");
-        if (map.containsKey("log_action_choice_selection"))
-            this.logActionChoiceSelection = (String) map.get("log_action_choice_selection");
-        if (map.containsKey("log_action_reason_start"))
-            this.logActionReasonStart = (String) map.get("log_action_reason_start");
-        if (map.containsKey("log_action_reason_text"))
-            this.logActionReasonText = (String) map.get("log_action_reason_text");
-        if (map.containsKey("log_action_reason_rewrite"))
-            this.logActionReasonRewrite = (String) map.get("log_action_reason_rewrite");
-        if (map.containsKey("log_action_question_move"))
-            this.logActionQuestionMove = (String) map.get("log_action_question_move");
-        if (map.containsKey("log_action_submit"))
-            this.logActionSubmit = (String) map.get("log_action_submit");
+        this.buttonCreateQuestions = getString(map, "button_create_questions");
+        this.buttonTakeSurvey = getString(map, "button_take_survey");
+        this.buttonNextQuestion = getString(map, "button_next_question");
+        this.buttonPrevQuestion = getString(map, "button_prev_question");
+        this.buttonReselect = getString(map, "button_reselect");
+        this.buttonFinishSurvey = getString(map, "button_finish_survey");
+        this.titleMain = getString(map, "title_main");
+        this.titleQuestionEditor = getString(map, "title_question_editor");
+        this.titleSettings = getString(map, "title_settings");
+        this.titleSurvey = getString(map, "title_survey");
+        this.logActionChoiceSelection = getString(map, "log_action_choice_selection");
+        this.logActionReasonStart = getString(map, "log_action_reason_start");
+        this.logActionReasonText = getString(map, "log_action_reason_text");
+        this.logActionReasonRewrite = getString(map, "log_action_reason_rewrite");
+        this.logActionQuestionMove = getString(map, "log_action_question_move");
+        this.logActionSubmit = getString(map, "log_action_submit");
+    }
+
+    private String getString(Map<String, Object> map, String key) {
+        return map.containsKey(key) ? (String) map.get(key) : null;
+    }
+
+    private boolean getBoolean(Map<String, Object> map, String key, boolean defaultValue) {
+        return map.containsKey(key) ? (Boolean) map.get(key) : defaultValue;
     }
 
     private int getInt(Map<String, Object> map, String key, int defaultValue) {

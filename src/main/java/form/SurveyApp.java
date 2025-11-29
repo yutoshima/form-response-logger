@@ -1,8 +1,8 @@
-package com.study.form;
+package form;
 
 import com.formdev.flatlaf.FlatLightLaf;
-import com.study.form.ui.MainWindow;
-import com.study.form.util.ConfigManager;
+import form.ui.MainWindow;
+import form.util.ConfigManager;
 
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;

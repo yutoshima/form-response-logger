@@ -1,11 +1,11 @@
-package com.study.form.ui;
+package form.ui;
 
-import com.study.form.Constants;
-import com.study.form.model.Question;
-import com.study.form.model.Response;
-import com.study.form.util.ActionLogger;
-import com.study.form.util.ConfigManager;
-import com.study.form.util.FileUtils;
+import form.Constants;
+import form.model.Question;
+import form.model.Response;
+import form.util.ActionLogger;
+import form.util.ConfigManager;
+import form.util.FileUtils;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -68,7 +68,7 @@ public class SurveyInterfaceWindow extends JFrame {
 
         // ログファイルパスを取得
         String logPath = configManager.getLogPath(respondentId);
-        logger = new ActionLogger(logPath);
+        logger = new ActionLogger(logPath, configManager.getConfig());
 
         loadQuestionsDialog();
     }
@@ -267,77 +267,68 @@ public class SurveyInterfaceWindow extends JFrame {
             submitSurvey();
             return;
         }
-        
+
         Question question = questions.get(currentQuestionIndex);
-        
-        // 進捗表示
+
         progressLabel.setText("問題 " + (currentQuestionIndex + 1) + " / " + questions.size());
-        
-        // 質問文表示
-        String questionText = question.getText();
+        displayQuestionText(question.getText());
+        displayChoices(question.getChoices());
+        resetQuestionState();
+        updateNavigationButtons();
+
+        choicesPanel.revalidate();
+        choicesPanel.repaint();
+    }
+
+    private void displayQuestionText(String questionText) {
         boolean useHtml = configManager.getConfig().isUseHtmlRendering();
 
         if (useHtml) {
-            // HTML表示モード（短文用）
-            String cssStyle = "body { font-family: '" + Constants.FONT_FAMILY +
-                             "'; font-size: " + Constants.FONT_SIZE_SUBTITLE + "pt; font-weight: normal; }";
-
-            // HTMLタグが含まれていない場合は、自動的にラップ
-            if (!questionText.trim().toLowerCase().startsWith("<html")) {
-                questionText = "<html><head><style>" + cssStyle + "</style></head><body>" +
-                              questionText + "</body></html>";
-            } else {
-                // HTMLタグが既に含まれている場合は、スタイルを追加
-                if (!questionText.toLowerCase().contains("<style>")) {
-                    questionText = questionText.replaceFirst("(?i)<head>",
-                        "<head><style>" + cssStyle + "</style>");
-                    if (!questionText.toLowerCase().contains("<head>")) {
-                        questionText = questionText.replaceFirst("(?i)<html>",
-                            "<html><head><style>" + cssStyle + "</style></head>");
-                    }
-                }
-            }
-            questionEditorPane.setText(questionText);
+            questionEditorPane.setText(formatHtmlQuestion(questionText));
         } else {
-            // プレーンテキスト表示モード（長文用、縦スクロール対応）
             questionTextArea.setText(questionText);
         }
-        
-        // 選択肢をクリア
+    }
+
+    private String formatHtmlQuestion(String questionText) {
+        String cssStyle = "body { font-family: '" + Constants.FONT_FAMILY +
+                         "'; font-size: " + Constants.FONT_SIZE_SUBTITLE + "pt; font-weight: normal; }";
+
+        if (!questionText.trim().toLowerCase().startsWith("<html")) {
+            return "<html><head><style>" + cssStyle + "</style></head><body>" +
+                  questionText + "</body></html>";
+        }
+
+        if (!questionText.toLowerCase().contains("<style>")) {
+            questionText = questionText.replaceFirst("(?i)<head>",
+                "<head><style>" + cssStyle + "</style>");
+            if (!questionText.toLowerCase().contains("<head>")) {
+                questionText = questionText.replaceFirst("(?i)<html>",
+                    "<html><head><style>" + cssStyle + "</style></head>");
+            }
+        }
+        return questionText;
+    }
+
+    private void displayChoices(List<String> originalChoices) {
         choicesPanel.removeAll();
         choiceButtons.clear();
         choiceTexts.clear();
 
-        // 選択肢を取得
-        List<String> choices = new ArrayList<>(question.getChoices());
-
-        // ランダム表示が有効な場合はシャッフル
+        List<String> choices = new ArrayList<>(originalChoices);
         if (configManager.getConfig().isRandomizeChoices()) {
             Collections.shuffle(choices);
         }
 
-        // 選択肢を表示（列数に応じて行ごとに配置）
         int columns = configManager.getConfig().getChoiceColumns();
         JPanel currentRow = null;
 
         for (int i = 0; i < choices.size(); i++) {
             if (i % columns == 0) {
-                // 前の行の後に余白を追加（最初の行以外）
                 if (i > 0) {
                     choicesPanel.add(Box.createVerticalStrut(Constants.PADDING_MEDIUM));
                 }
-
-                currentRow = new JPanel();
-                if (columns == 1) {
-                    // 列数が1の場合はBoxLayoutを使用してマージンを設定
-                    currentRow.setLayout(new BoxLayout(currentRow, BoxLayout.X_AXIS));
-                    currentRow.setBorder(BorderFactory.createEmptyBorder(0, Constants.PADDING_MEDIUM, 0, Constants.PADDING_MEDIUM));
-                } else {
-                    // 列数が2以上の場合はGridLayoutを使用
-                    currentRow.setLayout(new GridLayout(1, columns, Constants.PADDING_MEDIUM, Constants.PADDING_MEDIUM));
-                }
-                currentRow.setAlignmentX(Component.LEFT_ALIGNMENT);
-                currentRow.setMaximumSize(new Dimension(Integer.MAX_VALUE, 60));
+                currentRow = createChoiceRow(columns);
                 choicesPanel.add(currentRow);
             }
 
@@ -346,39 +337,49 @@ public class SurveyInterfaceWindow extends JFrame {
             createChoiceButton(choice, i, currentRow);
         }
 
-        // 最後の行が列数に満たない場合、空のパネルで埋める
-        if (currentRow != null && columns > 1 && choices.size() % columns != 0) {
-            int remaining = columns - (choices.size() % columns);
+        fillEmptyChoiceSlots(currentRow, columns, choices.size());
+    }
+
+    private JPanel createChoiceRow(int columns) {
+        JPanel row = new JPanel();
+        if (columns == 1) {
+            row.setLayout(new BoxLayout(row, BoxLayout.X_AXIS));
+            row.setBorder(BorderFactory.createEmptyBorder(0, Constants.PADDING_MEDIUM, 0, Constants.PADDING_MEDIUM));
+        } else {
+            row.setLayout(new GridLayout(1, columns, Constants.PADDING_MEDIUM, Constants.PADDING_MEDIUM));
+        }
+        row.setAlignmentX(Component.LEFT_ALIGNMENT);
+        row.setMaximumSize(new Dimension(Integer.MAX_VALUE, 60));
+        return row;
+    }
+
+    private void fillEmptyChoiceSlots(JPanel currentRow, int columns, int choiceCount) {
+        if (currentRow != null && columns > 1 && choiceCount % columns != 0) {
+            int remaining = columns - (choiceCount % columns);
             for (int i = 0; i < remaining; i++) {
                 currentRow.add(new JPanel());
             }
         }
-        
-        // 状態をリセット
+    }
+
+    private void resetQuestionState() {
         selectedChoices.clear();
         reasonStarted = false;
-        
-        // 理由入力をクリアして無効化
         reasonTextArea.setEnabled(false);
         reasonTextArea.setText("");
-        
-        // ボタンの状態を更新
         rewriteButton.setEnabled(false);
         nextButton.setEnabled(false);
         statusLabel.setText(" ");
-        
-        // 前へボタンの状態（設定で有効になっている場合のみ）
+    }
+
+    private void updateNavigationButtons() {
         prevButton.setEnabled(configManager.getConfig().isEnablePrevButton() && currentQuestionIndex > 0);
 
-        // 最終問題の場合は終了ボタンに変更
         if (currentQuestionIndex == questions.size() - 1) {
             nextButton.setText(configManager.getConfig().getButtonFinishSurvey());
         } else {
             nextButton.setText(configManager.getConfig().getButtonNextQuestion());
         }
-
-        choicesPanel.revalidate();
-        choicesPanel.repaint();
     }
     
     private void createChoiceButton(String choiceText, int index, JPanel parentRow) {
@@ -608,56 +609,67 @@ public class SurveyInterfaceWindow extends JFrame {
     
     private void submitSurvey() {
         logger.logSubmit();
-        
-        // 設定から回答ファイルのパスを取得
-        String filepath = configManager.getResponsePath(respondentId);
-        
-        // ディレクトリが存在しない場合は作成
+
+        String filepath = getResponseFilepath();
         if (filepath != null) {
-            File responseDir = new File(filepath).getParentFile();
-            if (responseDir != null && !responseDir.exists()) {
-                responseDir.mkdirs();
-            }
+            saveAndShowResult(filepath);
         }
-        
-        // 設定にパスがない場合は手動で保存先を選択
-        if (filepath == null) {
-            JFileChooser fileChooser = new JFileChooser();
-            fileChooser.setCurrentDirectory(new File(Constants.RESPONSES_DIR));
-            fileChooser.setSelectedFile(new File("responses_" + respondentId + ".csv"));
-            
-            int result = fileChooser.showSaveDialog(this);
-            if (result == JFileChooser.APPROVE_OPTION) {
-                filepath = fileChooser.getSelectedFile().getAbsolutePath();
-            }
-        }
-        
-        if (filepath != null) {
-            // 出力形式を取得
-            String outputFormat = configManager.getConfig().getOutputFormat();
-            
-            // 拡張子を削除してベースパスを取得
-            String baseFilepath = filepath.replace(".csv", "").replace(".json", "");
-            
-            // 保存
-            if (FileUtils.saveResponse(responses, baseFilepath, outputFormat)) {
-                StringBuilder message = new StringBuilder("アンケートが完了しました。\n回答を保存しました:\n");
-                
-                if ("csv".equals(outputFormat) || "both".equals(outputFormat)) {
-                    message.append(baseFilepath).append(".csv\n");
-                }
-                if ("json".equals(outputFormat) || "both".equals(outputFormat)) {
-                    message.append(baseFilepath).append(".json\n");
-                }
-                
-                JOptionPane.showMessageDialog(this, message.toString(), "完了",
-                    JOptionPane.INFORMATION_MESSAGE);
-            } else {
-                JOptionPane.showMessageDialog(this, "保存に失敗しました", 
-                    "エラー", JOptionPane.ERROR_MESSAGE);
-            }
-        }
-        
+
         dispose();
+    }
+
+    private String getResponseFilepath() {
+        String filepath = configManager.getResponsePath(respondentId);
+
+        if (filepath != null) {
+            ensureDirectoryExists(filepath);
+        } else {
+            filepath = promptForFilepath();
+        }
+
+        return filepath;
+    }
+
+    private void ensureDirectoryExists(String filepath) {
+        File responseDir = new File(filepath).getParentFile();
+        if (responseDir != null && !responseDir.exists()) {
+            responseDir.mkdirs();
+        }
+    }
+
+    private String promptForFilepath() {
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setCurrentDirectory(new File(Constants.RESPONSES_DIR));
+        fileChooser.setSelectedFile(new File("responses_" + respondentId + ".csv"));
+
+        int result = fileChooser.showSaveDialog(this);
+        return result == JFileChooser.APPROVE_OPTION ?
+               fileChooser.getSelectedFile().getAbsolutePath() : null;
+    }
+
+    private void saveAndShowResult(String filepath) {
+        String outputFormat = configManager.getConfig().getOutputFormat();
+        String baseFilepath = filepath.replace(".csv", "").replace(".json", "");
+
+        if (FileUtils.saveResponse(responses, baseFilepath, outputFormat)) {
+            showSuccessMessage(baseFilepath, outputFormat);
+        } else {
+            JOptionPane.showMessageDialog(this, "保存に失敗しました",
+                "エラー", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private void showSuccessMessage(String baseFilepath, String outputFormat) {
+        StringBuilder message = new StringBuilder("アンケートが完了しました。\n回答を保存しました:\n");
+
+        if ("csv".equals(outputFormat) || "both".equals(outputFormat)) {
+            message.append(baseFilepath).append(".csv\n");
+        }
+        if ("json".equals(outputFormat) || "both".equals(outputFormat)) {
+            message.append(baseFilepath).append(".json\n");
+        }
+
+        JOptionPane.showMessageDialog(this, message.toString(), "完了",
+            JOptionPane.INFORMATION_MESSAGE);
     }
 }

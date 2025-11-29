@@ -1,4 +1,4 @@
-package com.study.form.model;
+package form.model;
 
 import java.util.ArrayList;
 import java.util.List;

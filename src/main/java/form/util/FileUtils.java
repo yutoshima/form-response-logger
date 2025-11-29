@@ -1,10 +1,10 @@
-package com.study.form.util;
+package form.util;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
-import com.study.form.model.Question;
-import com.study.form.model.Response;
+import form.model.Question;
+import form.model.Response;
 
 import java.io.*;
 import java.lang.reflect.Type;
@@ -54,21 +54,7 @@ public class FileUtils {
             writer.println("問題番号,質問文,選択肢1,選択肢2,選択肢3,選択肢4,選択肢5");
 
             for (int i = 0; i < questions.size(); i++) {
-                Question q = questions.get(i);
-                StringBuilder row = new StringBuilder();
-                row.append(i + 1).append(",");
-                row.append(escapeCSV(q.getText()));
-
-                for (String choice : q.getChoices()) {
-                    row.append(",").append(escapeCSV(choice));
-                }
-
-                // 最大列数に満たない場合は空文字で埋める
-                for (int j = q.getChoices().size(); j < MAX_CHOICE_COLUMNS; j++) {
-                    row.append(",");
-                }
-
-                writer.println(row.toString());
+                writer.println(buildQuestionRow(questions.get(i), i + 1));
             }
 
             return true;
@@ -79,6 +65,22 @@ public class FileUtils {
             System.err.println("質問データの処理中にエラーが発生しました: " + e.getMessage());
             return false;
         }
+    }
+
+    private static String buildQuestionRow(Question question, int questionNumber) {
+        StringBuilder row = new StringBuilder();
+        row.append(questionNumber).append(",");
+        row.append(escapeCSV(question.getText()));
+
+        for (String choice : question.getChoices()) {
+            row.append(",").append(escapeCSV(choice));
+        }
+
+        for (int j = question.getChoices().size(); j < MAX_CHOICE_COLUMNS; j++) {
+            row.append(",");
+        }
+
+        return row.toString();
     }
     
     /**
@@ -91,20 +93,10 @@ public class FileUtils {
      * @return 保存に成功した場合はtrue、失敗した場合はfalse
      */
     public static boolean saveQuestionsToJSON(List<Question> questions, String filepath) {
-        try (Writer writer = createUTF8Writer(filepath)) {
-            Map<String, Object> data = createMetadataMap();
-            data.put("questions", questions);
-            data.put("total_questions", questions.size());
-
-            gson.toJson(data, writer);
-            return true;
-        } catch (IOException e) {
-            System.err.println("質問データのJSON保存に失敗しました: " + e.getMessage());
-            return false;
-        } catch (Exception e) {
-            System.err.println("質問データのシリアライズ中にエラーが発生しました: " + e.getMessage());
-            return false;
-        }
+        return saveAsJSON(filepath, map -> {
+            map.put("questions", questions);
+            map.put("total_questions", questions.size());
+        }, "質問データ");
     }
     
     // 質問データのCSV読み込み
@@ -223,18 +215,23 @@ public class FileUtils {
      * @return 保存に成功した場合はtrue、失敗した場合はfalse
      */
     public static boolean saveResponseToJSON(List<Response> responses, String filepath) {
+        return saveAsJSON(filepath, map -> {
+            map.put("responses", responses);
+            map.put("total_responses", responses.size());
+        }, "回答データ");
+    }
+
+    private static boolean saveAsJSON(String filepath, java.util.function.Consumer<Map<String, Object>> dataPopulator, String dataType) {
         try (Writer writer = createUTF8Writer(filepath)) {
             Map<String, Object> data = createMetadataMap();
-            data.put("responses", responses);
-            data.put("total_responses", responses.size());
-
+            dataPopulator.accept(data);
             gson.toJson(data, writer);
             return true;
         } catch (IOException e) {
-            System.err.println("回答データのJSON保存に失敗しました: " + e.getMessage());
+            System.err.println(dataType + "のJSON保存に失敗しました: " + e.getMessage());
             return false;
         } catch (Exception e) {
-            System.err.println("回答データのシリアライズ中にエラーが発生しました: " + e.getMessage());
+            System.err.println(dataType + "のシリアライズ中にエラーが発生しました: " + e.getMessage());
             return false;
         }
     }

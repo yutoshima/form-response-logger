@@ -1,10 +1,10 @@
-package com.study.form.util;
+package form.util;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
-import com.study.form.model.Config;
-import com.study.form.Constants;
+import form.model.Config;
+import form.Constants;
 
 import java.io.*;
 import java.lang.reflect.Type;
@@ -85,20 +85,18 @@ public class ConfigManager {
     }
     
     public String getLogPath(String respondentId) {
-        return formatFilePath(config.getLogDirectory(), config.getLogNameFormat(), respondentId);
+        return buildFilePath(config.getLogDirectory(), config.getLogNameFormat(), respondentId);
     }
 
     public String getResponsePath(String respondentId) {
-        return formatFilePath(config.getResponseDirectory(), config.getResponseNameFormat(), respondentId);
+        return buildFilePath(config.getResponseDirectory(), config.getResponseNameFormat(), respondentId);
     }
 
-    private String formatFilePath(String directory, String format, String respondentId) {
+    private String buildFilePath(String directory, String format, String respondentId) {
         if (directory == null || format == null) {
             return null;
         }
-
-        String filename = formatFilename(format, respondentId);
-        return directory + File.separator + filename;
+        return directory + File.separator + formatFilename(format, respondentId);
     }
     
     private String formatFilename(String format, String respondentId) {

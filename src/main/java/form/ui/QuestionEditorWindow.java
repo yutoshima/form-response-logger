@@ -1,9 +1,9 @@
-package com.study.form.ui;
+package form.ui;
 
-import com.study.form.Constants;
-import com.study.form.model.Question;
-import com.study.form.util.FileUtils;
-import com.study.form.util.ConfigManager;
+import form.Constants;
+import form.model.Question;
+import form.util.FileUtils;
+import form.util.ConfigManager;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -280,12 +280,21 @@ public class QuestionEditorWindow extends JFrame {
     
     private void addQuestion() {
         String questionText = questionTextArea.getText().trim();
+        List<String> choices = collectChoices();
 
-        if (questionText.isEmpty()) {
-            JOptionPane.showMessageDialog(this, Constants.MSG_NO_QUESTION_TEXT);
+        if (!validateQuestionInput(questionText, choices)) {
             return;
         }
 
+        Question question = new Question(questionText, choices);
+        questions.add(question);
+        questionListModel.addElement(questions.size() + ". " + questionText);
+        clearForm();
+
+        JOptionPane.showMessageDialog(this, Constants.MSG_QUESTION_ADDED);
+    }
+
+    private List<String> collectChoices() {
         List<String> choices = new ArrayList<>();
         for (JTextField field : choiceFields) {
             String choice = field.getText().trim();
@@ -293,22 +302,21 @@ public class QuestionEditorWindow extends JFrame {
                 choices.add(choice);
             }
         }
+        return choices;
+    }
+
+    private boolean validateQuestionInput(String questionText, List<String> choices) {
+        if (questionText.isEmpty()) {
+            JOptionPane.showMessageDialog(this, Constants.MSG_NO_QUESTION_TEXT);
+            return false;
+        }
 
         if (choices.size() < Constants.MIN_CHOICES) {
             JOptionPane.showMessageDialog(this, Constants.MSG_MIN_CHOICES);
-            return;
+            return false;
         }
 
-        Question question = new Question(questionText, choices);
-        questions.add(question);
-
-        // リストに追加
-        questionListModel.addElement((questions.size()) + ". " + questionText);
-
-        // 入力をクリア
-        clearForm();
-
-        JOptionPane.showMessageDialog(this, Constants.MSG_QUESTION_ADDED);
+        return true;
     }
 
     private void editQuestion(int index) {
@@ -344,33 +352,15 @@ public class QuestionEditorWindow extends JFrame {
 
     private void updateQuestion() {
         String questionText = questionTextArea.getText().trim();
+        List<String> choices = collectChoices();
 
-        if (questionText.isEmpty()) {
-            JOptionPane.showMessageDialog(this, Constants.MSG_NO_QUESTION_TEXT);
+        if (!validateQuestionInput(questionText, choices)) {
             return;
         }
 
-        List<String> choices = new ArrayList<>();
-        for (JTextField field : choiceFields) {
-            String choice = field.getText().trim();
-            if (!choice.isEmpty()) {
-                choices.add(choice);
-            }
-        }
-
-        if (choices.size() < Constants.MIN_CHOICES) {
-            JOptionPane.showMessageDialog(this, Constants.MSG_MIN_CHOICES);
-            return;
-        }
-
-        // 問題を更新
         Question question = new Question(questionText, choices);
         questions.set(editingIndex, question);
-
-        // リストを更新
         updateQuestionList();
-
-        // フォームをクリアして新規追加モードに戻る
         cancelEdit();
 
         JOptionPane.showMessageDialog(this, "問題を更新しました");

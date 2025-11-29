@@ -1,4 +1,4 @@
-package com.study.form;
+package form;
 
 import java.awt.*;
 import java.io.File;
