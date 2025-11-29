@@ -40,8 +40,9 @@ public class SurveyInterfaceWindow extends JFrame {
     private JLabel statusLabel;
     private JButton nextButton;
     private JButton prevButton;
-    
-    private String selectedChoice = null;
+
+    private List<String> selectedChoices = new ArrayList<>();
+    private List<String> choiceTexts = new ArrayList<>();
     private boolean reasonStarted = false;
     private List<JButton> choiceButtons = new ArrayList<>();
     
@@ -305,6 +306,7 @@ public class SurveyInterfaceWindow extends JFrame {
         // 選択肢をクリア
         choicesPanel.removeAll();
         choiceButtons.clear();
+        choiceTexts.clear();
 
         // 選択肢を取得
         List<String> choices = new ArrayList<>(question.getChoices());
@@ -340,6 +342,7 @@ public class SurveyInterfaceWindow extends JFrame {
             }
 
             String choice = choices.get(i);
+            choiceTexts.add(choice);
             createChoiceButton(choice, i, currentRow);
         }
 
@@ -352,7 +355,7 @@ public class SurveyInterfaceWindow extends JFrame {
         }
         
         // 状態をリセット
-        selectedChoice = null;
+        selectedChoices.clear();
         reasonStarted = false;
         
         // 理由入力をクリアして無効化
@@ -405,7 +408,7 @@ public class SurveyInterfaceWindow extends JFrame {
             }
             @Override
             public void mouseEntered(java.awt.event.MouseEvent e) {
-                if (selectedChoice == null || !selectedChoice.equals(choiceText)) {
+                if (!selectedChoices.contains(choiceText)) {
                     Color hoverColor = Constants.COLOR_DEFAULT.darker();
                     panel.setBackground(hoverColor);
                     textArea.setBackground(hoverColor);
@@ -413,7 +416,7 @@ public class SurveyInterfaceWindow extends JFrame {
             }
             @Override
             public void mouseExited(java.awt.event.MouseEvent e) {
-                if (selectedChoice != null && selectedChoice.equals(choiceText)) {
+                if (selectedChoices.contains(choiceText)) {
                     panel.setBackground(Constants.COLOR_SELECTED);
                     textArea.setBackground(Constants.COLOR_SELECTED);
                 } else {
@@ -443,28 +446,48 @@ public class SurveyInterfaceWindow extends JFrame {
                 "変更できません", JOptionPane.WARNING_MESSAGE);
             return;
         }
-        
-        // 選択を更新
-        selectedChoice = choiceText;
-        
-        // ログに記録
-        logger.logChoiceSelection(currentQuestionIndex + 1, choiceText);
-        
-        // 選択したボタンの色を変更
-        updateChoiceButtonColors(index);
-        
-        // 理由入力を有効化してリセット
-        resetReasonInput();
+
+        // トグル動作：既に選択されていたら解除、未選択なら追加
+        if (selectedChoices.contains(choiceText)) {
+            selectedChoices.remove(choiceText);
+            logger.logChoiceSelection(currentQuestionIndex + 1, "選択解除: " + choiceText);
+        } else {
+            // 最大選択可能数をチェック
+            int maxSelectableChoices = configManager.getConfig().getMaxSelectableChoices();
+            if (selectedChoices.size() >= maxSelectableChoices) {
+                JOptionPane.showMessageDialog(this,
+                    "選択できる選択肢は最大" + maxSelectableChoices + "個までです",
+                    "選択数超過", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            selectedChoices.add(choiceText);
+            logger.logChoiceSelection(currentQuestionIndex + 1, choiceText);
+        }
+
+        // すべてのボタンの色を更新
+        updateChoiceButtonColors();
+
+        // 理由入力の状態を更新
+        if (!selectedChoices.isEmpty()) {
+            resetReasonInput();
+        } else {
+            reasonTextArea.setEnabled(false);
+            reasonTextArea.setText("");
+            rewriteButton.setEnabled(false);
+            nextButton.setEnabled(false);
+        }
     }
     
-    private void updateChoiceButtonColors(int selectedIndex) {
+    private void updateChoiceButtonColors() {
         for (int i = 0; i < choiceButtons.size(); i++) {
             JButton button = choiceButtons.get(i);
             JPanel panel = (JPanel) button.getClientProperty("panel");
             JTextArea textArea = (JTextArea) button.getClientProperty("textArea");
 
             if (panel != null && textArea != null) {
-                if (i == selectedIndex) {
+                // choiceTextsのi番目のテキストがselectedChoicesに含まれているかチェック
+                String choiceText = choiceTexts.get(i);
+                if (selectedChoices.contains(choiceText)) {
                     panel.setBackground(Constants.COLOR_SELECTED);
                     textArea.setBackground(Constants.COLOR_SELECTED);
                     textArea.setForeground(Constants.COLOR_SELECTED_TEXT);
@@ -517,9 +540,18 @@ public class SurveyInterfaceWindow extends JFrame {
     }
     
     private void nextQuestion() {
-        if (selectedChoice == null) {
+        if (selectedChoices.isEmpty()) {
             JOptionPane.showMessageDialog(this, Constants.MSG_NO_CHOICE_SELECTED,
                 "エラー", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        // 最小選択数のチェック
+        int minSelectableChoices = configManager.getConfig().getMinSelectableChoices();
+        if (selectedChoices.size() < minSelectableChoices) {
+            JOptionPane.showMessageDialog(this,
+                "最低" + minSelectableChoices + "個の選択肢を選択してください",
+                "選択数不足", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
@@ -530,30 +562,30 @@ public class SurveyInterfaceWindow extends JFrame {
                 "エラー", JOptionPane.ERROR_MESSAGE);
             return;
         }
-        
+
         // ログに理由の内容を記録
         logger.logReasonText(currentQuestionIndex + 1, reason);
-        
+
         // 回答を保存
         Response response = new Response(
             respondentId,
             FileUtils.getTimestamp(),
             currentQuestionIndex + 1,
             questions.get(currentQuestionIndex).getText(),
-            selectedChoice,
+            new ArrayList<>(selectedChoices),
             reason
         );
-        
+
         responses.add(response);
-        
+
         // ログに記録
         int oldIndex = currentQuestionIndex;
         currentQuestionIndex++;
-        
+
         if (currentQuestionIndex < questions.size()) {
             logger.logNextQuestion(oldIndex + 1, currentQuestionIndex + 1);
         }
-        
+
         // 次の問題を表示
         displayQuestion();
     }

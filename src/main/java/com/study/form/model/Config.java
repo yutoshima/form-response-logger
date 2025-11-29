@@ -29,6 +29,8 @@ public class Config {
     private int contentWidth;
     private boolean randomizeChoices;
     private boolean enablePrevButton;
+    private int maxSelectableChoices;
+    private int minSelectableChoices;
 
     private String buttonCreateQuestions;
     private String buttonTakeSurvey;
@@ -64,6 +66,8 @@ public class Config {
         this.contentWidth = 720;
         this.randomizeChoices = false;
         this.enablePrevButton = false;
+        this.maxSelectableChoices = 1;
+        this.minSelectableChoices = 1;
         this.buttonCreateQuestions = "問題を作成";
         this.buttonTakeSurvey = "アンケートに回答";
         this.buttonNextQuestion = "次の問題へ";
@@ -258,6 +262,28 @@ public class Config {
         this.enablePrevButton = enablePrevButton;
     }
 
+    public int getMaxSelectableChoices() {
+        return maxSelectableChoices;
+    }
+
+    public void setMaxSelectableChoices(int maxSelectableChoices) {
+        if (maxSelectableChoices < 1) {
+            throw new IllegalArgumentException("最大選択可能数は1以上である必要があります");
+        }
+        this.maxSelectableChoices = maxSelectableChoices;
+    }
+
+    public int getMinSelectableChoices() {
+        return minSelectableChoices;
+    }
+
+    public void setMinSelectableChoices(int minSelectableChoices) {
+        if (minSelectableChoices < 1) {
+            throw new IllegalArgumentException("必須選択数は1以上である必要があります");
+        }
+        this.minSelectableChoices = minSelectableChoices;
+    }
+
     public String getButtonCreateQuestions() {
         return buttonCreateQuestions != null ? buttonCreateQuestions : "問題を作成";
     }
@@ -410,6 +436,8 @@ public class Config {
         map.put("content_width", contentWidth);
         map.put("randomize_choices", randomizeChoices);
         map.put("enable_prev_button", enablePrevButton);
+        map.put("max_selectable_choices", maxSelectableChoices);
+        map.put("min_selectable_choices", minSelectableChoices);
         map.put("button_create_questions", buttonCreateQuestions);
         map.put("button_take_survey", buttonTakeSurvey);
         map.put("button_next_question", buttonNextQuestion);
@@ -469,6 +497,8 @@ public class Config {
             this.randomizeChoices = (Boolean) map.get("randomize_choices");
         if (map.containsKey("enable_prev_button"))
             this.enablePrevButton = (Boolean) map.get("enable_prev_button");
+        this.maxSelectableChoices = getInt(map, "max_selectable_choices", this.maxSelectableChoices);
+        this.minSelectableChoices = getInt(map, "min_selectable_choices", this.minSelectableChoices);
         if (map.containsKey("button_create_questions"))
             this.buttonCreateQuestions = (String) map.get("button_create_questions");
         if (map.containsKey("button_take_survey"))

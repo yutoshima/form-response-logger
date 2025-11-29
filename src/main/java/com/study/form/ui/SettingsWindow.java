@@ -26,6 +26,8 @@ public class SettingsWindow extends JFrame {
     private JComboBox<String> outputFormatCombo;
     private JComboBox<Integer> defaultChoicesCombo;
     private JComboBox<Integer> choiceColumnsCombo;
+    private JComboBox<Integer> maxSelectableChoicesCombo;
+    private JComboBox<Integer> minSelectableChoicesCombo;
     private JTextField logSequenceField;
     private JTextField responseSequenceField;
     private JCheckBox autoSaveCheckBox;
@@ -257,10 +259,13 @@ public class SettingsWindow extends JFrame {
         String[] outputFormats = {"csv", "json", "both"};
         Integer[] defaultChoicesOptions = {2, 3, 4, 5, 6, 7, 8, 9, 10};
         Integer[] choiceColumnsOptions = {1, 2, 3, 4};
+        Integer[] selectableChoicesOptions = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
 
         outputFormatCombo = new JComboBox<>(outputFormats);
         defaultChoicesCombo = new JComboBox<>(defaultChoicesOptions);
         choiceColumnsCombo = new JComboBox<>(choiceColumnsOptions);
+        maxSelectableChoicesCombo = new JComboBox<>(selectableChoicesOptions);
+        minSelectableChoicesCombo = new JComboBox<>(selectableChoicesOptions);
         logSequenceField = new JTextField(10);
         responseSequenceField = new JTextField(10);
         autoSaveCheckBox = new JCheckBox("有効にすると設定に基づいて自動保存");
@@ -276,6 +281,8 @@ public class SettingsWindow extends JFrame {
         panel.add(createComboRow("出力形式:", outputFormatCombo));
         panel.add(createIntComboRow("デフォルト選択肢数:", defaultChoicesCombo));
         panel.add(createIntComboRow("選択肢の列数:", choiceColumnsCombo));
+        panel.add(createIntComboRow("複数選択可能数(最大):", maxSelectableChoicesCombo));
+        panel.add(createIntComboRow("必須選択数(最小):", minSelectableChoicesCombo));
         panel.add(createComboRow("コンテンツ横幅:", contentWidthCombo));
         panel.add(createFieldRow("ログ連番（次回）:", logSequenceField, false));
         panel.add(createFieldRow("回答連番（次回）:", responseSequenceField, false));
@@ -426,6 +433,8 @@ public class SettingsWindow extends JFrame {
         outputFormatCombo.setSelectedItem(config.getOutputFormat());
         defaultChoicesCombo.setSelectedItem(config.getDefaultChoices());
         choiceColumnsCombo.setSelectedItem(config.getChoiceColumns());
+        maxSelectableChoicesCombo.setSelectedItem(config.getMaxSelectableChoices());
+        minSelectableChoicesCombo.setSelectedItem(config.getMinSelectableChoices());
         logSequenceField.setText(String.valueOf(config.getLogSequence()));
         responseSequenceField.setText(String.valueOf(config.getResponseSequence()));
         autoSaveCheckBox.setSelected(config.isAutoSave());
@@ -494,6 +503,17 @@ public class SettingsWindow extends JFrame {
         config.setOutputFormat((String) outputFormatCombo.getSelectedItem());
         config.setDefaultChoices((Integer) defaultChoicesCombo.getSelectedItem());
         config.setChoiceColumns((Integer) choiceColumnsCombo.getSelectedItem());
+
+        // 最大・最小選択可能数の設定（バリデーション付き）
+        int maxSelectable = (Integer) maxSelectableChoicesCombo.getSelectedItem();
+        int minSelectable = (Integer) minSelectableChoicesCombo.getSelectedItem();
+        if (minSelectable > maxSelectable) {
+            JOptionPane.showMessageDialog(this, "必須選択数(最小)は複数選択可能数(最大)以下である必要があります",
+                "入力エラー", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        config.setMaxSelectableChoices(maxSelectable);
+        config.setMinSelectableChoices(minSelectable);
 
         // 連番の設定（数値検証付き）
         try {
