@@ -31,6 +31,8 @@ public class Config {
     private boolean enablePrevButton;
     private int maxSelectableChoices;
     private int minSelectableChoices;
+    private boolean useChoiceLabels;
+    private boolean saveCombinationPatterns;
 
     private String buttonCreateQuestions;
     private String buttonTakeSurvey;
@@ -68,6 +70,8 @@ public class Config {
         this.enablePrevButton = false;
         this.maxSelectableChoices = 1;
         this.minSelectableChoices = 1;
+        this.useChoiceLabels = true;
+        this.saveCombinationPatterns = true;
         this.buttonCreateQuestions = "問題を作成";
         this.buttonTakeSurvey = "アンケートに回答";
         this.buttonNextQuestion = "次の問題へ";
@@ -284,6 +288,22 @@ public class Config {
         this.minSelectableChoices = minSelectableChoices;
     }
 
+    public boolean isUseChoiceLabels() {
+        return useChoiceLabels;
+    }
+
+    public void setUseChoiceLabels(boolean useChoiceLabels) {
+        this.useChoiceLabels = useChoiceLabels;
+    }
+
+    public boolean isSaveCombinationPatterns() {
+        return saveCombinationPatterns;
+    }
+
+    public void setSaveCombinationPatterns(boolean saveCombinationPatterns) {
+        this.saveCombinationPatterns = saveCombinationPatterns;
+    }
+
     public String getButtonCreateQuestions() {
         return getOrDefault(buttonCreateQuestions, "問題を作成");
     }
@@ -442,6 +462,8 @@ public class Config {
         map.put("enable_prev_button", enablePrevButton);
         map.put("max_selectable_choices", maxSelectableChoices);
         map.put("min_selectable_choices", minSelectableChoices);
+        map.put("use_choice_labels", useChoiceLabels);
+        map.put("save_combination_patterns", saveCombinationPatterns);
         map.put("button_create_questions", buttonCreateQuestions);
         map.put("button_take_survey", buttonTakeSurvey);
         map.put("button_next_question", buttonNextQuestion);
@@ -486,6 +508,8 @@ public class Config {
         this.enablePrevButton = getBoolean(map, "enable_prev_button", this.enablePrevButton);
         this.maxSelectableChoices = getInt(map, "max_selectable_choices", this.maxSelectableChoices);
         this.minSelectableChoices = getInt(map, "min_selectable_choices", this.minSelectableChoices);
+        this.useChoiceLabels = getBoolean(map, "use_choice_labels", this.useChoiceLabels);
+        this.saveCombinationPatterns = getBoolean(map, "save_combination_patterns", this.saveCombinationPatterns);
         this.buttonCreateQuestions = getString(map, "button_create_questions");
         this.buttonTakeSurvey = getString(map, "button_take_survey");
         this.buttonNextQuestion = getString(map, "button_next_question");

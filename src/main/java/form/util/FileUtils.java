@@ -188,7 +188,7 @@ public class FileUtils {
 
             if (!fileExists) {
                 writer.write(UTF8_BOM);
-                writer.println("回答者ID,タイムスタンプ,問題番号,質問文,選択した回答,理由");
+                writer.println("回答者ID,タイムスタンプ,問題番号,質問文,選択した回答,選択組合せ,理由");
             }
 
             for (Response response : responses) {
@@ -255,6 +255,7 @@ public class FileUtils {
         row.append(response.getQuestionNum()).append(",");
         row.append(escapeCSV(response.getQuestionText())).append(",");
         row.append(escapeCSV(response.getSelectedChoice())).append(",");
+        row.append(escapeCSV(response.getChoiceCombination() != null ? response.getChoiceCombination() : "")).append(",");
         row.append(escapeCSV(response.getReason()));
         return row.toString();
     }
@@ -355,5 +356,43 @@ public class FileUtils {
     
     public static String getTimestamp() {
         return LocalDateTime.now().format(TIMESTAMP_FORMAT);
+    }
+
+    /**
+     * 組み合わせパターンをCSV形式でファイルに保存します。
+     *
+     * @param responses 保存する回答のリスト
+     * @param filepath 保存先ファイルパス
+     * @return 保存に成功した場合はtrue、失敗した場合はfalse
+     */
+    public static boolean saveCombinationPatterns(List<Response> responses, String filepath) {
+        File file = new File(filepath);
+        boolean fileExists = file.exists();
+
+        try (PrintWriter writer = new PrintWriter(
+                new OutputStreamWriter(new FileOutputStream(filepath, true), StandardCharsets.UTF_8))) {
+
+            if (!fileExists) {
+                writer.write(UTF8_BOM);
+                writer.println("回答者ID,タイムスタンプ,問題番号,選択組合せ");
+            }
+
+            for (Response response : responses) {
+                StringBuilder row = new StringBuilder();
+                row.append(escapeCSV(response.getRespondentId())).append(",");
+                row.append(escapeCSV(response.getTimestamp())).append(",");
+                row.append(response.getQuestionNum()).append(",");
+                row.append(escapeCSV(response.getChoiceCombination() != null ? response.getChoiceCombination() : ""));
+                writer.println(row.toString());
+            }
+
+            return true;
+        } catch (IOException e) {
+            System.err.println("組み合わせパターンのCSV保存に失敗しました: " + e.getMessage());
+            return false;
+        } catch (Exception e) {
+            System.err.println("組み合わせパターンの処理中にエラーが発生しました: " + e.getMessage());
+            return false;
+        }
     }
 }

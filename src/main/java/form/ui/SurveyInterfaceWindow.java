@@ -15,8 +15,12 @@ import java.awt.*;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 /**
  * アンケート回答インターフェースウィンドウ
@@ -45,6 +49,7 @@ public class SurveyInterfaceWindow extends JFrame {
     private List<String> choiceTexts = new ArrayList<>();
     private boolean reasonStarted = false;
     private List<JButton> choiceButtons = new ArrayList<>();
+    private Map<String, Integer> choiceIndexMap = new HashMap<>();
     
     public SurveyInterfaceWindow() {
         configManager = new ConfigManager();
@@ -314,10 +319,16 @@ public class SurveyInterfaceWindow extends JFrame {
         choicesPanel.removeAll();
         choiceButtons.clear();
         choiceTexts.clear();
+        choiceIndexMap.clear();
 
         List<String> choices = new ArrayList<>(originalChoices);
         if (configManager.getConfig().isRandomizeChoices()) {
             Collections.shuffle(choices);
+        }
+
+        // 各選択肢のインデックスをマッピング
+        for (int i = 0; i < choices.size(); i++) {
+            choiceIndexMap.put(choices.get(i), i);
         }
 
         int columns = configManager.getConfig().getChoiceColumns();
@@ -451,7 +462,8 @@ public class SurveyInterfaceWindow extends JFrame {
         // トグル動作：既に選択されていたら解除、未選択なら追加
         if (selectedChoices.contains(choiceText)) {
             selectedChoices.remove(choiceText);
-            logger.logChoiceSelection(currentQuestionIndex + 1, "選択解除: " + choiceText);
+            String logText = getChoiceLogText(choiceText, "選択解除: ");
+            logger.logChoiceSelection(currentQuestionIndex + 1, logText);
         } else {
             // 最大選択可能数をチェック
             int maxSelectableChoices = configManager.getConfig().getMaxSelectableChoices();
@@ -462,20 +474,31 @@ public class SurveyInterfaceWindow extends JFrame {
                 return;
             }
             selectedChoices.add(choiceText);
-            logger.logChoiceSelection(currentQuestionIndex + 1, choiceText);
+            String logText = getChoiceLogText(choiceText, "");
+            logger.logChoiceSelection(currentQuestionIndex + 1, logText);
         }
 
         // すべてのボタンの色を更新
         updateChoiceButtonColors();
 
         // 理由入力の状態を更新
-        if (!selectedChoices.isEmpty()) {
+        int minSelectableChoices = configManager.getConfig().getMinSelectableChoices();
+        if (selectedChoices.size() >= minSelectableChoices) {
             resetReasonInput();
+            statusLabel.setText(" ");
         } else {
             reasonTextArea.setEnabled(false);
             reasonTextArea.setText("");
             rewriteButton.setEnabled(false);
             nextButton.setEnabled(false);
+
+            if (!selectedChoices.isEmpty()) {
+                int remaining = minSelectableChoices - selectedChoices.size();
+                statusLabel.setText(String.format(Constants.MSG_MIN_SELECTION_REQUIRED, minSelectableChoices, remaining));
+                statusLabel.setForeground(Constants.COLOR_STATUS_WARNING);
+            } else {
+                statusLabel.setText(" ");
+            }
         }
     }
     
@@ -567,6 +590,9 @@ public class SurveyInterfaceWindow extends JFrame {
         // ログに理由の内容を記録
         logger.logReasonText(currentQuestionIndex + 1, reason);
 
+        // 組み合わせパターンを生成
+        String choiceCombination = getChoiceCombination();
+
         // 回答を保存
         Response response = new Response(
             respondentId,
@@ -574,7 +600,8 @@ public class SurveyInterfaceWindow extends JFrame {
             currentQuestionIndex + 1,
             questions.get(currentQuestionIndex).getText(),
             new ArrayList<>(selectedChoices),
-            reason
+            reason,
+            choiceCombination
         );
 
         responses.add(response);
@@ -651,7 +678,16 @@ public class SurveyInterfaceWindow extends JFrame {
         String outputFormat = configManager.getConfig().getOutputFormat();
         String baseFilepath = filepath.replace(".csv", "").replace(".json", "");
 
-        if (FileUtils.saveResponse(responses, baseFilepath, outputFormat)) {
+        boolean success = FileUtils.saveResponse(responses, baseFilepath, outputFormat);
+
+        // 組み合わせパターンファイルを保存
+        if (success && configManager.getConfig().isSaveCombinationPatterns()
+            && configManager.getConfig().isUseChoiceLabels()) {
+            String combinationPath = baseFilepath + "_combinations.csv";
+            FileUtils.saveCombinationPatterns(responses, combinationPath);
+        }
+
+        if (success) {
             showSuccessMessage(baseFilepath, outputFormat);
         } else {
             JOptionPane.showMessageDialog(this, "保存に失敗しました",
@@ -671,5 +707,53 @@ public class SurveyInterfaceWindow extends JFrame {
 
         JOptionPane.showMessageDialog(this, message.toString(), "完了",
             JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    /**
+     * 選択肢のインデックスをラベル（A, B, C...）に変換します。
+     */
+    private String getChoiceLabel(int index) {
+        if (index < 26) {
+            return String.valueOf((char) ('A' + index));
+        } else {
+            // Z以降はAA, AB, AC... のように表記
+            int first = (index / 26) - 1;
+            int second = index % 26;
+            return String.valueOf((char) ('A' + first)) + (char) ('A' + second);
+        }
+    }
+
+    /**
+     * 選択肢のログテキストを生成します。
+     * 設定に応じてラベル（A, B, C...）または選択肢テキストを返します。
+     */
+    private String getChoiceLogText(String choiceText, String prefix) {
+        if (configManager.getConfig().isUseChoiceLabels()) {
+            Integer index = choiceIndexMap.get(choiceText);
+            if (index != null) {
+                return prefix + getChoiceLabel(index);
+            }
+        }
+        return prefix + choiceText;
+    }
+
+    /**
+     * 選択された選択肢の組み合わせパターンを生成します。
+     * 例: "A,C,D"
+     */
+    private String getChoiceCombination() {
+        if (!configManager.getConfig().isUseChoiceLabels()) {
+            return "";
+        }
+
+        List<Integer> indices = selectedChoices.stream()
+            .map(choiceIndexMap::get)
+            .filter(Objects::nonNull)
+            .sorted()
+            .collect(Collectors.toList());
+
+        return indices.stream()
+            .map(this::getChoiceLabel)
+            .collect(Collectors.joining(","));
     }
 }

@@ -13,7 +13,8 @@ public class Response {
     private String questionText;
     private List<String> selectedChoices;
     private String reason;
-    
+    private String choiceCombination;
+
     public Response() {
         this.selectedChoices = new ArrayList<>();
     }
@@ -26,6 +27,18 @@ public class Response {
         this.questionText = questionText;
         this.selectedChoices = new ArrayList<>(selectedChoices);
         this.reason = reason;
+        this.choiceCombination = "";
+    }
+
+    public Response(String respondentId, String timestamp, int questionNum,
+                    String questionText, List<String> selectedChoices, String reason, String choiceCombination) {
+        this.respondentId = respondentId;
+        this.timestamp = timestamp;
+        this.questionNum = questionNum;
+        this.questionText = questionText;
+        this.selectedChoices = new ArrayList<>(selectedChoices);
+        this.reason = reason;
+        this.choiceCombination = choiceCombination;
     }
     
     public String getRespondentId() {
@@ -87,8 +100,16 @@ public class Response {
     public String getReason() {
         return reason;
     }
-    
+
     public void setReason(String reason) {
         this.reason = reason;
+    }
+
+    public String getChoiceCombination() {
+        return choiceCombination;
+    }
+
+    public void setChoiceCombination(String choiceCombination) {
+        this.choiceCombination = choiceCombination;
     }
 }

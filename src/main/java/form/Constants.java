@@ -104,4 +104,5 @@ public class Constants {
     public static final String MSG_CHANGE_DISABLED_STATUS = "⚠ 選択肢を選び直してから変更してください";
     public static final String MSG_REASON_STARTED_STATUS = "選択肢を選び直すまで変更できません";
     public static final String MSG_CAN_CHANGE_STATUS = "選択肢を変更できます";
+    public static final String MSG_MIN_SELECTION_REQUIRED = "理由を記入するには、最低%d個の選択肢を選んでください（あと%d個）";
 }
