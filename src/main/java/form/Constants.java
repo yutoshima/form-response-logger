@@ -50,6 +50,14 @@ public class Constants {
     public static final Color COLOR_STATUS_SUCCESS = new Color(76, 175, 80);  // 緑
     public static final Color COLOR_STATUS_ERROR = new Color(244, 67, 54);    // 赤
 
+    // アンケートUI要素のサイズ
+    public static final int QUESTION_SCROLL_HEIGHT_HTML = 120;
+    public static final int QUESTION_SCROLL_HEIGHT_TEXT = 180;
+    public static final int REASON_PANEL_HEIGHT = 150;
+    public static final int REASON_TEXT_AREA_HEIGHT = 80;
+    public static final int NAVIGATION_BUTTON_WIDTH = 150;
+    public static final int NAVIGATION_BUTTON_HEIGHT = 45;
+
     // UI要素のサイズ
     public static final Dimension BUTTON_SIZE_LARGE = new Dimension(120, 40);
     public static final Dimension BUTTON_SIZE_MEDIUM = new Dimension(100, 35);
@@ -83,6 +91,9 @@ public class Constants {
     public static final int MIN_CHOICES = 2;
     public static final int MAX_CHOICES = 10;
     public static final int DEFAULT_CHOICES = 4;
+
+    // 選択肢ラベル設定
+    public static final int ALPHABET_SIZE = 26;
     
     // ログ設定
     public static final String LOG_ACTION_CHOICE_SELECTION = "選択肢選択";

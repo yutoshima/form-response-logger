@@ -163,7 +163,7 @@ public class SurveyInterfaceWindow extends JFrame {
             questionScrollPane = new JScrollPane(questionEditorPane);
             questionScrollPane.setBorder(null);
             questionScrollPane.setAlignmentX(Component.LEFT_ALIGNMENT);
-            questionScrollPane.setMaximumSize(new Dimension(Integer.MAX_VALUE, 120));
+            questionScrollPane.setMaximumSize(new Dimension(Integer.MAX_VALUE, Constants.QUESTION_SCROLL_HEIGHT_HTML));
             contentPanel.add(questionScrollPane);
         } else {
             questionTextArea = new JTextArea();
@@ -178,7 +178,7 @@ public class SurveyInterfaceWindow extends JFrame {
             questionScrollPane = new JScrollPane(questionTextArea);
             questionScrollPane.setBorder(null);
             questionScrollPane.setAlignmentX(Component.LEFT_ALIGNMENT);
-            questionScrollPane.setMaximumSize(new Dimension(Integer.MAX_VALUE, 180));
+            questionScrollPane.setMaximumSize(new Dimension(Integer.MAX_VALUE, Constants.QUESTION_SCROLL_HEIGHT_TEXT));
             contentPanel.add(questionScrollPane);
         }
 
@@ -209,7 +209,7 @@ public class SurveyInterfaceWindow extends JFrame {
     private JPanel createReasonPanel() {
         JPanel reasonPanel = new JPanel(new BorderLayout(Constants.PADDING_SMALL, Constants.PADDING_SMALL));
         reasonPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
-        reasonPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 150));
+        reasonPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, Constants.REASON_PANEL_HEIGHT));
 
         JLabel reasonLabel = new JLabel("選択した理由を記入してください");
         reasonLabel.setFont(new Font(Constants.FONT_FAMILY, Font.BOLD, Constants.FONT_SIZE_NORMAL));
@@ -227,9 +227,9 @@ public class SurveyInterfaceWindow extends JFrame {
         });
 
         JScrollPane reasonScrollPane = new JScrollPane(reasonTextArea);
-        reasonScrollPane.setPreferredSize(new Dimension(0, 80));
-        reasonScrollPane.setMinimumSize(new Dimension(0, 80));
-        reasonScrollPane.setMaximumSize(new Dimension(Integer.MAX_VALUE, 80));
+        reasonScrollPane.setPreferredSize(new Dimension(0, Constants.REASON_TEXT_AREA_HEIGHT));
+        reasonScrollPane.setMinimumSize(new Dimension(0, Constants.REASON_TEXT_AREA_HEIGHT));
+        reasonScrollPane.setMaximumSize(new Dimension(Integer.MAX_VALUE, Constants.REASON_TEXT_AREA_HEIGHT));
         reasonPanel.add(reasonScrollPane, BorderLayout.CENTER);
 
         rewriteButton = new JButton(configManager.getConfig().getButtonReselect());
@@ -251,7 +251,7 @@ public class SurveyInterfaceWindow extends JFrame {
 
         prevButton = new JButton(configManager.getConfig().getButtonPrevQuestion());
         prevButton.setFont(new Font(Constants.FONT_FAMILY, Font.PLAIN, Constants.FONT_SIZE_BUTTON));
-        prevButton.setPreferredSize(new Dimension(150, 45));
+        prevButton.setPreferredSize(new Dimension(Constants.NAVIGATION_BUTTON_WIDTH, Constants.NAVIGATION_BUTTON_HEIGHT));
         prevButton.setBackground(Constants.COLOR_GRAY);
         prevButton.setEnabled(false);
         prevButton.addActionListener(e -> prevQuestion());
@@ -259,7 +259,7 @@ public class SurveyInterfaceWindow extends JFrame {
 
         nextButton = new JButton(configManager.getConfig().getButtonNextQuestion());
         nextButton.setFont(new Font(Constants.FONT_FAMILY, Font.BOLD, Constants.FONT_SIZE_BUTTON));
-        nextButton.setPreferredSize(new Dimension(150, 45));
+        nextButton.setPreferredSize(new Dimension(Constants.NAVIGATION_BUTTON_WIDTH, Constants.NAVIGATION_BUTTON_HEIGHT));
         nextButton.setEnabled(false);
         nextButton.addActionListener(e -> nextQuestion());
         navPanel.add(nextButton, BorderLayout.EAST);
@@ -394,7 +394,22 @@ public class SurveyInterfaceWindow extends JFrame {
     }
     
     private void createChoiceButton(String choiceText, int index, JPanel parentRow) {
-        // JTextAreaで確実にテキスト折り返し
+        JTextArea textArea = createChoiceTextArea(choiceText);
+        JPanel panel = createChoicePanel(textArea);
+
+        java.awt.event.MouseAdapter clickAdapter = createChoiceMouseAdapter(choiceText, index, panel, textArea);
+        panel.addMouseListener(clickAdapter);
+        textArea.addMouseListener(clickAdapter);
+
+        JButton dummyButton = createDummyButton(panel, textArea);
+        choiceButtons.add(dummyButton);
+        parentRow.add(panel);
+    }
+
+    /**
+     * 選択肢用のテキストエリアを作成します。
+     */
+    private JTextArea createChoiceTextArea(String choiceText) {
         JTextArea textArea = new JTextArea(choiceText);
         textArea.setFont(new Font(Constants.FONT_FAMILY, Font.PLAIN, Constants.FONT_SIZE_BUTTON));
         textArea.setLineWrap(true);
@@ -405,100 +420,178 @@ public class SurveyInterfaceWindow extends JFrame {
         textArea.setBackground(Constants.COLOR_DEFAULT);
         textArea.setForeground(Constants.COLOR_DEFAULT_TEXT);
         textArea.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        return textArea;
+    }
 
-        // シンプルなパネル（枠なし、角丸風の見た目）
+    /**
+     * 選択肢用のパネルを作成します。
+     */
+    private JPanel createChoicePanel(JTextArea textArea) {
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBackground(Constants.COLOR_DEFAULT);
         panel.add(textArea, BorderLayout.CENTER);
         panel.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        return panel;
+    }
 
-        // クリックイベント
-        java.awt.event.MouseAdapter clickAdapter = new java.awt.event.MouseAdapter() {
+    /**
+     * 選択肢用のマウスアダプターを作成します。
+     */
+    private java.awt.event.MouseAdapter createChoiceMouseAdapter(String choiceText, int index,
+                                                                   JPanel panel, JTextArea textArea) {
+        return new java.awt.event.MouseAdapter() {
             @Override
             public void mouseClicked(java.awt.event.MouseEvent e) {
                 selectChoice(choiceText, index);
             }
+
             @Override
             public void mouseEntered(java.awt.event.MouseEvent e) {
                 if (!selectedChoices.contains(choiceText)) {
-                    Color hoverColor = Constants.COLOR_DEFAULT.darker();
-                    panel.setBackground(hoverColor);
-                    textArea.setBackground(hoverColor);
+                    updateChoiceColors(panel, textArea, Constants.COLOR_DEFAULT.darker());
                 }
             }
+
             @Override
             public void mouseExited(java.awt.event.MouseEvent e) {
-                if (selectedChoices.contains(choiceText)) {
-                    panel.setBackground(Constants.COLOR_SELECTED);
-                    textArea.setBackground(Constants.COLOR_SELECTED);
-                } else {
-                    panel.setBackground(Constants.COLOR_DEFAULT);
-                    textArea.setBackground(Constants.COLOR_DEFAULT);
-                }
+                Color backgroundColor = selectedChoices.contains(choiceText)
+                    ? Constants.COLOR_SELECTED
+                    : Constants.COLOR_DEFAULT;
+                updateChoiceColors(panel, textArea, backgroundColor);
             }
         };
-        panel.addMouseListener(clickAdapter);
-        textArea.addMouseListener(clickAdapter);
+    }
 
-        // ダミーのJButtonを作成（既存の選択ロジック用）
+    /**
+     * 選択肢の背景色を更新します。
+     */
+    private void updateChoiceColors(JPanel panel, JTextArea textArea, Color backgroundColor) {
+        panel.setBackground(backgroundColor);
+        textArea.setBackground(backgroundColor);
+    }
+
+    /**
+     * ダミーボタンを作成します（既存の選択ロジック用）。
+     */
+    private JButton createDummyButton(JPanel panel, JTextArea textArea) {
         JButton dummyButton = new JButton();
         dummyButton.setVisible(false);
         dummyButton.putClientProperty("panel", panel);
         dummyButton.putClientProperty("textArea", textArea);
-
-        choiceButtons.add(dummyButton);
-        parentRow.add(panel);
+        return dummyButton;
     }
     
     private void selectChoice(String choiceText, int index) {
-        // 理由を書き始めた後は選択不可
-        if (reasonStarted) {
-            statusLabel.setText(Constants.MSG_CHANGE_DISABLED_STATUS);
-            JOptionPane.showMessageDialog(this, Constants.MSG_CANNOT_CHANGE_CHOICE,
-                "変更できません", JOptionPane.WARNING_MESSAGE);
+        if (isReasonStarted()) {
+            showCannotChangeChoiceDialog();
             return;
         }
 
-        // トグル動作：既に選択されていたら解除、未選択なら追加
         if (selectedChoices.contains(choiceText)) {
-            selectedChoices.remove(choiceText);
-            String logText = getChoiceLogText(choiceText, "選択解除: ");
-            logger.logChoiceSelection(currentQuestionIndex + 1, logText);
+            deselectChoice(choiceText);
         } else {
-            // 最大選択可能数をチェック
-            int maxSelectableChoices = configManager.getConfig().getMaxSelectableChoices();
-            if (selectedChoices.size() >= maxSelectableChoices) {
-                JOptionPane.showMessageDialog(this,
-                    "選択できる選択肢は最大" + maxSelectableChoices + "個までです",
-                    "選択数超過", JOptionPane.WARNING_MESSAGE);
+            if (!canAddMoreChoices()) {
+                showMaxChoicesExceededDialog();
                 return;
             }
-            selectedChoices.add(choiceText);
-            String logText = getChoiceLogText(choiceText, "");
-            logger.logChoiceSelection(currentQuestionIndex + 1, logText);
+            addChoice(choiceText);
         }
 
-        // すべてのボタンの色を更新
         updateChoiceButtonColors();
+        updateReasonInputState();
+    }
 
-        // 理由入力の状態を更新
+    /**
+     * 理由の入力が開始されているかチェックします。
+     */
+    private boolean isReasonStarted() {
+        if (reasonStarted) {
+            statusLabel.setText(Constants.MSG_CHANGE_DISABLED_STATUS);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * 選択変更不可のダイアログを表示します。
+     */
+    private void showCannotChangeChoiceDialog() {
+        JOptionPane.showMessageDialog(this, Constants.MSG_CANNOT_CHANGE_CHOICE,
+            "変更できません", JOptionPane.WARNING_MESSAGE);
+    }
+
+    /**
+     * 選択肢を選択解除します。
+     */
+    private void deselectChoice(String choiceText) {
+        selectedChoices.remove(choiceText);
+        String logText = getChoiceLogText(choiceText, "選択解除: ");
+        logger.logChoiceSelection(currentQuestionIndex + 1, logText);
+    }
+
+    /**
+     * これ以上選択肢を追加できるかチェックします。
+     */
+    private boolean canAddMoreChoices() {
+        int maxSelectableChoices = configManager.getConfig().getMaxSelectableChoices();
+        return selectedChoices.size() < maxSelectableChoices;
+    }
+
+    /**
+     * 最大選択数超過のダイアログを表示します。
+     */
+    private void showMaxChoicesExceededDialog() {
+        int maxSelectableChoices = configManager.getConfig().getMaxSelectableChoices();
+        JOptionPane.showMessageDialog(this,
+            "選択できる選択肢は最大" + maxSelectableChoices + "個までです",
+            "選択数超過", JOptionPane.WARNING_MESSAGE);
+    }
+
+    /**
+     * 選択肢を追加します。
+     */
+    private void addChoice(String choiceText) {
+        selectedChoices.add(choiceText);
+        String logText = getChoiceLogText(choiceText, "");
+        logger.logChoiceSelection(currentQuestionIndex + 1, logText);
+    }
+
+    /**
+     * 理由入力の状態を更新します。
+     */
+    private void updateReasonInputState() {
         int minSelectableChoices = configManager.getConfig().getMinSelectableChoices();
         if (selectedChoices.size() >= minSelectableChoices) {
-            resetReasonInput();
-            statusLabel.setText(" ");
+            enableReasonInput();
         } else {
-            reasonTextArea.setEnabled(false);
-            reasonTextArea.setText("");
-            rewriteButton.setEnabled(false);
-            nextButton.setEnabled(false);
+            disableReasonInput(minSelectableChoices);
+        }
+    }
 
-            if (!selectedChoices.isEmpty()) {
-                int remaining = minSelectableChoices - selectedChoices.size();
-                statusLabel.setText(String.format(Constants.MSG_MIN_SELECTION_REQUIRED, minSelectableChoices, remaining));
-                statusLabel.setForeground(Constants.COLOR_STATUS_WARNING);
-            } else {
-                statusLabel.setText(" ");
-            }
+    /**
+     * 理由入力を有効化します。
+     */
+    private void enableReasonInput() {
+        resetReasonInput();
+        statusLabel.setText(" ");
+    }
+
+    /**
+     * 理由入力を無効化します。
+     */
+    private void disableReasonInput(int minSelectableChoices) {
+        reasonTextArea.setEnabled(false);
+        reasonTextArea.setText("");
+        rewriteButton.setEnabled(false);
+        nextButton.setEnabled(false);
+
+        if (!selectedChoices.isEmpty()) {
+            int remaining = minSelectableChoices - selectedChoices.size();
+            statusLabel.setText(String.format(Constants.MSG_MIN_SELECTION_REQUIRED,
+                minSelectableChoices, remaining));
+            statusLabel.setForeground(Constants.COLOR_STATUS_WARNING);
+        } else {
+            statusLabel.setText(" ");
         }
     }
     
@@ -713,12 +806,12 @@ public class SurveyInterfaceWindow extends JFrame {
      * 選択肢のインデックスをラベル（A, B, C...）に変換します。
      */
     private String getChoiceLabel(int index) {
-        if (index < 26) {
+        if (index < Constants.ALPHABET_SIZE) {
             return String.valueOf((char) ('A' + index));
         } else {
             // Z以降はAA, AB, AC... のように表記
-            int first = (index / 26) - 1;
-            int second = index % 26;
+            int first = (index / Constants.ALPHABET_SIZE) - 1;
+            int second = index % Constants.ALPHABET_SIZE;
             return String.valueOf((char) ('A' + first)) + (char) ('A' + second);
         }
     }
