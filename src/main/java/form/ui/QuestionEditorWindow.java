@@ -88,8 +88,18 @@ public class QuestionEditorWindow extends JFrame {
                 Constants.EDITOR_PANEL_SIDE_PADDING, Constants.EDITOR_PANEL_SIDE_PADDING)
         ));
 
-        // ヘッダーパネル（モード表示を追加）
+        panel.add(createQuestionHeaderPanel(), BorderLayout.NORTH);
+        panel.add(createQuestionTextAreaScrollPane(), BorderLayout.CENTER);
+
+        return panel;
+    }
+
+    /**
+     * 質問入力エリアのヘッダーパネルを作成します。
+     */
+    private JPanel createQuestionHeaderPanel() {
         JPanel headerPanel = new JPanel(new BorderLayout());
+
         JLabel label = new JLabel("質問文");
         label.setFont(new Font(Constants.FONT_FAMILY, Font.BOLD, Constants.FONT_SIZE_NORMAL));
         headerPanel.add(label, BorderLayout.WEST);
@@ -99,16 +109,18 @@ public class QuestionEditorWindow extends JFrame {
         modeLabel.setForeground(Constants.COLOR_STATUS_SUCCESS);
         headerPanel.add(modeLabel, BorderLayout.EAST);
 
-        panel.add(headerPanel, BorderLayout.NORTH);
+        return headerPanel;
+    }
 
+    /**
+     * 質問テキストエリアのスクロールパネルを作成します。
+     */
+    private JScrollPane createQuestionTextAreaScrollPane() {
         questionTextArea = new JTextArea(Constants.EDITOR_QUESTION_TEXTAREA_ROWS, Constants.EDITOR_QUESTION_TEXTAREA_COLS);
         questionTextArea.setFont(new Font(Constants.FONT_FAMILY, Font.PLAIN, Constants.FONT_SIZE_LABEL));
         questionTextArea.setLineWrap(true);
         questionTextArea.setWrapStyleWord(true);
-        JScrollPane scrollPane = new JScrollPane(questionTextArea);
-        panel.add(scrollPane, BorderLayout.CENTER);
-
-        return panel;
+        return new JScrollPane(questionTextArea);
     }
     
     private JPanel createChoicesArea() {
