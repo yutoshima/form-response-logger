@@ -401,32 +401,54 @@ public class QuestionEditorWindow extends JFrame {
     private void editQuestion(int index) {
         if (index < 0 || index >= questions.size()) return;
 
+        setEditMode(index);
+        loadQuestionIntoForm(questions.get(index));
+        updateModeUI();
+        questionList.setSelectedIndex(index);
+    }
+
+    /**
+     * 編集モードを設定します。
+     */
+    private void setEditMode(int index) {
         isEditMode = true;
         editingIndex = index;
+    }
 
-        Question question = questions.get(index);
-
-        // フォームに読み込む
+    /**
+     * 問題をフォームに読み込みます。
+     */
+    private void loadQuestionIntoForm(Question question) {
         questionTextArea.setText(question.getText());
+        clearChoiceFields();
+        loadChoicesIntoFields(question.getChoices());
+        refreshChoicesUI();
+    }
 
-        // 既存の選択肢フィールドをクリア
+    /**
+     * 選択肢フィールドをクリアします。
+     */
+    private void clearChoiceFields() {
         choicesPanel.removeAll();
         choiceFields.clear();
+    }
 
-        // 選択肢を読み込む
-        for (String choice : question.getChoices()) {
+    /**
+     * 選択肢をフィールドに読み込みます。
+     */
+    private void loadChoicesIntoFields(List<String> choices) {
+        for (String choice : choices) {
             addChoiceField();
             choiceFields.get(choiceFields.size() - 1).setText(choice);
         }
+    }
 
+    /**
+     * 選択肢UIをリフレッシュします。
+     */
+    private void refreshChoicesUI() {
         choicesPanel.revalidate();
         choicesPanel.repaint();
-
-        // UIを更新
-        updateModeUI();
-
-        // 問題リストの選択を更新
-        questionList.setSelectedIndex(index);
     }
 
     private void updateQuestion() {

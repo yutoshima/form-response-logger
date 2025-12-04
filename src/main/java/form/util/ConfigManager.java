@@ -84,10 +84,8 @@ public class ConfigManager {
     public void saveConfig() {
         try (Writer writer = new FileWriter(CONFIG_PATH)) {
             gson.toJson(config.toMap(), writer);
-        } catch (IOException e) {
-            System.err.println("設定ファイルの保存に失敗しました: " + e.getMessage());
         } catch (Exception e) {
-            System.err.println("設定のシリアライズに失敗しました: " + e.getMessage());
+            System.err.println("設定ファイルの保存またはシリアライズに失敗しました: " + e.getMessage());
         }
     }
     
