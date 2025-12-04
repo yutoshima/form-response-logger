@@ -79,33 +79,61 @@ public class SurveyInterfaceWindow extends JFrame {
     }
     
     private void loadQuestionsDialog() {
-        String filepath = configManager.getQuestionsPath();
-        
-        if (filepath == null || !new File(filepath).exists()) {
-            JFileChooser fileChooser = new JFileChooser();
-            fileChooser.setFileFilter(new javax.swing.filechooser.FileNameExtensionFilter(
-                "CSV/JSONファイル (*.csv, *.json)", "csv", "json"));
+        String filepath = getQuestionsFilepath();
 
-            int result = fileChooser.showOpenDialog(this);
-            if (result == JFileChooser.APPROVE_OPTION) {
-                filepath = fileChooser.getSelectedFile().getAbsolutePath();
-            } else {
-                dispose();
-                return;
-            }
-        }
-        
-        questions = FileUtils.loadQuestions(filepath);
-        
-        if (questions.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "問題を読み込めませんでした", 
-                "エラー", JOptionPane.ERROR_MESSAGE);
+        if (filepath == null) {
             dispose();
             return;
         }
-        
+
+        questions = FileUtils.loadQuestions(filepath);
+
+        if (!validateLoadedQuestions()) {
+            dispose();
+            return;
+        }
+
         setupUI();
         displayQuestion();
+    }
+
+    /**
+     * 質問ファイルのパスを取得します。
+     */
+    private String getQuestionsFilepath() {
+        String filepath = configManager.getQuestionsPath();
+
+        if (filepath != null && new File(filepath).exists()) {
+            return filepath;
+        }
+
+        return promptForQuestionsFile();
+    }
+
+    /**
+     * 質問ファイルの選択ダイアログを表示します。
+     */
+    private String promptForQuestionsFile() {
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setFileFilter(new javax.swing.filechooser.FileNameExtensionFilter(
+            "CSV/JSONファイル (*.csv, *.json)", "csv", "json"));
+
+        int result = fileChooser.showOpenDialog(this);
+
+        return result == JFileChooser.APPROVE_OPTION ?
+               fileChooser.getSelectedFile().getAbsolutePath() : null;
+    }
+
+    /**
+     * 読み込んだ質問を検証します。
+     */
+    private boolean validateLoadedQuestions() {
+        if (questions.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "問題を読み込めませんでした",
+                "エラー", JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
+        return true;
     }
     
     private void setupUI() {
@@ -145,49 +173,82 @@ public class SurveyInterfaceWindow extends JFrame {
         JPanel contentPanel = new JPanel();
         contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));
 
+        addQuestionDisplay(contentPanel);
+        addChoicesPanel(contentPanel);
+        addReasonSection(contentPanel);
+        contentPanel.add(Box.createVerticalGlue());
+
+        return createScrollableContentPanel(contentPanel);
+    }
+
+    /**
+     * 質問表示エリアをコンテンツパネルに追加します。
+     */
+    private void addQuestionDisplay(JPanel contentPanel) {
         boolean useHtml = configManager.getConfig().isUseHtmlRendering();
 
         if (useHtml) {
-            questionEditorPane = new JEditorPane();
-            questionEditorPane.setContentType("text/html");
-            questionEditorPane.setEditable(false);
-            questionEditorPane.setFocusable(false);
-            questionEditorPane.setOpaque(false);
-            questionEditorPane.setBorder(new EmptyBorder(0, 0, Constants.PADDING_LARGE, 0));
-
-            String fontFamily = Constants.FONT_FAMILY;
-            int fontSize = Constants.FONT_SIZE_SUBTITLE;
-            questionEditorPane.putClientProperty(JEditorPane.HONOR_DISPLAY_PROPERTIES, Boolean.TRUE);
-            questionEditorPane.setFont(new Font(fontFamily, Font.BOLD, fontSize));
-
-            questionScrollPane = new JScrollPane(questionEditorPane);
-            questionScrollPane.setBorder(null);
-            questionScrollPane.setAlignmentX(Component.LEFT_ALIGNMENT);
-            questionScrollPane.setMaximumSize(new Dimension(Integer.MAX_VALUE, Constants.QUESTION_SCROLL_HEIGHT_HTML));
-            contentPanel.add(questionScrollPane);
+            createHtmlQuestionDisplay();
         } else {
-            questionTextArea = new JTextArea();
-            questionTextArea.setEditable(false);
-            questionTextArea.setFocusable(false);
-            questionTextArea.setLineWrap(true);
-            questionTextArea.setWrapStyleWord(true);
-            questionTextArea.setOpaque(false);
-            questionTextArea.setFont(new Font(Constants.FONT_FAMILY, Font.BOLD, Constants.FONT_SIZE_SUBTITLE));
-            questionTextArea.setBorder(new EmptyBorder(0, 0, Constants.PADDING_LARGE, 0));
-
-            questionScrollPane = new JScrollPane(questionTextArea);
-            questionScrollPane.setBorder(null);
-            questionScrollPane.setAlignmentX(Component.LEFT_ALIGNMENT);
-            questionScrollPane.setMaximumSize(new Dimension(Integer.MAX_VALUE, Constants.QUESTION_SCROLL_HEIGHT_TEXT));
-            contentPanel.add(questionScrollPane);
+            createTextQuestionDisplay();
         }
 
+        contentPanel.add(questionScrollPane);
+    }
+
+    /**
+     * HTML形式の質問表示を作成します。
+     */
+    private void createHtmlQuestionDisplay() {
+        questionEditorPane = new JEditorPane();
+        questionEditorPane.setContentType("text/html");
+        questionEditorPane.setEditable(false);
+        questionEditorPane.setFocusable(false);
+        questionEditorPane.setOpaque(false);
+        questionEditorPane.setBorder(new EmptyBorder(0, 0, Constants.PADDING_LARGE, 0));
+        questionEditorPane.putClientProperty(JEditorPane.HONOR_DISPLAY_PROPERTIES, Boolean.TRUE);
+        questionEditorPane.setFont(new Font(Constants.FONT_FAMILY, Font.BOLD, Constants.FONT_SIZE_SUBTITLE));
+
+        questionScrollPane = new JScrollPane(questionEditorPane);
+        questionScrollPane.setBorder(null);
+        questionScrollPane.setAlignmentX(Component.LEFT_ALIGNMENT);
+        questionScrollPane.setMaximumSize(new Dimension(Integer.MAX_VALUE, Constants.QUESTION_SCROLL_HEIGHT_HTML));
+    }
+
+    /**
+     * テキスト形式の質問表示を作成します。
+     */
+    private void createTextQuestionDisplay() {
+        questionTextArea = new JTextArea();
+        questionTextArea.setEditable(false);
+        questionTextArea.setFocusable(false);
+        questionTextArea.setLineWrap(true);
+        questionTextArea.setWrapStyleWord(true);
+        questionTextArea.setOpaque(false);
+        questionTextArea.setFont(new Font(Constants.FONT_FAMILY, Font.BOLD, Constants.FONT_SIZE_SUBTITLE));
+        questionTextArea.setBorder(new EmptyBorder(0, 0, Constants.PADDING_LARGE, 0));
+
+        questionScrollPane = new JScrollPane(questionTextArea);
+        questionScrollPane.setBorder(null);
+        questionScrollPane.setAlignmentX(Component.LEFT_ALIGNMENT);
+        questionScrollPane.setMaximumSize(new Dimension(Integer.MAX_VALUE, Constants.QUESTION_SCROLL_HEIGHT_TEXT));
+    }
+
+    /**
+     * 選択肢パネルをコンテンツパネルに追加します。
+     */
+    private void addChoicesPanel(JPanel contentPanel) {
         choicesPanel = new JPanel();
         choicesPanel.setLayout(new BoxLayout(choicesPanel, BoxLayout.Y_AXIS));
         choicesPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
         choicesPanel.setBorder(BorderFactory.createEmptyBorder(Constants.PADDING_MEDIUM, 0, Constants.PADDING_MEDIUM, 0));
         contentPanel.add(choicesPanel);
+    }
 
+    /**
+     * 理由入力セクションをコンテンツパネルに追加します。
+     */
+    private void addReasonSection(JPanel contentPanel) {
         contentPanel.add(Box.createVerticalStrut(Constants.PADDING_EXTRA_LARGE));
         contentPanel.add(createReasonPanel());
 
@@ -197,10 +258,12 @@ public class SurveyInterfaceWindow extends JFrame {
         statusLabel.setBorder(new EmptyBorder(Constants.PADDING_SMALL, 0, 0, 0));
         statusLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
         contentPanel.add(statusLabel);
+    }
 
-        // 理由欄の下に空要素を追加して、余白を埋める
-        contentPanel.add(Box.createVerticalGlue());
-
+    /**
+     * スクロール可能なコンテンツパネルを作成します。
+     */
+    private JScrollPane createScrollableContentPanel(JPanel contentPanel) {
         JScrollPane scrollPane = new JScrollPane(contentPanel);
         scrollPane.getVerticalScrollBar().setUnitIncrement(16);
         return scrollPane;
@@ -296,51 +359,114 @@ public class SurveyInterfaceWindow extends JFrame {
     }
 
     private String formatHtmlQuestion(String questionText) {
-        String cssStyle = "body { font-family: '" + Constants.FONT_FAMILY +
-                         "'; font-size: " + Constants.FONT_SIZE_SUBTITLE + "pt; font-weight: normal; }";
+        String cssStyle = buildCssStyle();
 
-        if (!questionText.trim().toLowerCase().startsWith("<html")) {
-            return "<html><head><style>" + cssStyle + "</style></head><body>" +
-                  questionText + "</body></html>";
+        if (!isHtmlFormat(questionText)) {
+            return wrapInHtmlWithStyle(questionText, cssStyle);
         }
 
-        if (!questionText.toLowerCase().contains("<style>")) {
-            questionText = questionText.replaceFirst("(?i)<head>",
-                "<head><style>" + cssStyle + "</style>");
-            if (!questionText.toLowerCase().contains("<head>")) {
-                questionText = questionText.replaceFirst("(?i)<html>",
-                    "<html><head><style>" + cssStyle + "</style></head>");
-            }
+        return ensureStyleInHtml(questionText, cssStyle);
+    }
+
+    /**
+     * CSSスタイルを構築します。
+     */
+    private String buildCssStyle() {
+        return "body { font-family: '" + Constants.FONT_FAMILY +
+               "'; font-size: " + Constants.FONT_SIZE_SUBTITLE + "pt; font-weight: normal; }";
+    }
+
+    /**
+     * テキストがHTML形式かチェックします。
+     */
+    private boolean isHtmlFormat(String text) {
+        return text.trim().toLowerCase().startsWith("<html");
+    }
+
+    /**
+     * テキストをHTMLとスタイルでラップします。
+     */
+    private String wrapInHtmlWithStyle(String text, String cssStyle) {
+        return "<html><head><style>" + cssStyle + "</style></head><body>" +
+               text + "</body></html>";
+    }
+
+    /**
+     * HTMLテキストにスタイルが含まれていることを確認します。
+     */
+    private String ensureStyleInHtml(String htmlText, String cssStyle) {
+        if (htmlText.toLowerCase().contains("<style>")) {
+            return htmlText;
         }
-        return questionText;
+
+        return insertStyleIntoHtml(htmlText, cssStyle);
+    }
+
+    /**
+     * HTMLテキストにスタイルを挿入します。
+     */
+    private String insertStyleIntoHtml(String htmlText, String cssStyle) {
+        String styleTag = "<style>" + cssStyle + "</style>";
+
+        if (htmlText.toLowerCase().contains("<head>")) {
+            return htmlText.replaceFirst("(?i)<head>", "<head>" + styleTag);
+        }
+
+        return htmlText.replaceFirst("(?i)<html>",
+            "<html><head>" + styleTag + "</head>");
     }
 
     private void displayChoices(List<String> originalChoices) {
+        clearChoiceState();
+
+        List<String> choices = prepareChoices(originalChoices);
+        buildChoiceIndexMap(choices);
+
+        int columns = configManager.getConfig().getChoiceColumns();
+        renderChoiceGrid(choices, columns);
+    }
+
+    /**
+     * 選択肢の状態をクリアします。
+     */
+    private void clearChoiceState() {
         choicesPanel.removeAll();
         choiceButtons.clear();
         choiceTexts.clear();
         choiceIndexMap.clear();
+    }
 
+    /**
+     * 選択肢を準備します（必要に応じてシャッフル）。
+     */
+    private List<String> prepareChoices(List<String> originalChoices) {
         List<String> choices = new ArrayList<>(originalChoices);
+
         if (configManager.getConfig().isRandomizeChoices()) {
             Collections.shuffle(choices);
         }
 
-        // 各選択肢のインデックスをマッピング
+        return choices;
+    }
+
+    /**
+     * 選択肢のインデックスマップを構築します。
+     */
+    private void buildChoiceIndexMap(List<String> choices) {
         for (int i = 0; i < choices.size(); i++) {
             choiceIndexMap.put(choices.get(i), i);
         }
+    }
 
-        int columns = configManager.getConfig().getChoiceColumns();
+    /**
+     * 選択肢をグリッド形式で描画します。
+     */
+    private void renderChoiceGrid(List<String> choices, int columns) {
         JPanel currentRow = null;
 
         for (int i = 0; i < choices.size(); i++) {
             if (i % columns == 0) {
-                if (i > 0) {
-                    choicesPanel.add(Box.createVerticalStrut(Constants.PADDING_MEDIUM));
-                }
-                currentRow = createChoiceRow(columns);
-                choicesPanel.add(currentRow);
+                currentRow = addNewChoiceRow(i);
             }
 
             String choice = choices.get(i);
@@ -349,6 +475,21 @@ public class SurveyInterfaceWindow extends JFrame {
         }
 
         fillEmptyChoiceSlots(currentRow, columns, choices.size());
+    }
+
+    /**
+     * 新しい選択肢行を追加します。
+     */
+    private JPanel addNewChoiceRow(int index) {
+        if (index > 0) {
+            choicesPanel.add(Box.createVerticalStrut(Constants.PADDING_MEDIUM));
+        }
+
+        int columns = configManager.getConfig().getChoiceColumns();
+        JPanel row = createChoiceRow(columns);
+        choicesPanel.add(row);
+
+        return row;
     }
 
     private JPanel createChoiceRow(int columns) {
@@ -657,36 +798,76 @@ public class SurveyInterfaceWindow extends JFrame {
     }
     
     private void nextQuestion() {
-        if (selectedChoices.isEmpty()) {
-            JOptionPane.showMessageDialog(this, Constants.MSG_NO_CHOICE_SELECTED,
-                "エラー", JOptionPane.ERROR_MESSAGE);
+        if (!validateNextQuestionInput()) {
             return;
         }
 
-        // 最小選択数のチェック
+        String reason = reasonTextArea.getText().trim();
+        logger.logReasonText(currentQuestionIndex + 1, reason);
+
+        saveCurrentResponse(reason);
+        moveToNextQuestion();
+        displayQuestion();
+    }
+
+    /**
+     * 次の問題へ進む前の入力を検証します。
+     */
+    private boolean validateNextQuestionInput() {
+        if (selectedChoices.isEmpty()) {
+            JOptionPane.showMessageDialog(this, Constants.MSG_NO_CHOICE_SELECTED,
+                "エラー", JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
+
+        if (!validateMinimumSelectionCount()) {
+            return false;
+        }
+
+        if (!validateReasonInput()) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * 最小選択数を検証します。
+     */
+    private boolean validateMinimumSelectionCount() {
         int minSelectableChoices = configManager.getConfig().getMinSelectableChoices();
+
         if (selectedChoices.size() < minSelectableChoices) {
             JOptionPane.showMessageDialog(this,
                 "最低" + minSelectableChoices + "個の選択肢を選択してください",
                 "選択数不足", JOptionPane.ERROR_MESSAGE);
-            return;
+            return false;
         }
 
+        return true;
+    }
+
+    /**
+     * 理由入力を検証します。
+     */
+    private boolean validateReasonInput() {
         String reason = reasonTextArea.getText().trim();
 
         if (reason.isEmpty()) {
             JOptionPane.showMessageDialog(this, Constants.MSG_NO_REASON,
                 "エラー", JOptionPane.ERROR_MESSAGE);
-            return;
+            return false;
         }
 
-        // ログに理由の内容を記録
-        logger.logReasonText(currentQuestionIndex + 1, reason);
+        return true;
+    }
 
-        // 組み合わせパターンを生成
+    /**
+     * 現在の回答を保存します。
+     */
+    private void saveCurrentResponse(String reason) {
         String choiceCombination = getChoiceCombination();
 
-        // 回答を保存
         Response response = new Response(
             respondentId,
             FileUtils.getTimestamp(),
@@ -698,17 +879,18 @@ public class SurveyInterfaceWindow extends JFrame {
         );
 
         responses.add(response);
+    }
 
-        // ログに記録
+    /**
+     * 次の問題へ移動します。
+     */
+    private void moveToNextQuestion() {
         int oldIndex = currentQuestionIndex;
         currentQuestionIndex++;
 
         if (currentQuestionIndex < questions.size()) {
             logger.logNextQuestion(oldIndex + 1, currentQuestionIndex + 1);
         }
-
-        // 次の問題を表示
-        displayQuestion();
     }
     
     private void prevQuestion() {

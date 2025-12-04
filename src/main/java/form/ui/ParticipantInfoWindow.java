@@ -125,29 +125,51 @@ public class ParticipantInfoWindow extends JDialog {
         String name = nameField.getText().trim();
         String id = idField.getText().trim();
 
-        if (name.isEmpty()) {
-            JOptionPane.showMessageDialog(this,
-                "被験者名を入力してください",
-                "入力エラー",
-                JOptionPane.WARNING_MESSAGE);
+        if (!validateInput(name, id)) {
             return;
         }
 
-        if (id.isEmpty()) {
-            JOptionPane.showMessageDialog(this,
-                "被験者IDを入力してください",
-                "入力エラー",
-                JOptionPane.WARNING_MESSAGE);
-            return;
+        saveParticipantInfo(name, id);
+        confirmed = true;
+        dispose();
+    }
+
+    /**
+     * 入力内容を検証します。
+     */
+    private boolean validateInput(String name, String id) {
+        if (!validateField(name, "被験者名")) {
+            return false;
         }
 
-        // 設定に保存
+        if (!validateField(id, "被験者ID")) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * フィールドが空でないか検証します。
+     */
+    private boolean validateField(String value, String fieldName) {
+        if (value.isEmpty()) {
+            JOptionPane.showMessageDialog(this,
+                fieldName + "を入力してください",
+                "入力エラー",
+                JOptionPane.WARNING_MESSAGE);
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * 被験者情報を設定に保存します。
+     */
+    private void saveParticipantInfo(String name, String id) {
         configManager.getConfig().setParticipantName(name);
         configManager.getConfig().setParticipantId(id);
         configManager.saveConfig();
-
-        confirmed = true;
-        dispose();
     }
 
     private void cancelInput() {
