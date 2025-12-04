@@ -70,6 +70,11 @@ public class Constants {
     public static final Dimension SETTINGS_LABEL_SIZE = new Dimension(200, 25);
     public static final Dimension SETTINGS_COMPONENT_SIZE = new Dimension(200, 25);
     public static final int SETTINGS_ROW_HEIGHT = 35;
+    public static final int SETTINGS_PANEL_PADDING = 10;
+    public static final int SETTINGS_PANEL_SIDE_PADDING = 15;
+    public static final int SETTINGS_SECTION_SPACING = 20;
+    public static final int FIELD_ROW_MAX_HEIGHT = 35;
+    public static final int FIELD_ROW_PADDING = 5;
 
     // パディングとスペーシング
     public static final int PADDING_SMALL = 5;

@@ -197,31 +197,68 @@ public class SettingsWindow extends JFrame {
     }
     
     private JPanel createFieldRow(String labelText, JTextField field, boolean hasButton) {
-        JPanel row = new JPanel(new BorderLayout(5, 5));
-        row.setMaximumSize(new Dimension(Integer.MAX_VALUE, 35));
-        row.setBorder(new EmptyBorder(5, 0, 5, 0));
+        JPanel row = createBaseRow();
+        addLabelToRow(row, labelText);
+        configureAndAddField(row, field);
+
+        if (hasButton) {
+            addBrowseButton(row, labelText, field);
+        }
+
+        return row;
+    }
+
+    /**
+     * 基本的な行パネルを作成します。
+     */
+    private JPanel createBaseRow() {
+        JPanel row = new JPanel(new BorderLayout(Constants.FIELD_ROW_PADDING, Constants.FIELD_ROW_PADDING));
+        row.setMaximumSize(new Dimension(Integer.MAX_VALUE, Constants.FIELD_ROW_MAX_HEIGHT));
+        row.setBorder(new EmptyBorder(Constants.FIELD_ROW_PADDING, 0, Constants.FIELD_ROW_PADDING, 0));
         row.setAlignmentX(Component.LEFT_ALIGNMENT);
-        
+        return row;
+    }
+
+    /**
+     * 行にラベルを追加します。
+     */
+    private void addLabelToRow(JPanel row, String labelText) {
         JLabel label = new JLabel(labelText);
         label.setFont(new Font(Constants.FONT_FAMILY, Font.PLAIN, Constants.FONT_SIZE_LABEL));
-        label.setPreferredSize(new Dimension(200, 25));
+        label.setPreferredSize(Constants.SETTINGS_LABEL_SIZE);
         row.add(label, BorderLayout.WEST);
-        
+    }
+
+    /**
+     * テキストフィールドを設定して行に追加します。
+     */
+    private void configureAndAddField(JPanel row, JTextField field) {
         field.setFont(new Font(Constants.FONT_FAMILY, Font.PLAIN, Constants.FONT_SIZE_LABEL));
         row.add(field, BorderLayout.CENTER);
-        
-        if (hasButton) {
-            JButton browseButton = new JButton("参照");
-            browseButton.setFont(new Font(Constants.FONT_FAMILY, Font.PLAIN, Constants.FONT_SIZE_SMALL));
-            if (labelText.contains("ファイル")) {
-                browseButton.addActionListener(e -> browseFile(field));
-            } else {
-                browseButton.addActionListener(e -> browseDirectory(field));
-            }
-            row.add(browseButton, BorderLayout.EAST);
+    }
+
+    /**
+     * 参照ボタンを行に追加します。
+     */
+    private void addBrowseButton(JPanel row, String labelText, JTextField field) {
+        JButton browseButton = createBrowseButton(labelText, field);
+        row.add(browseButton, BorderLayout.EAST);
+    }
+
+    /**
+     * 参照ボタンを作成します。
+     */
+    private JButton createBrowseButton(String labelText, JTextField field) {
+        JButton browseButton = new JButton("参照");
+        browseButton.setFont(new Font(Constants.FONT_FAMILY, Font.PLAIN, Constants.FONT_SIZE_SMALL));
+
+        if (labelText.contains("ファイル")) {
+            browseButton.addActionListener(e -> browseFile(field));
+        } else {
+            browseButton.addActionListener(e -> browseDirectory(field));
         }
-        
-        return row;
+
+        return browseButton;
     }
     
     private void browseFile(JTextField field) {
