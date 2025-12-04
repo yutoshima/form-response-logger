@@ -455,33 +455,63 @@ public class SettingsWindow extends JFrame {
     private void loadCurrentSettings() {
         Config config = configManager.getConfig();
 
-        participantNameField.setText(config.getParticipantName() != null ? config.getParticipantName() : "");
-        participantIdField.setText(config.getParticipantId() != null ? config.getParticipantId() : "");
+        loadFileSettings(config);
+        loadDataSettings(config);
+        loadButtonLabelSettings(config);
+        loadTitleSettings(config);
+        loadLogActionSettings(config);
+    }
 
-        // 問題ファイルのフルパスを表示（ディレクトリとファイル名を結合）
+    /**
+     * ファイル設定をフィールドに読み込みます。
+     */
+    private void loadFileSettings(Config config) {
+        setTextOrEmpty(participantNameField, config.getParticipantName());
+        setTextOrEmpty(participantIdField, config.getParticipantId());
+
+        // 問題ファイルのフルパスを表示
         String questionsPath = configManager.getQuestionsPath();
-        questionsFileField.setText(questionsPath != null ? questionsPath : "");
+        setTextOrEmpty(questionsFileField, questionsPath);
 
-        logDirField.setText(config.getLogDirectory() != null ? config.getLogDirectory() : "");
-        logFormatField.setText(config.getLogNameFormat() != null ? config.getLogNameFormat() : "");
-        responseDirField.setText(config.getResponseDirectory() != null ? config.getResponseDirectory() : "");
-        responseFormatField.setText(config.getResponseNameFormat() != null ? config.getResponseNameFormat() : "");
+        setTextOrEmpty(logDirField, config.getLogDirectory());
+        setTextOrEmpty(logFormatField, config.getLogNameFormat());
+        setTextOrEmpty(responseDirField, config.getResponseDirectory());
+        setTextOrEmpty(responseFormatField, config.getResponseNameFormat());
+    }
 
+    /**
+     * テキストフィールドに値を設定します（nullの場合は空文字）。
+     */
+    private void setTextOrEmpty(JTextField field, String value) {
+        field.setText(value != null ? value : "");
+    }
+
+    /**
+     * データ設定をフィールドに読み込みます。
+     */
+    private void loadDataSettings(Config config) {
         outputFormatCombo.setSelectedItem(config.getOutputFormat());
         defaultChoicesCombo.setSelectedItem(config.getDefaultChoices());
         choiceColumnsCombo.setSelectedItem(config.getChoiceColumns());
         maxSelectableChoicesCombo.setSelectedItem(config.getMaxSelectableChoices());
         minSelectableChoicesCombo.setSelectedItem(config.getMinSelectableChoices());
+
         logSequenceField.setText(String.valueOf(config.getLogSequence()));
         responseSequenceField.setText(String.valueOf(config.getResponseSequence()));
+
         autoSaveCheckBox.setSelected(config.isAutoSave());
         useParticipantInfoCheckBox.setSelected(config.isUseParticipantInfo());
         useHtmlRenderingCheckBox.setSelected(config.isUseHtmlRendering());
         randomizeChoicesCheckBox.setSelected(config.isRandomizeChoices());
         enablePrevButtonCheckBox.setSelected(config.isEnablePrevButton());
 
-        // 横幅設定の読み込み
-        int width = config.getContentWidth();
+        loadContentWidthSetting(config.getContentWidth());
+    }
+
+    /**
+     * 横幅設定をコンボボックスに読み込みます。
+     */
+    private void loadContentWidthSetting(int width) {
         if (width <= 540) {
             contentWidthCombo.setSelectedIndex(0);
         } else if (width <= 720) {
@@ -491,22 +521,34 @@ public class SettingsWindow extends JFrame {
         } else {
             contentWidthCombo.setSelectedIndex(3);
         }
+    }
 
-        // ボタン文言設定の読み込み
+    /**
+     * ボタン文言設定をフィールドに読み込みます。
+     */
+    private void loadButtonLabelSettings(Config config) {
         buttonCreateQuestionsField.setText(config.getButtonCreateQuestions());
         buttonTakeSurveyField.setText(config.getButtonTakeSurvey());
         buttonNextQuestionField.setText(config.getButtonNextQuestion());
         buttonPrevQuestionField.setText(config.getButtonPrevQuestion());
         buttonReselectField.setText(config.getButtonReselect());
         buttonFinishSurveyField.setText(config.getButtonFinishSurvey());
+    }
 
-        // タイトル設定の読み込み
+    /**
+     * タイトル設定をフィールドに読み込みます。
+     */
+    private void loadTitleSettings(Config config) {
         titleMainField.setText(config.getTitleMain());
         titleQuestionEditorField.setText(config.getTitleQuestionEditor());
         titleSettingsField.setText(config.getTitleSettings());
         titleSurveyField.setText(config.getTitleSurvey());
+    }
 
-        // ログアクション名設定の読み込み
+    /**
+     * ログアクション名設定をフィールドに読み込みます。
+     */
+    private void loadLogActionSettings(Config config) {
         logActionChoiceSelectionField.setText(config.getLogActionChoiceSelection());
         logActionReasonStartField.setText(config.getLogActionReasonStart());
         logActionReasonTextField.setText(config.getLogActionReasonText());
