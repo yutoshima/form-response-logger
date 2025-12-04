@@ -21,13 +21,7 @@ public class Response {
 
     public Response(String respondentId, String timestamp, int questionNum,
                     String questionText, List<String> selectedChoices, String reason) {
-        this.respondentId = respondentId;
-        this.timestamp = timestamp;
-        this.questionNum = questionNum;
-        this.questionText = questionText;
-        this.selectedChoices = new ArrayList<>(selectedChoices);
-        this.reason = reason;
-        this.choiceCombination = "";
+        this(respondentId, timestamp, questionNum, questionText, selectedChoices, reason, "");
     }
 
     public Response(String respondentId, String timestamp, int questionNum,
@@ -89,10 +83,8 @@ public class Response {
     }
 
     public void setSelectedChoice(String selectedChoice) {
-        if (selectedChoice == null || selectedChoice.isEmpty()) {
-            this.selectedChoices = new ArrayList<>();
-        } else {
-            this.selectedChoices = new ArrayList<>();
+        this.selectedChoices = new ArrayList<>();
+        if (selectedChoice != null && !selectedChoice.isEmpty()) {
             this.selectedChoices.add(selectedChoice);
         }
     }

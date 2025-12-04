@@ -33,11 +33,8 @@ public class ConfigManager {
                 Map<String, Object> map = gson.fromJson(reader, type);
                 config = new Config();
                 config.fromMap(map);
-            } catch (IOException e) {
-                System.err.println("設定ファイルの読み込みに失敗しました: " + e.getMessage());
-                config = createDefaultConfig();
             } catch (Exception e) {
-                System.err.println("設定ファイルのパースに失敗しました: " + e.getMessage());
+                System.err.println("設定ファイルの読み込みまたはパースに失敗しました: " + e.getMessage());
                 config = createDefaultConfig();
             }
         } else {
@@ -48,19 +45,40 @@ public class ConfigManager {
     
     private Config createDefaultConfig() {
         Config defaultConfig = new Config();
-        defaultConfig.setQuestionsDirectory(Constants.QUESTIONS_DIR);
-        defaultConfig.setQuestionsFile(Constants.DEFAULT_QUESTIONS_FILE);
-        defaultConfig.setLogDirectory(Constants.LOGS_DIR);
-        defaultConfig.setLogNameFormat("action_log_{respondent_id}_{date}.csv");
-        defaultConfig.setResponseDirectory(Constants.RESPONSES_DIR);
-        defaultConfig.setResponseNameFormat("responses_{respondent_id}_{date}.csv");
-        defaultConfig.setAppearanceMode("System");
-        defaultConfig.setColorTheme("blue");
-        defaultConfig.setOutputFormat("csv");
-        defaultConfig.setFontSize("medium");
-        defaultConfig.setAutoSave(true);
-        defaultConfig.setDefaultChoices(4);
+        setDefaultFilePaths(defaultConfig);
+        setDefaultUISettings(defaultConfig);
+        setDefaultBehaviorSettings(defaultConfig);
         return defaultConfig;
+    }
+
+    /**
+     * デフォルトのファイルパス設定を行います。
+     */
+    private void setDefaultFilePaths(Config config) {
+        config.setQuestionsDirectory(Constants.QUESTIONS_DIR);
+        config.setQuestionsFile(Constants.DEFAULT_QUESTIONS_FILE);
+        config.setLogDirectory(Constants.LOGS_DIR);
+        config.setLogNameFormat("action_log_{respondent_id}_{date}.csv");
+        config.setResponseDirectory(Constants.RESPONSES_DIR);
+        config.setResponseNameFormat("responses_{respondent_id}_{date}.csv");
+    }
+
+    /**
+     * デフォルトのUI設定を行います。
+     */
+    private void setDefaultUISettings(Config config) {
+        config.setAppearanceMode("System");
+        config.setColorTheme("blue");
+        config.setFontSize("medium");
+    }
+
+    /**
+     * デフォルトの動作設定を行います。
+     */
+    private void setDefaultBehaviorSettings(Config config) {
+        config.setOutputFormat("csv");
+        config.setAutoSave(true);
+        config.setDefaultChoices(4);
     }
     
     public void saveConfig() {

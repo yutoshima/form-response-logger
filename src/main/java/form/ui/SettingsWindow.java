@@ -592,22 +592,50 @@ public class SettingsWindow extends JFrame {
     }
 
     private void saveDataSettings(Config config) {
+        saveFormatSettings(config);
+
+        if (!validateSelectableChoices()) return;
+        saveSelectableChoicesSettings(config);
+
+        if (!validateSequences()) return;
+        saveSequences(config);
+
+        saveBehaviorSettings(config);
+        saveContentWidthSetting(config);
+    }
+
+    /**
+     * フォーマット設定を保存します。
+     */
+    private void saveFormatSettings(Config config) {
         config.setOutputFormat((String) outputFormatCombo.getSelectedItem());
         config.setDefaultChoices((Integer) defaultChoicesCombo.getSelectedItem());
         config.setChoiceColumns((Integer) choiceColumnsCombo.getSelectedItem());
+    }
 
-        if (!validateSelectableChoices()) return;
+    /**
+     * 選択可能数設定を保存します。
+     */
+    private void saveSelectableChoicesSettings(Config config) {
         config.setMaxSelectableChoices((Integer) maxSelectableChoicesCombo.getSelectedItem());
         config.setMinSelectableChoices((Integer) minSelectableChoicesCombo.getSelectedItem());
+    }
 
-        if (!validateAndSaveSequences(config)) return;
-
+    /**
+     * 動作設定を保存します。
+     */
+    private void saveBehaviorSettings(Config config) {
         config.setAutoSave(autoSaveCheckBox.isSelected());
         config.setUseParticipantInfo(useParticipantInfoCheckBox.isSelected());
         config.setUseHtmlRendering(useHtmlRenderingCheckBox.isSelected());
         config.setRandomizeChoices(randomizeChoicesCheckBox.isSelected());
         config.setEnablePrevButton(enablePrevButtonCheckBox.isSelected());
+    }
 
+    /**
+     * コンテンツ横幅設定を保存します。
+     */
+    private void saveContentWidthSetting(Config config) {
         int[] widthValues = {540, 720, 960, 1140};
         config.setContentWidth(widthValues[contentWidthCombo.getSelectedIndex()]);
     }
@@ -623,23 +651,36 @@ public class SettingsWindow extends JFrame {
         return true;
     }
 
-    private boolean validateAndSaveSequences(Config config) {
+    /**
+     * 連番設定の検証を行います。
+     */
+    private boolean validateSequences() {
         try {
             int logSeq = Integer.parseInt(logSequenceField.getText());
             int responseSeq = Integer.parseInt(responseSequenceField.getText());
+
             if (logSeq < 1 || responseSeq < 1) {
                 JOptionPane.showMessageDialog(this, "連番は1以上の数値を入力してください",
                     "入力エラー", JOptionPane.ERROR_MESSAGE);
                 return false;
             }
-            config.setLogSequence(logSeq);
-            config.setResponseSequence(responseSeq);
+
             return true;
         } catch (NumberFormatException e) {
             JOptionPane.showMessageDialog(this, "連番には数値を入力してください",
                 "入力エラー", JOptionPane.ERROR_MESSAGE);
             return false;
         }
+    }
+
+    /**
+     * 連番設定を保存します。
+     */
+    private void saveSequences(Config config) {
+        int logSeq = Integer.parseInt(logSequenceField.getText());
+        int responseSeq = Integer.parseInt(responseSequenceField.getText());
+        config.setLogSequence(logSeq);
+        config.setResponseSequence(responseSeq);
     }
 
     private void saveButtonLabelSettings(Config config) {

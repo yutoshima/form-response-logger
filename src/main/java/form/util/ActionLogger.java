@@ -108,30 +108,47 @@ public class ActionLogger {
     }
     
     public void logChoiceSelection(int questionNum, String choice) {
-        logAction(config.getLogActionChoiceSelection(), "問題" + questionNum + ": " + choice);
+        logAction(config.getLogActionChoiceSelection(),
+            formatQuestionNumber(questionNum) + ": " + choice);
     }
 
     public void logReasonStart(int questionNum) {
-        logAction(config.getLogActionReasonStart(), "問題" + questionNum);
+        logAction(config.getLogActionReasonStart(), formatQuestionNumber(questionNum));
     }
 
     public void logReasonText(int questionNum, String reasonText) {
-        String preview = reasonText;
-        if (reasonText.length() > Constants.LOG_TEXT_PREVIEW_LENGTH) {
-            preview = reasonText.substring(0, Constants.LOG_TEXT_PREVIEW_LENGTH) + "...";
-        }
-        logAction(config.getLogActionReasonText(), "問題" + questionNum + ": " + preview);
+        String preview = createTextPreview(reasonText);
+        logAction(config.getLogActionReasonText(),
+            formatQuestionNumber(questionNum) + ": " + preview);
     }
 
     public void logRewriteReason(int questionNum) {
-        logAction(config.getLogActionReasonRewrite(), "問題" + questionNum);
+        logAction(config.getLogActionReasonRewrite(), formatQuestionNumber(questionNum));
     }
 
     public void logNextQuestion(int fromNum, int toNum) {
-        logAction(config.getLogActionQuestionMove(), "問題" + fromNum + " → 問題" + toNum);
+        logAction(config.getLogActionQuestionMove(),
+            formatQuestionNumber(fromNum) + " → " + formatQuestionNumber(toNum));
     }
 
     public void logSubmit() {
         logAction(config.getLogActionSubmit(), "完了");
+    }
+
+    /**
+     * 問題番号をフォーマットします。
+     */
+    private String formatQuestionNumber(int questionNum) {
+        return "問題" + questionNum;
+    }
+
+    /**
+     * テキストのプレビューを作成します（長い場合は切り詰めます）。
+     */
+    private String createTextPreview(String text) {
+        if (text.length() > Constants.LOG_TEXT_PREVIEW_LENGTH) {
+            return text.substring(0, Constants.LOG_TEXT_PREVIEW_LENGTH) + "...";
+        }
+        return text;
     }
 }
