@@ -94,7 +94,13 @@ public class Constants {
 
     // 選択肢ラベル設定
     public static final int ALPHABET_SIZE = 26;
-    
+
+    // ファイル名フォーマット設定
+    public static final String DATE_FORMAT_PATTERN = "yyyyMMdd";
+    public static final String TIME_FORMAT_PATTERN = "HHmmss";
+    public static final String SEQUENCE_FORMAT = "%03d";
+    public static final int SEQUENCE_PADDING = 3;
+
     // ログ設定
     public static final String LOG_ACTION_CHOICE_SELECTION = "選択肢選択";
     public static final String LOG_ACTION_REASON_START = "理由入力開始";

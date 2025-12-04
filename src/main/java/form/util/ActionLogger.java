@@ -24,34 +24,75 @@ public class ActionLogger {
     
     private void initializeLogFile() {
         File file = new File(logFile);
-        if (!file.exists()) {
-            File parent = file.getParentFile();
-            if (parent != null && !parent.exists()) {
-                boolean created = parent.mkdirs();
-                System.out.println("ログディレクトリを作成: " + parent.getAbsolutePath() + " (成功: " + created + ")");
-            }
-
-            try (PrintWriter writer = new PrintWriter(
-                    new OutputStreamWriter(new FileOutputStream(file), "UTF-8"))) {
-                writer.println("タイムスタンプ,アクション種別,詳細情報");
-                System.out.println("ログファイルを初期化しました: " + logFile);
-            } catch (Exception e) {
-                System.err.println("ログファイルの初期化に失敗しました: " + logFile);
-                e.printStackTrace();
-            }
-        } else {
-            System.out.println("既存のログファイルを使用します: " + logFile);
+        if (file.exists()) {
+            logInfo("既存のログファイルを使用します: " + logFile);
+            return;
         }
+
+        createParentDirectory(file);
+        createLogFileWithHeader(file);
+    }
+
+    /**
+     * 親ディレクトリを作成します。
+     */
+    private void createParentDirectory(File file) {
+        File parent = file.getParentFile();
+        if (parent != null && !parent.exists()) {
+            boolean created = parent.mkdirs();
+            logInfo("ログディレクトリを作成: " + parent.getAbsolutePath() + " (成功: " + created + ")");
+        }
+    }
+
+    /**
+     * ヘッダー行を含むログファイルを作成します。
+     */
+    private void createLogFileWithHeader(File file) {
+        try (PrintWriter writer = new PrintWriter(
+                new OutputStreamWriter(new FileOutputStream(file), "UTF-8"))) {
+            writer.println("タイムスタンプ,アクション種別,詳細情報");
+            logInfo("ログファイルを初期化しました: " + logFile);
+        } catch (Exception e) {
+            logError("ログファイルの初期化に失敗しました: " + logFile, e);
+        }
+    }
+
+    /**
+     * 情報メッセージをコンソールに出力します。
+     */
+    private void logInfo(String message) {
+        System.out.println(message);
+    }
+
+    /**
+     * エラーメッセージとスタックトレースをコンソールに出力します。
+     */
+    private void logError(String message, Exception e) {
+        System.err.println(message);
+        e.printStackTrace();
     }
     
     private void logAction(String actionType, String details) {
-        String timestamp = LocalDateTime.now().format(TIMESTAMP_FORMAT);
-        String logEntry = timestamp + "," + actionType + "," + escapeCSV(details);
+        String logEntry = createLogEntry(actionType, details);
+        writeLogEntry(logEntry);
+    }
 
+    /**
+     * ログエントリを作成します。
+     */
+    private String createLogEntry(String actionType, String details) {
+        String timestamp = LocalDateTime.now().format(TIMESTAMP_FORMAT);
+        return timestamp + "," + actionType + "," + escapeCSV(details);
+    }
+
+    /**
+     * ログエントリをファイルに書き込みます。
+     */
+    private void writeLogEntry(String logEntry) {
         try (PrintWriter writer = new PrintWriter(
                 new OutputStreamWriter(new FileOutputStream(logFile, true), "UTF-8"))) {
             writer.println(logEntry);
-            System.out.println("ログ記録: " + logEntry);
+            logInfo("ログ記録: " + logEntry);
         } catch (Exception e) {
             System.err.println("ログの書き込みに失敗しました: " + logFile);
             System.err.println("ログ内容: " + logEntry);

@@ -100,36 +100,66 @@ public class ConfigManager {
     }
     
     private String formatFilename(String format, String respondentId) {
-        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyyMMdd");
-        DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HHmmss");
+        String filename = replacePlaceholders(format, respondentId);
+        filename = processSequenceNumber(filename, format);
+        return filename;
+    }
+
+    /**
+     * ファイル名のプレースホルダーを実際の値に置換します。
+     */
+    private String replacePlaceholders(String format, String respondentId) {
         LocalDateTime now = LocalDateTime.now();
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern(Constants.DATE_FORMAT_PATTERN);
+        DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern(Constants.TIME_FORMAT_PATTERN);
 
-        String participantName = config.getParticipantName() != null ? config.getParticipantName() : "";
-        String participantId = config.getParticipantId() != null ? config.getParticipantId() : "";
+        String participantName = getConfigValueOrEmpty(config.getParticipantName());
+        String participantId = getConfigValueOrEmpty(config.getParticipantId());
 
-        String filename = format
+        return format
             .replace("{date}", now.format(dateFormatter))
             .replace("{time}", now.format(timeFormatter))
             .replace("{respondent_id}", respondentId)
             .replace("{participant_name}", participantName)
             .replace("{participant_id}", participantId);
+    }
 
-        if (filename.contains("{sequence}")) {
-            boolean isResponseFile = format.equals(config.getResponseNameFormat());
-            int sequence;
+    /**
+     * 設定値を取得し、nullの場合は空文字を返します。
+     */
+    private String getConfigValueOrEmpty(String value) {
+        return value != null ? value : "";
+    }
 
-            if (isResponseFile) {
-                sequence = config.getResponseSequence();
-                config.setResponseSequence(sequence + 1);
-            } else {
-                sequence = config.getLogSequence();
-                config.setLogSequence(sequence + 1);
-            }
-
-            filename = filename.replace("{sequence}", String.format("%03d", sequence));
-            saveConfig();
+    /**
+     * シーケンス番号を処理します。
+     */
+    private String processSequenceNumber(String filename, String originalFormat) {
+        if (!filename.contains("{sequence}")) {
+            return filename;
         }
 
-        return filename;
+        int sequence = getAndIncrementSequence(originalFormat);
+        String result = filename.replace("{sequence}", String.format(Constants.SEQUENCE_FORMAT, sequence));
+        saveConfig();
+        return result;
+    }
+
+    /**
+     * シーケンス番号を取得し、インクリメントします。
+     */
+    private int getAndIncrementSequence(String format) {
+        boolean isResponseFile = format.equals(config.getResponseNameFormat());
+        int sequence;
+
+        if (isResponseFile) {
+            sequence = config.getResponseSequence();
+            config.setResponseSequence(sequence + 1);
+        } else {
+            sequence = config.getLogSequence();
+            config.setLogSequence(sequence + 1);
+        }
+
+        return sequence;
     }
 }
