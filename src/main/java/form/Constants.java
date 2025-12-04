@@ -91,6 +91,12 @@ public class Constants {
     public static final int EDITOR_QUESTION_LIST_HEIGHT = 150;
     public static final int EDITOR_ROW_HEIGHT = 35;
     public static final Dimension EDITOR_BUTTON_SIZE = new Dimension(150, 40);
+    public static final int EDITOR_QUESTION_TEXTAREA_ROWS = 4;
+    public static final int EDITOR_QUESTION_TEXTAREA_COLS = 40;
+    public static final int EDITOR_PANEL_PADDING = 10;
+    public static final int EDITOR_PANEL_SIDE_PADDING = 15;
+    public static final int EDITOR_COMPONENT_SPACING = 5;
+    public static final int EDITOR_BUTTON_PANEL_SPACING = 10;
     
     // バリデーション設定
     public static final int MIN_CHOICES = 2;

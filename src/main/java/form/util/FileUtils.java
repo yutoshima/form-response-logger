@@ -103,39 +103,72 @@ public class FileUtils {
     public static List<Question> loadQuestionsFromCSV(String filepath) {
         List<Question> questions = new ArrayList<>();
 
-        try (BufferedReader reader = new BufferedReader(
-                new InputStreamReader(new FileInputStream(filepath), StandardCharsets.UTF_8))) {
-            // BOMをスキップ
-            reader.mark(1);
-            if (reader.read() != 0xFEFF) {
-                reader.reset();
-            }
-
-            // ヘッダーをスキップ
-            reader.readLine();
+        try (BufferedReader reader = createCSVReader(filepath)) {
+            skipBOMAndHeader(reader);
 
             String line;
             while ((line = readCSVRecord(reader)) != null) {
-                String[] parts = parseCSVLine(line);
-                if (parts.length < 2) continue;
-
-                Question question = new Question();
-                question.setText(parts[1]);
-
-                List<String> choices = new ArrayList<>();
-                for (int i = 2; i < parts.length; i++) {
-                    if (parts[i] != null && !parts[i].trim().isEmpty()) {
-                        choices.add(parts[i]);
-                    }
+                Question question = parseQuestionFromCSVLine(line);
+                if (question != null) {
+                    questions.add(question);
                 }
-                question.setChoices(choices);
-                questions.add(question);
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
 
         return questions;
+    }
+
+    /**
+     * CSV読み込み用のBufferedReaderを作成します。
+     */
+    private static BufferedReader createCSVReader(String filepath) throws IOException {
+        return new BufferedReader(
+            new InputStreamReader(new FileInputStream(filepath), StandardCharsets.UTF_8));
+    }
+
+    /**
+     * CSVファイルのBOMとヘッダー行をスキップします。
+     */
+    private static void skipBOMAndHeader(BufferedReader reader) throws IOException {
+        // BOMをスキップ
+        reader.mark(1);
+        if (reader.read() != 0xFEFF) {
+            reader.reset();
+        }
+
+        // ヘッダーをスキップ
+        reader.readLine();
+    }
+
+    /**
+     * CSV行から質問オブジェクトを生成します。
+     */
+    private static Question parseQuestionFromCSVLine(String line) {
+        String[] parts = parseCSVLine(line);
+        if (parts.length < 2) {
+            return null;
+        }
+
+        Question question = new Question();
+        question.setText(parts[1]);
+        question.setChoices(extractChoicesFromParts(parts));
+
+        return question;
+    }
+
+    /**
+     * CSV行のパーツから選択肢リストを抽出します。
+     */
+    private static List<String> extractChoicesFromParts(String[] parts) {
+        List<String> choices = new ArrayList<>();
+        for (int i = 2; i < parts.length; i++) {
+            if (parts[i] != null && !parts[i].trim().isEmpty()) {
+                choices.add(parts[i]);
+            }
+        }
+        return choices;
     }
     
     // 質問データのJSON読み込み
@@ -180,29 +213,12 @@ public class FileUtils {
      * @return 保存に成功した場合はtrue、失敗した場合はfalse
      */
     public static boolean saveResponseToCSV(List<Response> responses, String filepath) {
-        File file = new File(filepath);
-        boolean fileExists = file.exists();
-
-        try (PrintWriter writer = new PrintWriter(
-                new OutputStreamWriter(new FileOutputStream(filepath, true), StandardCharsets.UTF_8))) {
-
-            if (!fileExists) {
-                writer.write(UTF8_BOM);
-                writer.println("回答者ID,タイムスタンプ,問題番号,質問文,選択した回答,選択組合せ,理由");
-            }
-
-            for (Response response : responses) {
-                writer.println(buildResponseRow(response));
-            }
-
-            return true;
-        } catch (IOException e) {
-            System.err.println("回答データのCSV保存に失敗しました: " + e.getMessage());
-            return false;
-        } catch (Exception e) {
-            System.err.println("回答データの処理中にエラーが発生しました: " + e.getMessage());
-            return false;
-        }
+        return saveToCSVWithAppend(
+            filepath,
+            "回答者ID,タイムスタンプ,問題番号,質問文,選択した回答,選択組合せ,理由",
+            writer -> responses.forEach(response -> writer.println(buildResponseRow(response))),
+            "回答データ"
+        );
     }
 
     /**
@@ -263,25 +279,41 @@ public class FileUtils {
     // 回答データ保存（形式指定）
     public static boolean saveResponse(List<Response> responses, String filepath, String outputFormat) {
         boolean success = true;
-        
-        if ("csv".equals(outputFormat) || "both".equals(outputFormat)) {
-            String csvPath = filepath.endsWith(".csv") ? filepath : filepath + ".csv";
-            if (!saveResponseToCSV(responses, csvPath)) {
-                success = false;
-            }
+
+        if (shouldSaveFormat(outputFormat, "csv")) {
+            success &= saveResponseToCSV(responses, ensureCSVExtension(filepath));
         }
-        
-        if ("json".equals(outputFormat) || "both".equals(outputFormat)) {
-            String jsonPath = filepath.replace(".csv", ".json");
-            if (!jsonPath.endsWith(".json")) {
-                jsonPath += ".json";
-            }
-            if (!saveResponseToJSON(responses, jsonPath)) {
-                success = false;
-            }
+
+        if (shouldSaveFormat(outputFormat, "json")) {
+            success &= saveResponseToJSON(responses, convertToJSONPath(filepath));
         }
-        
+
         return success;
+    }
+
+    /**
+     * 指定された形式で保存すべきかを判定します。
+     */
+    private static boolean shouldSaveFormat(String outputFormat, String targetFormat) {
+        return targetFormat.equals(outputFormat) || "both".equals(outputFormat);
+    }
+
+    /**
+     * ファイルパスにCSV拡張子を付与します。
+     */
+    private static String ensureCSVExtension(String filepath) {
+        return filepath.endsWith(".csv") ? filepath : filepath + ".csv";
+    }
+
+    /**
+     * ファイルパスをJSON形式に変換します。
+     */
+    private static String convertToJSONPath(String filepath) {
+        String jsonPath = filepath.replace(".csv", ".json");
+        if (!jsonPath.endsWith(".json")) {
+            jsonPath += ".json";
+        }
+        return jsonPath;
     }
     
     // CSV文字列のエスケープ
@@ -292,7 +324,52 @@ public class FileUtils {
         }
         return text;
     }
-    
+
+    /**
+     * CSV形式でデータを追記保存します。
+     * ファイルが存在しない場合はBOMとヘッダーを書き込みます。
+     *
+     * @param filepath 保存先ファイルパス
+     * @param header ヘッダー行
+     * @param dataWriter データ行を書き込むConsumer
+     * @param dataType データタイプ（エラーメッセージ用）
+     * @return 保存に成功した場合はtrue、失敗した場合はfalse
+     */
+    private static boolean saveToCSVWithAppend(
+            String filepath,
+            String header,
+            java.util.function.Consumer<PrintWriter> dataWriter,
+            String dataType) {
+        File file = new File(filepath);
+        boolean fileExists = file.exists();
+
+        try (PrintWriter writer = new PrintWriter(
+                new OutputStreamWriter(new FileOutputStream(filepath, true), StandardCharsets.UTF_8))) {
+
+            if (!fileExists) {
+                writeCSVHeader(writer, header);
+            }
+
+            dataWriter.accept(writer);
+
+            return true;
+        } catch (IOException e) {
+            System.err.println(dataType + "のCSV保存に失敗しました: " + e.getMessage());
+            return false;
+        } catch (Exception e) {
+            System.err.println(dataType + "の処理中にエラーが発生しました: " + e.getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * CSVファイルのヘッダーをBOM付きで書き込みます。
+     */
+    private static void writeCSVHeader(PrintWriter writer, String header) {
+        writer.write(UTF8_BOM);
+        writer.println(header);
+    }
+
     // 複数行にわたるCSVレコードを読み取る
     private static String readCSVRecord(BufferedReader reader) throws IOException {
         StringBuilder record = new StringBuilder();
@@ -300,22 +377,8 @@ public class FileUtils {
         boolean inQuotes = false;
 
         while ((line = reader.readLine()) != null) {
-            if (record.length() > 0) {
-                record.append("\n");
-            }
-            record.append(line);
-
-            // ダブルクォートの数をカウントして、クォート内かどうかを判定
-            for (int i = 0; i < line.length(); i++) {
-                if (line.charAt(i) == '"') {
-                    // エスケープされたダブルクォート（""）をスキップ
-                    if (i + 1 < line.length() && line.charAt(i + 1) == '"') {
-                        i++;
-                    } else {
-                        inQuotes = !inQuotes;
-                    }
-                }
-            }
+            appendLineToRecord(record, line);
+            inQuotes = updateQuoteState(line, inQuotes);
 
             // クォートが閉じていればレコード完了
             if (!inQuotes) {
@@ -326,6 +389,43 @@ public class FileUtils {
         return record.length() > 0 ? record.toString() : null;
     }
 
+    /**
+     * レコードに行を追加します。
+     */
+    private static void appendLineToRecord(StringBuilder record, String line) {
+        if (record.length() > 0) {
+            record.append("\n");
+        }
+        record.append(line);
+    }
+
+    /**
+     * 行内のクォート状態を更新します。
+     */
+    private static boolean updateQuoteState(String line, boolean currentState) {
+        boolean inQuotes = currentState;
+
+        for (int i = 0; i < line.length(); i++) {
+            if (line.charAt(i) == '"') {
+                // エスケープされたダブルクォート（""）をスキップ
+                if (isEscapedQuote(line, i)) {
+                    i++;
+                } else {
+                    inQuotes = !inQuotes;
+                }
+            }
+        }
+
+        return inQuotes;
+    }
+
+    /**
+     * 指定位置のクォートがエスケープされているかを判定します。
+     */
+    private static boolean isEscapedQuote(String line, int position) {
+        return position + 1 < line.length() && line.charAt(position + 1) == '"';
+    }
+
     // CSV行のパース
     private static String[] parseCSVLine(String line) {
         List<String> result = new ArrayList<>();
@@ -334,24 +434,64 @@ public class FileUtils {
 
         for (int i = 0; i < line.length(); i++) {
             char c = line.charAt(i);
+            CSVParseResult parseResult = processCSVCharacter(c, i, line, inQuotes, current);
 
-            if (c == '"') {
-                if (inQuotes && i + 1 < line.length() && line.charAt(i + 1) == '"') {
-                    current.append('"');
-                    i++;
-                } else {
-                    inQuotes = !inQuotes;
-                }
-            } else if (c == ',' && !inQuotes) {
+            inQuotes = parseResult.inQuotes;
+            i = parseResult.nextIndex;
+
+            if (parseResult.shouldAddField) {
                 result.add(current.toString());
                 current.setLength(0);
-            } else {
-                current.append(c);
             }
         }
 
         result.add(current.toString());
         return result.toArray(new String[0]);
+    }
+
+    /**
+     * CSV文字処理の結果を保持するクラス
+     */
+    private static class CSVParseResult {
+        boolean inQuotes;
+        int nextIndex;
+        boolean shouldAddField;
+
+        CSVParseResult(boolean inQuotes, int nextIndex, boolean shouldAddField) {
+            this.inQuotes = inQuotes;
+            this.nextIndex = nextIndex;
+            this.shouldAddField = shouldAddField;
+        }
+    }
+
+    /**
+     * CSV行の1文字を処理します。
+     */
+    private static CSVParseResult processCSVCharacter(
+            char c, int index, String line, boolean inQuotes, StringBuilder current) {
+
+        if (c == '"') {
+            return processQuoteCharacter(index, line, inQuotes, current);
+        } else if (c == ',' && !inQuotes) {
+            return new CSVParseResult(inQuotes, index, true);
+        } else {
+            current.append(c);
+            return new CSVParseResult(inQuotes, index, false);
+        }
+    }
+
+    /**
+     * クォート文字を処理します。
+     */
+    private static CSVParseResult processQuoteCharacter(
+            int index, String line, boolean inQuotes, StringBuilder current) {
+
+        if (inQuotes && isEscapedQuote(line, index)) {
+            current.append('"');
+            return new CSVParseResult(true, index + 1, false);
+        } else {
+            return new CSVParseResult(!inQuotes, index, false);
+        }
     }
     
     public static String getTimestamp() {
@@ -366,33 +506,23 @@ public class FileUtils {
      * @return 保存に成功した場合はtrue、失敗した場合はfalse
      */
     public static boolean saveCombinationPatterns(List<Response> responses, String filepath) {
-        File file = new File(filepath);
-        boolean fileExists = file.exists();
+        return saveToCSVWithAppend(
+            filepath,
+            "回答者ID,タイムスタンプ,問題番号,選択組合せ",
+            writer -> responses.forEach(response -> writer.println(buildCombinationRow(response))),
+            "組み合わせパターン"
+        );
+    }
 
-        try (PrintWriter writer = new PrintWriter(
-                new OutputStreamWriter(new FileOutputStream(filepath, true), StandardCharsets.UTF_8))) {
-
-            if (!fileExists) {
-                writer.write(UTF8_BOM);
-                writer.println("回答者ID,タイムスタンプ,問題番号,選択組合せ");
-            }
-
-            for (Response response : responses) {
-                StringBuilder row = new StringBuilder();
-                row.append(escapeCSV(response.getRespondentId())).append(",");
-                row.append(escapeCSV(response.getTimestamp())).append(",");
-                row.append(response.getQuestionNum()).append(",");
-                row.append(escapeCSV(response.getChoiceCombination() != null ? response.getChoiceCombination() : ""));
-                writer.println(row.toString());
-            }
-
-            return true;
-        } catch (IOException e) {
-            System.err.println("組み合わせパターンのCSV保存に失敗しました: " + e.getMessage());
-            return false;
-        } catch (Exception e) {
-            System.err.println("組み合わせパターンの処理中にエラーが発生しました: " + e.getMessage());
-            return false;
-        }
+    /**
+     * 組み合わせパターンの行データを構築します。
+     */
+    private static String buildCombinationRow(Response response) {
+        StringBuilder row = new StringBuilder();
+        row.append(escapeCSV(response.getRespondentId())).append(",");
+        row.append(escapeCSV(response.getTimestamp())).append(",");
+        row.append(response.getQuestionNum()).append(",");
+        row.append(escapeCSV(response.getChoiceCombination() != null ? response.getChoiceCombination() : ""));
+        return row.toString();
     }
 }

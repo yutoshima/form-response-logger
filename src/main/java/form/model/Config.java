@@ -271,9 +271,7 @@ public class Config {
     }
 
     public void setMaxSelectableChoices(int maxSelectableChoices) {
-        if (maxSelectableChoices < 1) {
-            throw new IllegalArgumentException("最大選択可能数は1以上である必要があります");
-        }
+        validatePositiveInteger(maxSelectableChoices, "最大選択可能数");
         this.maxSelectableChoices = maxSelectableChoices;
     }
 
@@ -282,10 +280,17 @@ public class Config {
     }
 
     public void setMinSelectableChoices(int minSelectableChoices) {
-        if (minSelectableChoices < 1) {
-            throw new IllegalArgumentException("必須選択数は1以上である必要があります");
-        }
+        validatePositiveInteger(minSelectableChoices, "必須選択数");
         this.minSelectableChoices = minSelectableChoices;
+    }
+
+    /**
+     * 正の整数であることを検証します。
+     */
+    private void validatePositiveInteger(int value, String fieldName) {
+        if (value < 1) {
+            throw new IllegalArgumentException(fieldName + "は1以上である必要があります");
+        }
     }
 
     public boolean isUseChoiceLabels() {
@@ -438,71 +443,151 @@ public class Config {
 
     public Map<String, Object> toMap() {
         Map<String, Object> map = new HashMap<>();
+        addFileSettings(map);
+        addParticipantSettings(map);
+        addUISettings(map);
+        addBehaviorSettings(map);
+        addButtonTexts(map);
+        addTitleTexts(map);
+        addLogActionTexts(map);
+        return map;
+    }
+
+    /**
+     * ファイル/ディレクトリ設定をマップに追加します。
+     */
+    private void addFileSettings(Map<String, Object> map) {
         map.put("questions_directory", questionsDirectory);
         map.put("questions_file", questionsFile);
         map.put("log_directory", logDirectory);
         map.put("log_name_format", logNameFormat);
         map.put("response_directory", responseDirectory);
         map.put("response_name_format", responseNameFormat);
-        map.put("participant_name", participantName);
-        map.put("participant_id", participantId);
-        map.put("appearance_mode", appearanceMode);
-        map.put("color_theme", colorTheme);
-        map.put("output_format", outputFormat);
-        map.put("font_size", fontSize);
-        map.put("auto_save", autoSave);
-        map.put("use_participant_info", useParticipantInfo);
-        map.put("default_choices", defaultChoices);
-        map.put("choice_columns", choiceColumns);
         map.put("log_sequence", logSequence);
         map.put("response_sequence", responseSequence);
-        map.put("use_html_rendering", useHtmlRendering);
+    }
+
+    /**
+     * 参加者情報設定をマップに追加します。
+     */
+    private void addParticipantSettings(Map<String, Object> map) {
+        map.put("participant_name", participantName);
+        map.put("participant_id", participantId);
+        map.put("use_participant_info", useParticipantInfo);
+    }
+
+    /**
+     * UI設定をマップに追加します。
+     */
+    private void addUISettings(Map<String, Object> map) {
+        map.put("appearance_mode", appearanceMode);
+        map.put("color_theme", colorTheme);
+        map.put("font_size", fontSize);
+        map.put("output_format", outputFormat);
         map.put("content_width", contentWidth);
+    }
+
+    /**
+     * 動作設定をマップに追加します。
+     */
+    private void addBehaviorSettings(Map<String, Object> map) {
+        map.put("auto_save", autoSave);
+        map.put("default_choices", defaultChoices);
+        map.put("choice_columns", choiceColumns);
+        map.put("use_html_rendering", useHtmlRendering);
         map.put("randomize_choices", randomizeChoices);
         map.put("enable_prev_button", enablePrevButton);
         map.put("max_selectable_choices", maxSelectableChoices);
         map.put("min_selectable_choices", minSelectableChoices);
         map.put("use_choice_labels", useChoiceLabels);
         map.put("save_combination_patterns", saveCombinationPatterns);
+    }
+
+    /**
+     * ボタンテキストをマップに追加します。
+     */
+    private void addButtonTexts(Map<String, Object> map) {
         map.put("button_create_questions", buttonCreateQuestions);
         map.put("button_take_survey", buttonTakeSurvey);
         map.put("button_next_question", buttonNextQuestion);
         map.put("button_prev_question", buttonPrevQuestion);
         map.put("button_reselect", buttonReselect);
         map.put("button_finish_survey", buttonFinishSurvey);
+    }
+
+    /**
+     * タイトルテキストをマップに追加します。
+     */
+    private void addTitleTexts(Map<String, Object> map) {
         map.put("title_main", titleMain);
         map.put("title_question_editor", titleQuestionEditor);
         map.put("title_settings", titleSettings);
         map.put("title_survey", titleSurvey);
+    }
+
+    /**
+     * ログアクションテキストをマップに追加します。
+     */
+    private void addLogActionTexts(Map<String, Object> map) {
         map.put("log_action_choice_selection", logActionChoiceSelection);
         map.put("log_action_reason_start", logActionReasonStart);
         map.put("log_action_reason_text", logActionReasonText);
         map.put("log_action_reason_rewrite", logActionReasonRewrite);
         map.put("log_action_question_move", logActionQuestionMove);
         map.put("log_action_submit", logActionSubmit);
-        return map;
     }
 
     public void fromMap(Map<String, Object> map) {
+        loadFileSettings(map);
+        loadParticipantSettings(map);
+        loadUISettings(map);
+        loadBehaviorSettings(map);
+        loadButtonTexts(map);
+        loadTitleTexts(map);
+        loadLogActionTexts(map);
+    }
+
+    /**
+     * ファイル/ディレクトリ設定をマップから読み込みます。
+     */
+    private void loadFileSettings(Map<String, Object> map) {
         this.questionsDirectory = getString(map, "questions_directory");
         this.questionsFile = getString(map, "questions_file");
         this.logDirectory = getString(map, "log_directory");
         this.logNameFormat = getString(map, "log_name_format");
         this.responseDirectory = getString(map, "response_directory");
         this.responseNameFormat = getString(map, "response_name_format");
-        this.participantName = getString(map, "participant_name");
-        this.participantId = getString(map, "participant_id");
-        this.appearanceMode = getString(map, "appearance_mode");
-        this.colorTheme = getString(map, "color_theme");
-        this.outputFormat = getString(map, "output_format");
-        this.fontSize = getString(map, "font_size");
-        this.autoSave = getBoolean(map, "auto_save", this.autoSave);
-        this.useParticipantInfo = getBoolean(map, "use_participant_info", this.useParticipantInfo);
-        this.defaultChoices = getInt(map, "default_choices", this.defaultChoices);
-        this.choiceColumns = getInt(map, "choice_columns", this.choiceColumns);
         this.logSequence = getInt(map, "log_sequence", this.logSequence);
         this.responseSequence = getInt(map, "response_sequence", this.responseSequence);
+    }
+
+    /**
+     * 参加者情報設定をマップから読み込みます。
+     */
+    private void loadParticipantSettings(Map<String, Object> map) {
+        this.participantName = getString(map, "participant_name");
+        this.participantId = getString(map, "participant_id");
+        this.useParticipantInfo = getBoolean(map, "use_participant_info", this.useParticipantInfo);
+    }
+
+    /**
+     * UI設定をマップから読み込みます。
+     */
+    private void loadUISettings(Map<String, Object> map) {
+        this.appearanceMode = getString(map, "appearance_mode");
+        this.colorTheme = getString(map, "color_theme");
+        this.fontSize = getString(map, "font_size");
+        this.outputFormat = getString(map, "output_format");
         this.contentWidth = getInt(map, "content_width", this.contentWidth);
+    }
+
+    /**
+     * 動作設定をマップから読み込みます。
+     */
+    private void loadBehaviorSettings(Map<String, Object> map) {
+        this.autoSave = getBoolean(map, "auto_save", this.autoSave);
+        this.defaultChoices = getInt(map, "default_choices", this.defaultChoices);
+        this.choiceColumns = getInt(map, "choice_columns", this.choiceColumns);
         this.useHtmlRendering = getBoolean(map, "use_html_rendering", this.useHtmlRendering);
         this.randomizeChoices = getBoolean(map, "randomize_choices", this.randomizeChoices);
         this.enablePrevButton = getBoolean(map, "enable_prev_button", this.enablePrevButton);
@@ -510,16 +595,34 @@ public class Config {
         this.minSelectableChoices = getInt(map, "min_selectable_choices", this.minSelectableChoices);
         this.useChoiceLabels = getBoolean(map, "use_choice_labels", this.useChoiceLabels);
         this.saveCombinationPatterns = getBoolean(map, "save_combination_patterns", this.saveCombinationPatterns);
+    }
+
+    /**
+     * ボタンテキストをマップから読み込みます。
+     */
+    private void loadButtonTexts(Map<String, Object> map) {
         this.buttonCreateQuestions = getString(map, "button_create_questions");
         this.buttonTakeSurvey = getString(map, "button_take_survey");
         this.buttonNextQuestion = getString(map, "button_next_question");
         this.buttonPrevQuestion = getString(map, "button_prev_question");
         this.buttonReselect = getString(map, "button_reselect");
         this.buttonFinishSurvey = getString(map, "button_finish_survey");
+    }
+
+    /**
+     * タイトルテキストをマップから読み込みます。
+     */
+    private void loadTitleTexts(Map<String, Object> map) {
         this.titleMain = getString(map, "title_main");
         this.titleQuestionEditor = getString(map, "title_question_editor");
         this.titleSettings = getString(map, "title_settings");
         this.titleSurvey = getString(map, "title_survey");
+    }
+
+    /**
+     * ログアクションテキストをマップから読み込みます。
+     */
+    private void loadLogActionTexts(Map<String, Object> map) {
         this.logActionChoiceSelection = getString(map, "log_action_choice_selection");
         this.logActionReasonStart = getString(map, "log_action_reason_start");
         this.logActionReasonText = getString(map, "log_action_reason_text");

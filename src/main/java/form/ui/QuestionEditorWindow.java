@@ -81,10 +81,11 @@ public class QuestionEditorWindow extends JFrame {
     }
     
     private JPanel createQuestionInputArea() {
-        JPanel panel = new JPanel(new BorderLayout(5, 5));
+        JPanel panel = new JPanel(new BorderLayout(Constants.EDITOR_COMPONENT_SPACING, Constants.EDITOR_COMPONENT_SPACING));
         panel.setBorder(BorderFactory.createCompoundBorder(
             BorderFactory.createTitledBorder("質問文"),
-            new EmptyBorder(10, 15, 15, 15)
+            new EmptyBorder(Constants.EDITOR_PANEL_PADDING, Constants.EDITOR_PANEL_SIDE_PADDING,
+                Constants.EDITOR_PANEL_SIDE_PADDING, Constants.EDITOR_PANEL_SIDE_PADDING)
         ));
 
         // ヘッダーパネル（モード表示を追加）
@@ -100,7 +101,7 @@ public class QuestionEditorWindow extends JFrame {
 
         panel.add(headerPanel, BorderLayout.NORTH);
 
-        questionTextArea = new JTextArea(4, 40);
+        questionTextArea = new JTextArea(Constants.EDITOR_QUESTION_TEXTAREA_ROWS, Constants.EDITOR_QUESTION_TEXTAREA_COLS);
         questionTextArea.setFont(new Font(Constants.FONT_FAMILY, Font.PLAIN, Constants.FONT_SIZE_LABEL));
         questionTextArea.setLineWrap(true);
         questionTextArea.setWrapStyleWord(true);
@@ -111,10 +112,11 @@ public class QuestionEditorWindow extends JFrame {
     }
     
     private JPanel createChoicesArea() {
-        JPanel panel = new JPanel(new BorderLayout(5, 5));
+        JPanel panel = new JPanel(new BorderLayout(Constants.EDITOR_COMPONENT_SPACING, Constants.EDITOR_COMPONENT_SPACING));
         panel.setBorder(BorderFactory.createCompoundBorder(
             BorderFactory.createTitledBorder("選択肢"),
-            new EmptyBorder(10, 15, 15, 15)
+            new EmptyBorder(Constants.EDITOR_PANEL_PADDING, Constants.EDITOR_PANEL_SIDE_PADDING,
+                Constants.EDITOR_PANEL_SIDE_PADDING, Constants.EDITOR_PANEL_SIDE_PADDING)
         ));
         
         JPanel headerPanel = new JPanel(new BorderLayout());
@@ -146,42 +148,151 @@ public class QuestionEditorWindow extends JFrame {
     }
     
     private void addChoiceField() {
-        if (choiceFields.size() >= Constants.MAX_CHOICES) {
-            JOptionPane.showMessageDialog(this, 
-                "選択肢は最大" + Constants.MAX_CHOICES + "個までです");
+        if (!validateChoiceFieldLimit()) {
             return;
         }
-        
-        JPanel choicePanel = new JPanel(new BorderLayout(5, 5));
-        choicePanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, Constants.EDITOR_ROW_HEIGHT));
-        
+
+        JPanel choicePanel = createChoicePanel();
+        JTextField textField = createChoiceTextField();
+        JButton removeButton = createRemoveButton(choicePanel, textField);
+
+        assembleChoicePanel(choicePanel, textField, removeButton);
+        addChoicePanelToUI(choicePanel);
+    }
+
+    /**
+     * 選択肢フィールド数の上限チェックを行います。
+     */
+    private boolean validateChoiceFieldLimit() {
+        if (choiceFields.size() >= Constants.MAX_CHOICES) {
+            JOptionPane.showMessageDialog(this,
+                "選択肢は最大" + Constants.MAX_CHOICES + "個までです");
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * 選択肢パネルを作成します。
+     */
+    private JPanel createChoicePanel() {
+        JPanel panel = new JPanel(new BorderLayout(Constants.EDITOR_COMPONENT_SPACING, Constants.EDITOR_COMPONENT_SPACING));
+        panel.setMaximumSize(new Dimension(Integer.MAX_VALUE, Constants.EDITOR_ROW_HEIGHT));
+        return panel;
+    }
+
+    /**
+     * 選択肢入力用のテキストフィールドを作成し、リストに追加します。
+     */
+    private JTextField createChoiceTextField() {
         JTextField textField = new JTextField();
         textField.setFont(new Font(Constants.FONT_FAMILY, Font.PLAIN, Constants.FONT_SIZE_LABEL));
         choiceFields.add(textField);
-        
+        return textField;
+    }
+
+    /**
+     * 選択肢削除ボタンを作成します。
+     */
+    private JButton createRemoveButton(JPanel choicePanel, JTextField textField) {
         JButton removeButton = new JButton("削除");
         removeButton.setFont(new Font(Constants.FONT_FAMILY, Font.PLAIN, Constants.FONT_SIZE_SMALL));
-        removeButton.addActionListener(e -> {
-            choicesPanel.remove(choicePanel);
-            choiceFields.remove(textField);
-            choicesPanel.revalidate();
-            choicesPanel.repaint();
-        });
-        
+        removeButton.addActionListener(e -> removeChoiceField(choicePanel, textField));
+        return removeButton;
+    }
+
+    /**
+     * 選択肢フィールドを削除します。
+     */
+    private void removeChoiceField(JPanel choicePanel, JTextField textField) {
+        choicesPanel.remove(choicePanel);
+        choiceFields.remove(textField);
+        refreshChoicesPanel();
+    }
+
+    /**
+     * 選択肢パネルにコンポーネントを配置します。
+     */
+    private void assembleChoicePanel(JPanel choicePanel, JTextField textField, JButton removeButton) {
         choicePanel.add(new JLabel((choiceFields.size()) + ". "), BorderLayout.WEST);
         choicePanel.add(textField, BorderLayout.CENTER);
         choicePanel.add(removeButton, BorderLayout.EAST);
-        
+    }
+
+    /**
+     * 選択肢パネルをUIに追加します。
+     */
+    private void addChoicePanelToUI(JPanel choicePanel) {
         choicesPanel.add(choicePanel);
+        refreshChoicesPanel();
+    }
+
+    /**
+     * 選択肢パネルのUIを更新します。
+     */
+    private void refreshChoicesPanel() {
         choicesPanel.revalidate();
         choicesPanel.repaint();
     }
-    
+
+    /**
+     * ダブルクリックで問題を編集するためのマウスリスナーを作成します。
+     */
+    private java.awt.event.MouseAdapter createDoubleClickEditListener() {
+        return new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                if (evt.getClickCount() == 2) {
+                    int index = questionList.locationToIndex(evt.getPoint());
+                    if (index >= 0) {
+                        editQuestion(index);
+                    }
+                }
+            }
+        };
+    }
+
+    /**
+     * 問題リスト操作用のボタンパネルを作成します。
+     */
+    private JPanel createListButtonPanel() {
+        JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+
+        JButton editButton = new JButton("✎ 編集");
+        editButton.addActionListener(e -> editSelectedQuestion());
+
+        JButton upButton = new JButton("↑ 上へ");
+        upButton.addActionListener(e -> moveQuestion(-1));
+
+        JButton downButton = new JButton("↓ 下へ");
+        downButton.addActionListener(e -> moveQuestion(1));
+
+        JButton deleteButton = new JButton("✕ 削除");
+        deleteButton.addActionListener(e -> deleteQuestion());
+
+        panel.add(editButton);
+        panel.add(upButton);
+        panel.add(downButton);
+        panel.add(deleteButton);
+
+        return panel;
+    }
+
+    /**
+     * 選択された問題を編集します。
+     */
+    private void editSelectedQuestion() {
+        int index = questionList.getSelectedIndex();
+        if (index >= 0) {
+            editQuestion(index);
+        }
+    }
+
     private JPanel createQuestionListArea() {
-        JPanel panel = new JPanel(new BorderLayout(5, 5));
+        JPanel panel = new JPanel(new BorderLayout(Constants.EDITOR_COMPONENT_SPACING, Constants.EDITOR_COMPONENT_SPACING));
         panel.setBorder(BorderFactory.createCompoundBorder(
             BorderFactory.createTitledBorder("問題リスト"),
-            new EmptyBorder(10, 15, 15, 15)
+            new EmptyBorder(Constants.EDITOR_PANEL_PADDING, Constants.EDITOR_PANEL_SIDE_PADDING,
+                Constants.EDITOR_PANEL_SIDE_PADDING, Constants.EDITOR_PANEL_SIDE_PADDING)
         ));
         
         JLabel label = new JLabel("問題リスト");
@@ -193,53 +304,21 @@ public class QuestionEditorWindow extends JFrame {
         questionList.setFont(new Font(Constants.FONT_FAMILY, Font.PLAIN, Constants.FONT_SIZE_LABEL));
 
         // ダブルクリックで編集開始
-        questionList.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                if (evt.getClickCount() == 2) {
-                    int index = questionList.locationToIndex(evt.getPoint());
-                    if (index >= 0) {
-                        editQuestion(index);
-                    }
-                }
-            }
-        });
+        questionList.addMouseListener(createDoubleClickEditListener());
 
         JScrollPane scrollPane = new JScrollPane(questionList);
         scrollPane.setPreferredSize(new Dimension(0, Constants.EDITOR_QUESTION_LIST_HEIGHT));
         panel.add(scrollPane, BorderLayout.CENTER);
         
         // リスト操作ボタン
-        JPanel listButtonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        
-        JButton editButton = new JButton("✎ 編集");
-        editButton.addActionListener(e -> {
-            int index = questionList.getSelectedIndex();
-            if (index >= 0) {
-                editQuestion(index);
-            }
-        });
-
-        JButton upButton = new JButton("↑ 上へ");
-        upButton.addActionListener(e -> moveQuestion(-1));
-
-        JButton downButton = new JButton("↓ 下へ");
-        downButton.addActionListener(e -> moveQuestion(1));
-
-        JButton deleteButton = new JButton("✕ 削除");
-        deleteButton.addActionListener(e -> deleteQuestion());
-
-        listButtonPanel.add(editButton);
-        listButtonPanel.add(upButton);
-        listButtonPanel.add(downButton);
-        listButtonPanel.add(deleteButton);
-        
-        panel.add(listButtonPanel, BorderLayout.SOUTH);
+        panel.add(createListButtonPanel(), BorderLayout.SOUTH);
         
         return panel;
     }
     
     private JPanel createButtonArea() {
-        JPanel panel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
+        JPanel panel = new JPanel(new FlowLayout(FlowLayout.CENTER,
+            Constants.EDITOR_BUTTON_PANEL_SPACING, Constants.EDITOR_BUTTON_PANEL_SPACING));
 
         actionButton = createStyledButton("問題を追加", true);
         actionButton.addActionListener(e -> {
@@ -432,62 +511,120 @@ public class QuestionEditorWindow extends JFrame {
     }
     
     private void saveQuestions() {
-        if (questions.isEmpty()) {
-            JOptionPane.showMessageDialog(this, Constants.MSG_NO_QUESTIONS);
+        if (!validateQuestionsExist()) {
             return;
         }
-        
-        JFileChooser fileChooser = new JFileChooser();
-        fileChooser.setCurrentDirectory(new File(Constants.QUESTIONS_DIR));
-        fileChooser.setFileFilter(new javax.swing.filechooser.FileNameExtensionFilter(
-            "CSV/JSONファイル (*.csv, *.json)", "csv", "json"));
-        
+
+        JFileChooser fileChooser = createQuestionFileChooser();
         int result = fileChooser.showSaveDialog(this);
+
         if (result == JFileChooser.APPROVE_OPTION) {
-            File file = fileChooser.getSelectedFile();
-            String filepath = file.getAbsolutePath();
-            
-            // 拡張子チェック
-            if (!filepath.endsWith(".csv") && !filepath.endsWith(".json")) {
-                filepath += ".csv";
-            }
-            
-            boolean success;
-            if (filepath.endsWith(".json")) {
-                success = FileUtils.saveQuestionsToJSON(questions, filepath);
-            } else {
-                success = FileUtils.saveQuestionsToCSV(questions, filepath);
-            }
-            
-            if (success) {
-                JOptionPane.showMessageDialog(this, "保存しました: " + filepath);
-            } else {
-                JOptionPane.showMessageDialog(this, "保存に失敗しました", 
-                    "エラー", JOptionPane.ERROR_MESSAGE);
-            }
+            handleSaveFile(fileChooser.getSelectedFile());
         }
     }
-    
+
+    /**
+     * 保存対象の問題が存在するか検証します。
+     */
+    private boolean validateQuestionsExist() {
+        if (questions.isEmpty()) {
+            JOptionPane.showMessageDialog(this, Constants.MSG_NO_QUESTIONS);
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * ファイル保存処理を行います。
+     */
+    private void handleSaveFile(File file) {
+        String filepath = ensureFileExtension(file.getAbsolutePath());
+        boolean success = saveQuestionsToFile(filepath);
+
+        showSaveResult(success, filepath);
+    }
+
+    /**
+     * ファイルパスに適切な拡張子を付与します。
+     */
+    private String ensureFileExtension(String filepath) {
+        if (!filepath.endsWith(".csv") && !filepath.endsWith(".json")) {
+            return filepath + ".csv";
+        }
+        return filepath;
+    }
+
+    /**
+     * 問題をファイルに保存します。
+     */
+    private boolean saveQuestionsToFile(String filepath) {
+        if (filepath.endsWith(".json")) {
+            return FileUtils.saveQuestionsToJSON(questions, filepath);
+        } else {
+            return FileUtils.saveQuestionsToCSV(questions, filepath);
+        }
+    }
+
+    /**
+     * 保存結果をダイアログで表示します。
+     */
+    private void showSaveResult(boolean success, String filepath) {
+        if (success) {
+            JOptionPane.showMessageDialog(this, "保存しました: " + filepath);
+        } else {
+            JOptionPane.showMessageDialog(this, "保存に失敗しました",
+                "エラー", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
     private void loadQuestions() {
+        JFileChooser fileChooser = createQuestionFileChooser();
+        int result = fileChooser.showOpenDialog(this);
+
+        if (result == JFileChooser.APPROVE_OPTION) {
+            handleLoadFile(fileChooser.getSelectedFile());
+        }
+    }
+
+    /**
+     * 問題ファイル選択用のファイルチューザーを作成します。
+     */
+    private JFileChooser createQuestionFileChooser() {
         JFileChooser fileChooser = new JFileChooser();
         fileChooser.setCurrentDirectory(new File(Constants.QUESTIONS_DIR));
         fileChooser.setFileFilter(new javax.swing.filechooser.FileNameExtensionFilter(
             "CSV/JSONファイル (*.csv, *.json)", "csv", "json"));
-        
-        int result = fileChooser.showOpenDialog(this);
-        if (result == JFileChooser.APPROVE_OPTION) {
-            File file = fileChooser.getSelectedFile();
-            List<Question> loadedQuestions = FileUtils.loadQuestions(file.getAbsolutePath());
-            
-            if (!loadedQuestions.isEmpty()) {
-                questions = loadedQuestions;
-                updateQuestionList();
-                JOptionPane.showMessageDialog(this, 
-                    loadedQuestions.size() + "個の問題を読み込みました");
-            } else {
-                JOptionPane.showMessageDialog(this, "問題を読み込めませんでした", 
-                    "エラー", JOptionPane.ERROR_MESSAGE);
-            }
+        return fileChooser;
+    }
+
+    /**
+     * ファイル読み込み処理を行います。
+     */
+    private void handleLoadFile(File file) {
+        List<Question> loadedQuestions = FileUtils.loadQuestions(file.getAbsolutePath());
+
+        if (!loadedQuestions.isEmpty()) {
+            applyLoadedQuestions(loadedQuestions);
+        } else {
+            showLoadError();
         }
+    }
+
+    /**
+     * 読み込んだ問題をアプリケーションに適用します。
+     */
+    private void applyLoadedQuestions(List<Question> loadedQuestions) {
+        questions = loadedQuestions;
+        updateQuestionList();
+        JOptionPane.showMessageDialog(this,
+            loadedQuestions.size() + "個の問題を読み込みました");
+    }
+
+    /**
+     * 読み込み失敗時のエラーを表示します。
+     */
+    private void showLoadError() {
+        JOptionPane.showMessageDialog(this, "問題を読み込めませんでした",
+            "エラー", JOptionPane.ERROR_MESSAGE);
     }
 }
