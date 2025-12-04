@@ -118,33 +118,53 @@ public class QuestionEditorWindow extends JFrame {
             new EmptyBorder(Constants.EDITOR_PANEL_PADDING, Constants.EDITOR_PANEL_SIDE_PADDING,
                 Constants.EDITOR_PANEL_SIDE_PADDING, Constants.EDITOR_PANEL_SIDE_PADDING)
         ));
-        
+
+        panel.add(createChoicesHeaderPanel(), BorderLayout.NORTH);
+
+        choicesPanel = new JPanel();
+        choicesPanel.setLayout(new BoxLayout(choicesPanel, BoxLayout.Y_AXIS));
+        initializeDefaultChoices();
+
+        panel.add(createChoicesScrollPane(), BorderLayout.CENTER);
+
+        return panel;
+    }
+
+    /**
+     * 選択肢ヘッダーパネルを作成します。
+     */
+    private JPanel createChoicesHeaderPanel() {
         JPanel headerPanel = new JPanel(new BorderLayout());
+
         JLabel label = new JLabel("選択肢");
         label.setFont(new Font(Constants.FONT_FAMILY, Font.BOLD, Constants.FONT_SIZE_NORMAL));
         headerPanel.add(label, BorderLayout.WEST);
-        
+
         JButton addChoiceButton = new JButton("選択肢を追加");
         addChoiceButton.setFont(new Font(Constants.FONT_FAMILY, Font.PLAIN, Constants.FONT_SIZE_SMALL));
         addChoiceButton.addActionListener(e -> addChoiceField());
         headerPanel.add(addChoiceButton, BorderLayout.EAST);
-        
-        panel.add(headerPanel, BorderLayout.NORTH);
-        
-        choicesPanel = new JPanel();
-        choicesPanel.setLayout(new BoxLayout(choicesPanel, BoxLayout.Y_AXIS));
-        
-        // デフォルトの選択肢数（設定から取得）
+
+        return headerPanel;
+    }
+
+    /**
+     * デフォルトの選択肢を初期化します。
+     */
+    private void initializeDefaultChoices() {
         int defaultChoices = configManager.getConfig().getDefaultChoices();
         for (int i = 0; i < defaultChoices; i++) {
             addChoiceField();
         }
-        
+    }
+
+    /**
+     * 選択肢スクロールパネルを作成します。
+     */
+    private JScrollPane createChoicesScrollPane() {
         JScrollPane scrollPane = new JScrollPane(choicesPanel);
         scrollPane.setPreferredSize(new Dimension(0, Constants.EDITOR_SCROLL_HEIGHT));
-        panel.add(scrollPane, BorderLayout.CENTER);
-        
-        return panel;
+        return scrollPane;
     }
     
     private void addChoiceField() {
