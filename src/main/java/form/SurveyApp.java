@@ -14,26 +14,33 @@ import java.io.File;
 public class SurveyApp {
     
     public static void main(String[] args) {
-        // 初期セットアップ
         setupDirectories();
-        
-        // Look and Feelを設定
+        setupLookAndFeel();
+        launchGUI();
+    }
+
+    /**
+     * Look and Feelを設定します。
+     */
+    private static void setupLookAndFeel() {
         try {
             ConfigManager configManager = new ConfigManager();
             String appearanceMode = configManager.getConfig().getAppearanceMode();
-            
-            // FlatLafテーマを適用
+
             FlatLightLaf.setup();
-            
-            // システムのLook and Feelを使用する場合
+
             if ("System".equals(appearanceMode)) {
                 UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-        
-        // GUIを起動
+    }
+
+    /**
+     * GUIを起動します。
+     */
+    private static void launchGUI() {
         SwingUtilities.invokeLater(() -> {
             MainWindow mainWindow = new MainWindow();
             mainWindow.setVisible(true);
