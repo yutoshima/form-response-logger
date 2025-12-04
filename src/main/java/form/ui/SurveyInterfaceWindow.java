@@ -274,10 +274,27 @@ public class SurveyInterfaceWindow extends JFrame {
         reasonPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
         reasonPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, Constants.REASON_PANEL_HEIGHT));
 
+        reasonPanel.add(createReasonLabel(), BorderLayout.NORTH);
+        createReasonTextArea();
+        reasonPanel.add(createReasonScrollPane(), BorderLayout.CENTER);
+        reasonPanel.add(createRewriteButtonPanel(), BorderLayout.SOUTH);
+
+        return reasonPanel;
+    }
+
+    /**
+     * 理由入力ラベルを作成します。
+     */
+    private JLabel createReasonLabel() {
         JLabel reasonLabel = new JLabel("選択した理由を記入してください");
         reasonLabel.setFont(new Font(Constants.FONT_FAMILY, Font.BOLD, Constants.FONT_SIZE_NORMAL));
-        reasonPanel.add(reasonLabel, BorderLayout.NORTH);
+        return reasonLabel;
+    }
 
+    /**
+     * 理由入力テキストエリアを作成します。
+     */
+    private void createReasonTextArea() {
         reasonTextArea = new JTextArea(3, 40);
         reasonTextArea.setFont(new Font(Constants.FONT_FAMILY, Font.PLAIN, Constants.FONT_SIZE_LABEL));
         reasonTextArea.setLineWrap(true);
@@ -288,13 +305,23 @@ public class SurveyInterfaceWindow extends JFrame {
             public void removeUpdate(DocumentEvent e) { onReasonKeyPress(); }
             public void insertUpdate(DocumentEvent e) { onReasonKeyPress(); }
         });
+    }
 
+    /**
+     * 理由入力スクロールパネルを作成します。
+     */
+    private JScrollPane createReasonScrollPane() {
         JScrollPane reasonScrollPane = new JScrollPane(reasonTextArea);
         reasonScrollPane.setPreferredSize(new Dimension(0, Constants.REASON_TEXT_AREA_HEIGHT));
         reasonScrollPane.setMinimumSize(new Dimension(0, Constants.REASON_TEXT_AREA_HEIGHT));
         reasonScrollPane.setMaximumSize(new Dimension(Integer.MAX_VALUE, Constants.REASON_TEXT_AREA_HEIGHT));
-        reasonPanel.add(reasonScrollPane, BorderLayout.CENTER);
+        return reasonScrollPane;
+    }
 
+    /**
+     * 選び直しボタンパネルを作成します。
+     */
+    private JPanel createRewriteButtonPanel() {
         rewriteButton = new JButton(configManager.getConfig().getButtonReselect());
         rewriteButton.setFont(new Font(Constants.FONT_FAMILY, Font.BOLD, Constants.FONT_SIZE_BUTTON));
         rewriteButton.setBackground(Constants.COLOR_GRAY);
@@ -303,9 +330,7 @@ public class SurveyInterfaceWindow extends JFrame {
 
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
         buttonPanel.add(rewriteButton);
-        reasonPanel.add(buttonPanel, BorderLayout.SOUTH);
-
-        return reasonPanel;
+        return buttonPanel;
     }
 
     private JPanel createNavigationPanel() {
