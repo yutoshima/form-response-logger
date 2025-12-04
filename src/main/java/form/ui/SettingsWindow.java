@@ -169,7 +169,18 @@ public class SettingsWindow extends JFrame {
             new EmptyBorder(10, 15, 15, 15)
         ));
         panel.setAlignmentX(Component.LEFT_ALIGNMENT);
-        
+
+        initializeFileSettingsFields();
+        addFileSettingsRows(panel);
+        panel.add(createHelpLabel());
+
+        return panel;
+    }
+
+    /**
+     * ファイル設定のフィールドを初期化します。
+     */
+    private void initializeFileSettingsFields() {
         questionsFileField = new JTextField(30);
         logDirField = new JTextField(30);
         logFormatField = new JTextField(30);
@@ -177,7 +188,12 @@ public class SettingsWindow extends JFrame {
         responseFormatField = new JTextField(30);
         participantNameField = new JTextField(30);
         participantIdField = new JTextField(30);
+    }
 
+    /**
+     * ファイル設定の行をパネルに追加します。
+     */
+    private void addFileSettingsRows(JPanel panel) {
         panel.add(createFieldRow("被験者名:", participantNameField, false));
         panel.add(createFieldRow("被験者ID:", participantIdField, false));
         panel.add(createFieldRow("問題ファイル:", questionsFileField, true));
@@ -185,15 +201,17 @@ public class SettingsWindow extends JFrame {
         panel.add(createFieldRow("ログファイル名フォーマット:", logFormatField, false));
         panel.add(createFieldRow("回答出力ディレクトリ:", responseDirField, true));
         panel.add(createFieldRow("回答ファイル名フォーマット:", responseFormatField, false));
-        
-        // ヘルプテキスト
+    }
+
+    /**
+     * ヘルプラベルを作成します。
+     */
+    private JLabel createHelpLabel() {
         JLabel helpLabel = new JLabel("<html><i>使用可能な変数: {date}, {time}, {participant_name}, {participant_id}, {sequence}</i></html>");
         helpLabel.setFont(new Font(Constants.FONT_FAMILY, Font.PLAIN, Constants.FONT_SIZE_SMALL));
         helpLabel.setBorder(new EmptyBorder(5, 0, 0, 0));
         helpLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
-        panel.add(helpLabel);
-        
-        return panel;
+        return helpLabel;
     }
     
     private JPanel createFieldRow(String labelText, JTextField field, boolean hasButton) {
@@ -292,29 +310,44 @@ public class SettingsWindow extends JFrame {
             new EmptyBorder(10, 15, 15, 15)
         ));
         panel.setAlignmentX(Component.LEFT_ALIGNMENT);
-        
+
+        initializeDataSettingsComponents();
+        addDataSettingsRows(panel);
+
+        return panel;
+    }
+
+    /**
+     * データ設定のコンポーネントを初期化します。
+     */
+    private void initializeDataSettingsComponents() {
         String[] outputFormats = {"csv", "json", "both"};
         Integer[] defaultChoicesOptions = {2, 3, 4, 5, 6, 7, 8, 9, 10};
         Integer[] choiceColumnsOptions = {1, 2, 3, 4};
         Integer[] selectableChoicesOptions = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+        String[] widthOptions = {"小 (540px)", "中 (720px)", "大 (960px)", "特大 (1140px)"};
 
         outputFormatCombo = new JComboBox<>(outputFormats);
         defaultChoicesCombo = new JComboBox<>(defaultChoicesOptions);
         choiceColumnsCombo = new JComboBox<>(choiceColumnsOptions);
         maxSelectableChoicesCombo = new JComboBox<>(selectableChoicesOptions);
         minSelectableChoicesCombo = new JComboBox<>(selectableChoicesOptions);
+        contentWidthCombo = new JComboBox<>(widthOptions);
+
         logSequenceField = new JTextField(10);
         responseSequenceField = new JTextField(10);
+
         autoSaveCheckBox = new JCheckBox("有効にすると設定に基づいて自動保存");
         useParticipantInfoCheckBox = new JCheckBox("有効にすると被験者名・IDを入力");
         useHtmlRenderingCheckBox = new JCheckBox("有効にするとHTMLで表示（短文のみ）、無効にするとプレーンテキストで表示（長文対応）");
         randomizeChoicesCheckBox = new JCheckBox("有効にすると選択肢をランダムに並べる");
         enablePrevButtonCheckBox = new JCheckBox("有効にすると前の問題に戻るボタンを表示");
+    }
 
-        // コンテンツ横幅の選択肢（Bootstrap風サイズ）
-        String[] widthOptions = {"小 (540px)", "中 (720px)", "大 (960px)", "特大 (1140px)"};
-        contentWidthCombo = new JComboBox<>(widthOptions);
-
+    /**
+     * データ設定の行をパネルに追加します。
+     */
+    private void addDataSettingsRows(JPanel panel) {
         panel.add(createComboRow("出力形式:", outputFormatCombo));
         panel.add(createIntComboRow("デフォルト選択肢数:", defaultChoicesCombo));
         panel.add(createIntComboRow("選択肢の列数:", choiceColumnsCombo));
@@ -328,8 +361,6 @@ public class SettingsWindow extends JFrame {
         panel.add(createCheckBoxRow("HTML表示:", useHtmlRenderingCheckBox));
         panel.add(createCheckBoxRow("選択肢をランダム表示:", randomizeChoicesCheckBox));
         panel.add(createCheckBoxRow("前の問題ボタンを有効化:", enablePrevButtonCheckBox));
-
-        return panel;
     }
 
     private JPanel createButtonLabelSettings() {

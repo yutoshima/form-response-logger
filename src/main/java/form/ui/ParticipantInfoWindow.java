@@ -60,35 +60,65 @@ public class ParticipantInfoWindow extends JDialog {
         JPanel mainPanel = new JPanel(new BorderLayout(5, 5));
         mainPanel.setBorder(new EmptyBorder(15, 20, 15, 20));
 
-        // タイトル
+        mainPanel.add(createTitleLabel(), BorderLayout.NORTH);
+        mainPanel.add(createFormPanel(), BorderLayout.CENTER);
+        mainPanel.add(createButtonPanel(), BorderLayout.SOUTH);
+
+        add(mainPanel);
+    }
+
+    /**
+     * タイトルラベルを作成します。
+     */
+    private JLabel createTitleLabel() {
         JLabel titleLabel = new JLabel("被験者情報を入力してください", SwingConstants.CENTER);
         titleLabel.setFont(new Font(Constants.FONT_FAMILY, Font.BOLD, Constants.FONT_SIZE_NORMAL));
         titleLabel.setBorder(new EmptyBorder(0, 0, 10, 0));
-        mainPanel.add(titleLabel, BorderLayout.NORTH);
+        return titleLabel;
+    }
 
-        // 入力フォーム
+    /**
+     * 入力フォームパネルを作成します。
+     */
+    private JPanel createFormPanel() {
         JPanel formPanel = new JPanel(new GridLayout(2, 2, 10, 10));
 
-        // 被験者名
-        JLabel nameLabel = new JLabel("被験者名:");
-        nameLabel.setFont(new Font(Constants.FONT_FAMILY, Font.PLAIN, Constants.FONT_SIZE_LABEL));
-        nameField = new JTextField(20);
-        nameField.setFont(new Font(Constants.FONT_FAMILY, Font.PLAIN, Constants.FONT_SIZE_LABEL));
+        JLabel nameLabel = createFormLabel("被験者名:");
+        nameField = createFormTextField();
 
-        // 被験者ID
-        JLabel idLabel = new JLabel("被験者ID:");
-        idLabel.setFont(new Font(Constants.FONT_FAMILY, Font.PLAIN, Constants.FONT_SIZE_LABEL));
-        idField = new JTextField(20);
-        idField.setFont(new Font(Constants.FONT_FAMILY, Font.PLAIN, Constants.FONT_SIZE_LABEL));
+        JLabel idLabel = createFormLabel("被験者ID:");
+        idField = createFormTextField();
 
         formPanel.add(nameLabel);
         formPanel.add(nameField);
         formPanel.add(idLabel);
         formPanel.add(idField);
 
-        mainPanel.add(formPanel, BorderLayout.CENTER);
+        return formPanel;
+    }
 
-        // ボタンパネル
+    /**
+     * フォームラベルを作成します。
+     */
+    private JLabel createFormLabel(String text) {
+        JLabel label = new JLabel(text);
+        label.setFont(new Font(Constants.FONT_FAMILY, Font.PLAIN, Constants.FONT_SIZE_LABEL));
+        return label;
+    }
+
+    /**
+     * フォームテキストフィールドを作成します。
+     */
+    private JTextField createFormTextField() {
+        JTextField field = new JTextField(20);
+        field.setFont(new Font(Constants.FONT_FAMILY, Font.PLAIN, Constants.FONT_SIZE_LABEL));
+        return field;
+    }
+
+    /**
+     * ボタンパネルを作成します。
+     */
+    private JPanel createButtonPanel() {
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 5));
 
         JButton confirmButton = new JButton("確定");
@@ -104,9 +134,7 @@ public class ParticipantInfoWindow extends JDialog {
         buttonPanel.add(confirmButton);
         buttonPanel.add(cancelButton);
 
-        mainPanel.add(buttonPanel, BorderLayout.SOUTH);
-
-        add(mainPanel);
+        return buttonPanel;
     }
 
     private void loadCurrentInfo() {
