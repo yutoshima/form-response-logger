@@ -35,6 +35,8 @@ public class SettingsWindow extends JFrame {
     private JCheckBox useHtmlRenderingCheckBox;
     private JCheckBox randomizeChoicesCheckBox;
     private JCheckBox enablePrevButtonCheckBox;
+    private JCheckBox useChoiceLabelsCheckBox;
+    private JCheckBox saveCombinationPatternsCheckBox;
     private JComboBox<String> contentWidthCombo;
 
     // ボタン文言設定
@@ -342,6 +344,8 @@ public class SettingsWindow extends JFrame {
         useHtmlRenderingCheckBox = new JCheckBox("有効にするとHTMLで表示（短文のみ）、無効にするとプレーンテキストで表示（長文対応）");
         randomizeChoicesCheckBox = new JCheckBox("有効にすると選択肢をランダムに並べる");
         enablePrevButtonCheckBox = new JCheckBox("有効にすると前の問題に戻るボタンを表示");
+        useChoiceLabelsCheckBox = new JCheckBox("有効にすると選択肢をA-D形式でログに記録");
+        saveCombinationPatternsCheckBox = new JCheckBox("有効にすると選択組み合わせパターンを別ファイルに出力");
     }
 
     /**
@@ -361,6 +365,8 @@ public class SettingsWindow extends JFrame {
         panel.add(createCheckBoxRow("HTML表示:", useHtmlRenderingCheckBox));
         panel.add(createCheckBoxRow("選択肢をランダム表示:", randomizeChoicesCheckBox));
         panel.add(createCheckBoxRow("前の問題ボタンを有効化:", enablePrevButtonCheckBox));
+        panel.add(createCheckBoxRow("選択肢をA-D形式でログ記録:", useChoiceLabelsCheckBox));
+        panel.add(createCheckBoxRow("選択組み合わせパターン出力:", saveCombinationPatternsCheckBox));
     }
 
     private JPanel createButtonLabelSettings() {
@@ -535,6 +541,8 @@ public class SettingsWindow extends JFrame {
         useHtmlRenderingCheckBox.setSelected(config.isUseHtmlRendering());
         randomizeChoicesCheckBox.setSelected(config.isRandomizeChoices());
         enablePrevButtonCheckBox.setSelected(config.isEnablePrevButton());
+        useChoiceLabelsCheckBox.setSelected(config.isUseChoiceLabels());
+        saveCombinationPatternsCheckBox.setSelected(config.isSaveCombinationPatterns());
 
         loadContentWidthSetting(config.getContentWidth());
     }
@@ -661,6 +669,8 @@ public class SettingsWindow extends JFrame {
         config.setUseHtmlRendering(useHtmlRenderingCheckBox.isSelected());
         config.setRandomizeChoices(randomizeChoicesCheckBox.isSelected());
         config.setEnablePrevButton(enablePrevButtonCheckBox.isSelected());
+        config.setUseChoiceLabels(useChoiceLabelsCheckBox.isSelected());
+        config.setSaveCombinationPatterns(saveCombinationPatternsCheckBox.isSelected());
     }
 
     /**

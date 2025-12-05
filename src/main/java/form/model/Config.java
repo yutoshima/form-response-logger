@@ -70,8 +70,8 @@ public class Config {
         this.enablePrevButton = false;
         this.maxSelectableChoices = 1;
         this.minSelectableChoices = 1;
-        this.useChoiceLabels = true;
-        this.saveCombinationPatterns = true;
+        this.useChoiceLabels = false;
+        this.saveCombinationPatterns = false;
         this.buttonCreateQuestions = "問題を作成";
         this.buttonTakeSurvey = "アンケートに回答";
         this.buttonNextQuestion = "次の問題へ";
