@@ -753,7 +753,7 @@ public class SurveyInterfaceWindow extends JFrame {
 
         if (!selectedChoices.isEmpty()) {
             int remaining = minSelectableChoices - selectedChoices.size();
-            statusLabel.setText(String.format(Constants.MSG_MIN_SELECTION_REQUIRED,
+            statusLabel.setText(Constants.MSG_MIN_SELECTION_REQUIRED.formatted(
                 minSelectableChoices, remaining));
             statusLabel.setForeground(Constants.COLOR_STATUS_WARNING);
         } else {
@@ -927,7 +927,7 @@ public class SurveyInterfaceWindow extends JFrame {
             
             // 前の回答があれば削除
             if (!responses.isEmpty()) {
-                responses.remove(responses.size() - 1);
+                responses.removeLast();
             }
             
             displayQuestion();

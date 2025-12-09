@@ -642,8 +642,8 @@ public class Config {
     private int getInt(Map<String, Object> map, String key, int defaultValue) {
         if (!map.containsKey(key)) return defaultValue;
         Object value = map.get(key);
-        if (value instanceof Double) return ((Double) value).intValue();
-        if (value instanceof Integer) return (Integer) value;
+        if (value instanceof Double double1) return double1.intValue();
+        if (value instanceof Integer integer) return integer;
         return defaultValue;
     }
 }

@@ -471,7 +471,7 @@ public class QuestionEditorWindow extends JFrame {
     private void loadChoicesIntoFields(List<String> choices) {
         for (String choice : choices) {
             addChoiceField();
-            choiceFields.get(choiceFields.size() - 1).setText(choice);
+            choiceFields.getLast().setText(choice);
         }
     }
 

@@ -156,7 +156,7 @@ public class ConfigManager {
         }
 
         int sequence = getAndIncrementSequence(originalFormat);
-        String result = filename.replace("{sequence}", String.format(Constants.SEQUENCE_FORMAT, sequence));
+        String result = filename.replace("{sequence}", Constants.SEQUENCE_FORMAT.formatted(sequence));
         saveConfig();
         return result;
     }
