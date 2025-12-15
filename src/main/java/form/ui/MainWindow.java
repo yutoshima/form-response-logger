@@ -1,6 +1,7 @@
 package form.ui;
 
 import form.Constants;
+import form.ui.util.FontUtility;
 import form.util.ConfigManager;
 
 import javax.swing.*;
@@ -39,7 +40,7 @@ public class MainWindow extends JFrame {
      */
     private JLabel createTitleLabel() {
         JLabel titleLabel = new JLabel(configManager.getConfig().getTitleMain(), SwingConstants.CENTER);
-        titleLabel.setFont(new Font(Constants.FONT_FAMILY, Font.BOLD, Constants.FONT_SIZE_TITLE));
+        titleLabel.setFont(FontUtility.createTitleFont());
         titleLabel.setBorder(BorderFactory.createEmptyBorder(40, 0, 40, 0));
         return titleLabel;
     }
@@ -94,7 +95,7 @@ public class MainWindow extends JFrame {
     
     private JButton createStyledButton(String text) {
         JButton button = new JButton(text);
-        button.setFont(new Font(Constants.FONT_FAMILY, Font.PLAIN, Constants.FONT_SIZE_SUBTITLE));
+        button.setFont(FontUtility.createCustomFont(Font.PLAIN, Constants.FONT_SIZE_SUBTITLE));
         button.setPreferredSize(new Dimension(300, 50));
         button.setFocusPainted(false);
         return button;

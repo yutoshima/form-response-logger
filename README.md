@@ -1,279 +1,285 @@
-# Form Response Logger
+# 研究用アンケート・穴埋めシステム
 
-A desktop survey application for research with comprehensive logging capabilities.
+研究・教育用のJavaアプリケーション。フォーム回答システムと穴埋め学習アプリの2つのツールを提供します。
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Java](https://img.shields.io/badge/Java-11+-orange.svg)](https://www.oracle.com/java/)
-[![Maven](https://img.shields.io/badge/Maven-3.6+-red.svg)](https://maven.apache.org/)
+## 📋 目次
 
-English | [日本語](README_ja.md)
+- [システム概要](#システム概要)
+- [必要環境](#必要環境)
+- [インストール](#インストール)
+- [1. フォームシステム（SurveyApp）](#1-フォームシステムsurveyapp)
+- [2. 穴埋めシステム（FillInBlankApp）](#2-穴埋めシステムfillinblankapp)
+- [プロジェクト構造](#プロジェクト構造)
+- [研究実験ガイド](#研究実験ガイド)
+- [ライセンス](#ライセンス)
 
-## Overview
+## システム概要
 
-Form Response Logger is a desktop application designed for conducting research surveys with detailed action logging. Built with Java Swing and FlatLaf, it provides a modern, user-friendly interface similar to Google Forms while offering extensive logging capabilities for research data integrity.
+このプロジェクトは2つの独立したアプリケーションを含みます：
 
-## Key Features
+1. **SurveyApp**: 研究用アンケートシステム（Google Forms風のUI）
+2. **FillInBlankApp**: マークダウン穴埋め問題アプリ（答え合わせ・ヒント機能付き）
 
-### Survey Creation & Management
-- **GUI-based Question Editor**: Create questions and choices with an intuitive interface
-- **HTML Support**: Use HTML tags for rich text formatting in questions (bold, italic, colors, etc.)
-- **Question Editing**: Double-click to edit existing questions with visual mode indicators
-- **Flexible Question Management**: Reorder and delete questions easily
-- **Multiple Export Formats**: Save questions as CSV or JSON
-- **Auto-loading**: Automatically load question files from configured directories
+## 必要環境
 
-### Response Collection
-- **Visual Feedback**: Selected choices are highlighted for clarity
-- **Display Mode Selection**: Choose between HTML rendering (short questions with formatting) or plain text (long questions with vertical scrolling)
-- **Automatic Word Wrap**: Long questions and choices wrap automatically
-- **Reason Recording**: Require respondents to explain their choices
-- **Response Modification Rules**: Prevent impulsive changes after reasoning begins
-- **Complete Action Logging**: All user actions are timestamped and recorded with detailed console output
+- **Java**: 21以上
+- **Maven**: 3.6以上
 
-### Data Management
-- **Participant Information**: Collect and manage participant names and IDs
-- **Flexible File Naming**: Auto-generate filenames with dates, times, and participant info
-- **Sequence Management**: Independently manage sequence numbers for logs and responses
-- **Dual Format Export**: Export data in CSV (Excel-compatible UTF-8 BOM) and/or JSON
-
-### Customization
-- **Layout Options**: Display choices in 1-4 columns
-- **Appearance**: Light/dark mode, color themes, font size customization
-- **Configurable Paths**: Set custom directories for questions, responses, and logs
-
-## Requirements
-
-- Java 11 or higher
-- Maven 3.6 or higher
-
-## Installation & Running
-
-### Build from Source
+## インストール
 
 ```bash
-# Clone the repository
-git clone https://github.com/your-username/form-response-logger.git
-cd form-response-logger
+# リポジトリをクローン
+git clone <repository-url>
+cd study_form_app_java_2
 
-# Build with Maven
+# ビルド
 mvn clean package
 
-# Run the application
+# 実行（下記の各アプリを参照）
+```
+
+---
+
+## 1. フォームシステム（SurveyApp）
+
+研究用のアンケート回答・作成システム。詳細なアクションログ機能を備えています。
+
+### 主な機能
+
+- ✅ **GUI問題エディタ**: 質問と選択肢を作成
+- ✅ **HTML対応**: HTMLタグで装飾可能
+- ✅ **理由記録**: 回答の理由を記録（テキスト入力・音声録音）
+- ✅ **音声録音機能**: 理由の音声録音とThink-aloud録音に対応
+- ✅ **完全なアクションログ**: すべての操作をタイムスタンプ付きで記録
+- ✅ **CSV/JSON出力**: データをエクスポート
+- ✅ **FlatLafテーマ**: モダンなUI
+
+### 起動方法
+
+```bash
+# 方法1: スクリプトで起動
+./run.sh           # macOS/Linux
+run.bat            # Windows
+
+# 方法2: Mavenで起動
+mvn exec:java -Dexec.mainClass="form.SurveyApp"
+
+# 方法3: JARファイルから起動
 java -jar target/form-app-1.0.0.jar
 ```
 
-### Quick Start Scripts
+### 使い方
+
+1. **問題作成**: 「問題を作成」→ 質問と選択肢を入力 → 保存（CSV/JSON）
+2. **アンケート回答**: 「アンケートに回答」→ 質問に答える → 理由を記入
+3. **設定**: ⚙ボタンで参加者情報、ファイルパス、レイアウトなどをカスタマイズ
+
+### 録音機能
+
+**理由の音声録音**
+- 設定で「理由の音声録音」を有効化
+- 回答画面で選択肢を選択後、理由入力エリアに「🎤 録音開始」ボタンが表示
+- ボタンをクリックして録音開始/停止
+
+**Think-aloud録音**
+- 設定で「Think-aloud録音」を有効化
+- 回答画面のヘッダーに「🎤 Think-aloud録音開始」ボタンが表示
+- 選択肢を選んでいる間の思考プロセスを録音
+
+録音ファイルは `data/audio/` に保存されます（設定で変更可能）：
+- 理由録音: `reason_q{問題番号}_{参加者ID}_{タイムスタンプ}.wav`
+- Think-aloud: `thinkaloud_q{問題番号}_{参加者ID}_{タイムスタンプ}.wav`
+
+### データ保存先
+
+- **質問**: `data/questions/`
+- **回答**: `data/responses/`
+- **ログ**: `data/logs/`
+- **録音**: `data/audio/`
+- **設定**: `config.json`
+
+---
+
+## 2. 穴埋めシステム（FillInBlankApp）
+
+マークダウンファイルの穴埋め問題（`______`）を解くためのGUIアプリ。
+
+### 主な機能
+
+- 🎨 **リッチプレビュー**: HTML/CSSによる美しいマークダウン表示
+- 📄 **HTML出力**: 完成版をHTMLファイルとして保存（Ctrl+H）
+- 📊 **GitHub Flavored Markdown対応**: テーブル、コードブロックなど
+- 🎯 **コードハイライト**: ダークテーマで見やすい
+- ✅ **答え合わせ機能**: 正解と比較（緑=正解、赤=不正解）
+- 💡 **ヒント機能**: 各穴埋めにヒントボタン
+
+### 起動方法
 
 ```bash
-# macOS/Linux
-./run.sh
+# 方法1: スクリプトで起動
+./run_fillblank.sh
 
-# Windows
-run.bat
+# 方法2: VSCodeから
+# F5 → "FillInBlankApp (穴埋めアプリ)" を選択
 ```
 
-### Run with Maven
+### 使い方
 
-```bash
-mvn exec:java -Dexec.mainClass="com.study.form.SurveyApp"
-```
+1. **ファイルを開く**: Ctrl+O → `steps/samples/test_fillblank.md`
+2. **ヒント表示**: 各入力欄の「💡」ボタン
+3. **答えを入力**: 右側の入力欄に記入
+4. **答え合わせ**: 「✓ 答え合わせ」ボタン → 正誤判定
+5. **保存**: Ctrl+S（マークダウン）または Ctrl+H（HTML）
 
-## Quick Start Guide
+### マークダウンファイルの書式
 
-### 1. First Launch
+```markdown
+# 問題タイトル
 
-On first launch, the application automatically creates:
-- `data/questions/` - Question files directory
-- `data/responses/` - Response files directory
-- `data/logs/` - Log files directory
-- `config.json` - Configuration file
-- `data/questions/sample_questions.csv` - Sample questions
-
-### 2. Create Questions
-
-1. Click **"問題を作成" (Create Questions)**
-2. Enter question text and choices (minimum 2 choices)
-   - **Plain text**: Simple text questions
-   - **HTML formatting**: Use HTML tags for rich formatting (see below)
-3. Click **"問題を追加" (Add Question)**
-4. **Edit questions**: Double-click a question in the list to edit it
-5. Use **↑/↓** buttons to reorder, **✕** to delete
-6. Click **"保存" (Save)** and choose CSV or JSON format
-
-#### HTML Formatting in Questions
-
-**Important**: HTML formatting is only available when "HTML Display" is enabled in settings. For long questions, use plain text mode instead.
-
-You can use HTML tags to format your questions:
-
-**Basic Example** (in CSV):
-```csv
-問題番号,質問文,選択肢1,選択肢2,選択肢3,選択肢4
-1,これは<b>重要</b>な質問です。<br>次の選択肢から選んでください。,選択肢A,選択肢B,選択肢C,選択肢D
-```
-
-**Supported HTML Tags**:
-- `<b>太字</b>` or `<strong>太字</strong>` - Bold text
-- `<i>斜体</i>` or `<em>斜体</em>` - Italic text
-- `<u>下線</u>` - Underlined text
-- `<br>` - Line break
-- `<font color="red">赤い文字</font>` - Colored text
-- `<p>段落</p>` - Paragraph
-
-**Advanced Example**:
-```csv
-問題番号,質問文,選択肢1,選択肢2
-1,"<html><body><h3>アンケート質問1</h3><p>以下の<b>重要な</b>項目について、<i>慎重に</i>お答えください。</p></body></html>",はい,いいえ
-```
-
-See `data/questions/html_test.csv` for more examples.
-
-### 3. Configure Settings (Optional)
-
-Click **"⚙ 設定" (Settings)** to configure:
-
-- **Participant Information**: Enable/disable participant name and ID collection
-- **File Paths**: Set directories for questions, responses, and logs
-- **Output Format**: Choose CSV, JSON, or both
-- **Layout**: Set number of choice columns (1-4)
-- **Display Mode**:
-  - **HTML Display ON**: Enables HTML formatting (bold, colors, etc.) for short questions
-  - **HTML Display OFF**: Plain text mode with vertical scrolling for long questions
-- **Sequence Numbers**: Manage auto-incrementing file counters
-
-**Filename Template Variables:**
-- `{date}` - Date (YYYYMMDD)
-- `{time}` - Time (HHMMSS)
-- `{respondent_id}` - Auto-generated 8-character UUID
-- `{participant_name}` - Participant name from settings
-- `{participant_id}` - Participant ID from settings
-- `{sequence}` - Auto-incrementing 3-digit number (001, 002, ...)
-
-**Example:** `responses_{participant_name}_{sequence}.csv` → `responses_田中太郎_001.csv`
-
-### 4. Conduct Survey
-
-1. Click **"アンケートに回答" (Take Survey)**
-2. Enter participant information (if enabled)
-3. For each question:
-   - Select a choice (highlighted in green)
-   - Write your reason
-   - Click **"次の問題へ" (Next Question)**
-4. Responses are automatically saved at the end
-
-## Response Modification Rules
-
-To ensure data integrity:
-- **Before writing a reason**: Choice can be changed freely
-- **After writing begins**: Choice becomes locked
-- **To change choice**: Click **"選択肢を選び直す" (Select Again)** to unlock and reset
-
-This mechanism encourages thoughtful responses and prevents impulsive changes.
-
-## Project Structure
-
-```
-form-response-logger/
-├── README.md
-├── CONTRIBUTING.md
-├── LICENSE
-├── pom.xml
-├── .gitignore
-├── run.sh / run.bat
-├── src/main/java/com/study/form/
-│   ├── SurveyApp.java          # Main application entry
-│   ├── Constants.java           # Centralized constants
-│   ├── model/                   # Data models
-│   │   ├── Question.java
-│   │   ├── Response.java
-│   │   └── Config.java
-│   ├── util/                    # Utilities
-│   │   ├── ConfigManager.java
-│   │   ├── ActionLogger.java
-│   │   └── FileUtils.java
-│   └── ui/                      # User interface
-│       ├── MainWindow.java
-│       ├── QuestionEditorWindow.java
-│       ├── SurveyInterfaceWindow.java
-│       ├── SettingsWindow.java
-│       └── ParticipantInfoWindow.java
-└── data/                        # Auto-generated at runtime
-    ├── questions/
-    ├── responses/
-    └── logs/
-```
-
-## Output Formats
-
-### Questions (CSV)
-```csv
-問題番号,質問文,選択肢1,選択肢2,選択肢3,選択肢4,選択肢5
-1,質問文の例,選択肢A,選択肢B,選択肢C,,
-```
-
-### Responses (CSV)
-```csv
-回答者ID,タイムスタンプ,問題番号,質問文,選択した回答,理由
-12345678,2025-01-15 10:30:45.123,1,質問文の例,選択肢A,選択した理由...
-```
-
-### Action Logs (CSV)
-```csv
-タイムスタンプ,アクション種別,詳細情報
-2025-01-15 10:30:45.123,選択肢選択,問題1: 選択肢A
-2025-01-15 10:30:50.456,理由入力開始,問題1
-2025-01-15 10:31:20.789,理由入力内容,問題1: 選択した理由は...
-```
-
-### JSON Format
-```json
-{
-  "responses": [
-    {
-      "respondent_id": "12345678",
-      "timestamp": "2025-01-15 10:30:45.123",
-      "question_num": 1,
-      "question_text": "質問文の例",
-      "selected_choice": "選択肢A",
-      "reason": "選択した理由..."
+## 問題1
+\`\`\`java
+public class ______ {
+    public static ______ main(String[] args) {
+        System.out.println("______");
     }
-  ],
-  "export_date": "2025-01-15 10:35:00.000",
-  "total_responses": 1
 }
+\`\`\`
+
+---
+
+## 正解
+
+1. String（または任意のクラス名）
+2. void
+3. Hello World（または任意の文字列）
+
+## ヒント
+
+1. Javaのクラス名は大文字で始まります
+2. mainメソッドの戻り値型です
+3. 画面に表示したい文字列を入力してください
 ```
 
-## Technical Stack
+### サンプルファイル
 
-- **Language**: Java 11
-- **Build Tool**: Maven
-- **GUI Framework**: Java Swing
+- `steps/samples/test_fillblank.md` - Java基礎（12問）
+- `steps/samples/example_survey.md` - SurveyApp開発（24問）
+
+---
+
+## プロジェクト構造
+
+```
+study_form_app_java_2/
+├── README.md                    # このファイル
+├── pom.xml                      # Maven設定
+├── run.sh / run.bat             # SurveyApp起動スクリプト
+├── run_fillblank.sh             # FillInBlankApp起動スクリプト
+│
+├── src/main/java/form/          # SurveyApp（フォームシステム）
+│   ├── SurveyApp.java           # メインクラス
+│   ├── model/                   # データモデル
+│   ├── ui/                      # UIコンポーネント
+│   └── util/                    # ユーティリティ
+│
+├── tools/                       # FillInBlankApp（穴埋めシステム）
+│   ├── FillInBlankApp.java      # メインクラス
+│   └── README.md                # 詳細ドキュメント
+│
+├── steps/samples/               # 穴埋め問題サンプル
+│   ├── test_fillblank.md
+│   └── example_survey.md
+│
+└── data/                        # SurveyAppのデータ（自動生成）
+    ├── questions/               # 質問ファイル
+    ├── responses/               # 回答ファイル
+    └── logs/                    # ログファイル
+```
+
+## 技術スタック
+
+- **言語**: Java 21
+- **ビルドツール**: Maven
+- **GUIフレームワーク**: Java Swing
 - **Look and Feel**: [FlatLaf](https://www.formdev.com/flatlaf/) 3.2.5
-- **JSON Library**: [Gson](https://github.com/google/gson) 2.10.1
+- **JSONライブラリ**: [Gson](https://github.com/google/gson) 2.10.1
+- **マークダウンパーサー**: [CommonMark](https://commonmark.org/) 0.21.0
 
-## Architecture
+---
 
-The application follows a Model-View-Utility pattern:
+## 研究実験ガイド
 
-- **Model Layer**: Data structures (Question, Response, Config)
-- **Utility Layer**: Business logic (ConfigManager, ActionLogger, FileUtils)
-- **UI Layer**: User interface components (Swing windows)
+このシステムを使用した研究実験の実施方法を詳しく説明しています。
 
-Key design principles:
-- Centralized constants management (45+ constants in `Constants.java`)
-- Clean separation of concerns
-- Comprehensive error handling
-- Extensive Javadoc documentation (95% coverage)
+### 📚 ドキュメント
 
-## Contributing
+- **[RESEARCH_PLAN.md](RESEARCH_PLAN.md)**: 研究全体の計画（前期学習フェーズ + 後期実験フェーズ）
+- **[EXPERIMENT_GUIDE.md](EXPERIMENT_GUIDE.md)**: 3つの実験の詳細手順（担当者別）
+- **[SETUP_GUIDE.md](SETUP_GUIDE.md)**: 実験セットアップと実施ガイド
 
-Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for development guidelines and coding standards.
+### 🎯 実験内容
 
-## License
+#### 実験1: 回答時間と理解度の関係検証
+- **担当者A**: 得意分野での回答時間と理由の具体性を分析
+- **被験者**: 20名（数学得意10名、英語得意10名）
+- **期間**: 3週間
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+#### 実験2: 理由の記述 vs 録音の比較
+- **担当者B**: テキスト入力と音声録音の比較分析
+- **被験者**: 20名（全員が両条件を経験）
+- **期間**: 2週間
 
-## Acknowledgments
+#### 実験3: Think-aloud法の効果
+- **担当者C**: 思考発話プロトコルの分析
+- **被験者**: 20名（Think-aloud有10名、無10名）
+- **期間**: 2週間
 
-- Built with [FlatLaf](https://www.formdev.com/flatlaf/) for modern UI
-- JSON processing by [Gson](https://github.com/google/gson)
+### 📖 前期学習カリキュラム（10週間）
+
+Java初心者向けの学習プログラム：
+
+| 週 | テーマ | 問題数 |
+|:---:|:---|:---:|
+| 1 | 開発環境とGit入門 | 8問 |
+| 2 | Java基礎1: 変数とデータ型 | 12問 |
+| 3 | Java基礎2: 制御構文 | 15問 |
+| 4 | Java基礎3: 配列とメソッド | 15問 |
+| 5 | オブジェクト指向1: クラス | 12問 |
+| 6 | オブジェクト指向2: 継承 | 12問 |
+| 7 | オブジェクト指向3: インターフェース | 12問 |
+| 8 | 例外処理とファイルI/O | 12問 |
+| 9 | コレクションフレームワーク | 15問 |
+| 10 | 総合演習とまとめ | 20問 |
+
+各週の教材は `steps/curriculum/` に格納されています。
+
+### 🔬 実験問題セット
+
+実験用の問題は `steps/experiments/` に格納されています：
+
+- `exp1_math_problems.md`: 実験1用の数学問題（10問）
+- `exp1_english_problems.md`: 実験1用の英語問題（10問）
+- その他、実験2・3用の問題セット
+
+### 📊 データ分析
+
+Python分析スクリプトは `analysis/` に格納されています：
+
+```bash
+cd analysis/
+python analyze_experiment1.py
+python analyze_experiment2.py
+python analyze_experiment3.py
+```
+
+---
+
+## ライセンス
+
+MIT License - 詳細は [LICENSE](LICENSE) ファイルを参照してください。
+
+## 謝辞
+
+- [FlatLaf](https://www.formdev.com/flatlaf/) - モダンなUI
+- [Gson](https://github.com/google/gson) - JSON処理
+- [CommonMark](https://commonmark.org/) - マークダウンレンダリング

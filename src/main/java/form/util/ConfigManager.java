@@ -31,8 +31,7 @@ public class ConfigManager {
             try (Reader reader = new FileReader(configFile)) {
                 Type type = new TypeToken<Map<String, Object>>(){}.getType();
                 Map<String, Object> map = gson.fromJson(reader, type);
-                config = new Config();
-                config.fromMap(map);
+                config = Config.fromMap(map);
             } catch (Exception e) {
                 System.err.println("設定ファイルの読み込みまたはパースに失敗しました: " + e.getMessage());
                 config = createDefaultConfig();
@@ -44,41 +43,10 @@ public class ConfigManager {
     }
     
     private Config createDefaultConfig() {
-        Config defaultConfig = new Config();
-        setDefaultFilePaths(defaultConfig);
-        setDefaultUISettings(defaultConfig);
-        setDefaultBehaviorSettings(defaultConfig);
-        return defaultConfig;
-    }
-
-    /**
-     * デフォルトのファイルパス設定を行います。
-     */
-    private void setDefaultFilePaths(Config config) {
-        config.setQuestionsDirectory(Constants.QUESTIONS_DIR);
-        config.setQuestionsFile(Constants.DEFAULT_QUESTIONS_FILE);
-        config.setLogDirectory(Constants.LOGS_DIR);
-        config.setLogNameFormat("action_log_{respondent_id}_{date}.csv");
-        config.setResponseDirectory(Constants.RESPONSES_DIR);
-        config.setResponseNameFormat("responses_{respondent_id}_{date}.csv");
-    }
-
-    /**
-     * デフォルトのUI設定を行います。
-     */
-    private void setDefaultUISettings(Config config) {
-        config.setAppearanceMode("System");
-        config.setColorTheme("blue");
-        config.setFontSize("medium");
-    }
-
-    /**
-     * デフォルトの動作設定を行います。
-     */
-    private void setDefaultBehaviorSettings(Config config) {
-        config.setOutputFormat("csv");
-        config.setAutoSave(true);
-        config.setDefaultChoices(4);
+        // Configのデフォルトコンストラクタがすべてのデフォルト値を設定
+        // ただし、ファイルパスなど特定の値をカスタマイズする必要がある場合は、
+        // Map経由で設定を構築
+        return new Config();
     }
     
     public void saveConfig() {
@@ -91,6 +59,14 @@ public class ConfigManager {
     
     public Config getConfig() {
         return config;
+    }
+
+    /**
+     * Configを新しいインスタンスで置き換えます
+     * @param newConfig 新しい設定オブジェクト
+     */
+    public void setConfig(Config newConfig) {
+        this.config = newConfig;
     }
     
     public String getQuestionsPath() {
@@ -170,10 +146,52 @@ public class ConfigManager {
 
         if (isResponseFile) {
             sequence = config.getResponseSequence();
-            config.setResponseSequence(sequence + 1);
+            // 新しいFileSettingsを作成してConfigを更新
+            var oldFileSettings = config.fileSettings();
+            var newFileSettings = new form.model.config.FileSettings(
+                oldFileSettings.questionsDirectory(),
+                oldFileSettings.questionsFile(),
+                oldFileSettings.logDirectory(),
+                oldFileSettings.logNameFormat(),
+                oldFileSettings.responseDirectory(),
+                oldFileSettings.responseNameFormat(),
+                oldFileSettings.logSequence(),
+                sequence + 1  // responseSequenceをインクリメント
+            );
+            config = new Config(
+                newFileSettings,
+                config.participantSettings(),
+                config.uiSettings(),
+                config.behaviorSettings(),
+                config.recordingSettings(),
+                config.buttonLabels(),
+                config.windowTitles(),
+                config.logActionNames()
+            );
         } else {
             sequence = config.getLogSequence();
-            config.setLogSequence(sequence + 1);
+            // 新しいFileSettingsを作成してConfigを更新
+            var oldFileSettings = config.fileSettings();
+            var newFileSettings = new form.model.config.FileSettings(
+                oldFileSettings.questionsDirectory(),
+                oldFileSettings.questionsFile(),
+                oldFileSettings.logDirectory(),
+                oldFileSettings.logNameFormat(),
+                oldFileSettings.responseDirectory(),
+                oldFileSettings.responseNameFormat(),
+                sequence + 1,  // logSequenceをインクリメント
+                oldFileSettings.responseSequence()
+            );
+            config = new Config(
+                newFileSettings,
+                config.participantSettings(),
+                config.uiSettings(),
+                config.behaviorSettings(),
+                config.recordingSettings(),
+                config.buttonLabels(),
+                config.windowTitles(),
+                config.logActionNames()
+            );
         }
 
         return sequence;

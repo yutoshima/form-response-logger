@@ -4,104 +4,80 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 回答データモデル
+ * 回答データモデル（Java 17 Record）
  */
-public class Response {
-    private String respondentId;
-    private String timestamp;
-    private int questionNum;
-    private String questionText;
-    private List<String> selectedChoices;
-    private String reason;
-    private String choiceCombination;
+public record Response(
+    String respondentId,
+    String timestamp,
+    int questionNum,
+    String questionText,
+    List<String> selectedChoices,
+    String reason,
+    String choiceCombination
+) {
 
-    public Response() {
-        this.selectedChoices = new ArrayList<>();
+    /**
+     * コンパクトコンストラクタ（バリデーションと防御的コピー）
+     */
+    public Response {
+        // 防御的コピーで不変性を保証
+        selectedChoices = selectedChoices != null ? List.copyOf(selectedChoices) : List.of();
+        choiceCombination = choiceCombination != null ? choiceCombination : "";
     }
 
+    /**
+     * デフォルトコンストラクタ（JSON/CSV デシリアライゼーション用）
+     */
+    public Response() {
+        this("", "", 0, "", new ArrayList<>(), "", "");
+    }
+
+    /**
+     * 6パラメータコンストラクタ（後方互換性のため）
+     */
     public Response(String respondentId, String timestamp, int questionNum,
                     String questionText, List<String> selectedChoices, String reason) {
         this(respondentId, timestamp, questionNum, questionText, selectedChoices, reason, "");
     }
 
-    public Response(String respondentId, String timestamp, int questionNum,
-                    String questionText, List<String> selectedChoices, String reason, String choiceCombination) {
-        this.respondentId = respondentId;
-        this.timestamp = timestamp;
-        this.questionNum = questionNum;
-        this.questionText = questionText;
-        this.selectedChoices = new ArrayList<>(selectedChoices);
-        this.reason = reason;
-        this.choiceCombination = choiceCombination;
-    }
-    
+    /**
+     * 後方互換性のためのgetterメソッド
+     */
     public String getRespondentId() {
         return respondentId;
     }
-    
-    public void setRespondentId(String respondentId) {
-        this.respondentId = respondentId;
-    }
-    
+
     public String getTimestamp() {
         return timestamp;
     }
-    
-    public void setTimestamp(String timestamp) {
-        this.timestamp = timestamp;
-    }
-    
+
     public int getQuestionNum() {
         return questionNum;
     }
-    
-    public void setQuestionNum(int questionNum) {
-        this.questionNum = questionNum;
-    }
-    
+
     public String getQuestionText() {
         return questionText;
     }
-    
-    public void setQuestionText(String questionText) {
-        this.questionText = questionText;
-    }
-    
+
     public List<String> getSelectedChoices() {
         return selectedChoices;
     }
 
-    public void setSelectedChoices(List<String> selectedChoices) {
-        this.selectedChoices = selectedChoices;
-    }
-
-    public String getSelectedChoice() {
-        if (selectedChoices == null || selectedChoices.isEmpty()) {
-            return "";
-        }
-        return String.join("; ", selectedChoices);
-    }
-
-    public void setSelectedChoice(String selectedChoice) {
-        this.selectedChoices = new ArrayList<>();
-        if (selectedChoice != null && !selectedChoice.isEmpty()) {
-            this.selectedChoices.add(selectedChoice);
-        }
-    }
-    
     public String getReason() {
         return reason;
-    }
-
-    public void setReason(String reason) {
-        this.reason = reason;
     }
 
     public String getChoiceCombination() {
         return choiceCombination;
     }
 
-    public void setChoiceCombination(String choiceCombination) {
-        this.choiceCombination = choiceCombination;
+    /**
+     * 選択した選択肢を結合した文字列を取得します。
+     */
+    public String getSelectedChoice() {
+        if (selectedChoices == null || selectedChoices.isEmpty()) {
+            return "";
+        }
+        return String.join("; ", selectedChoices);
     }
 }

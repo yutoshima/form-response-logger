@@ -1,6 +1,7 @@
 package form.ui;
 
 import form.Constants;
+import form.ui.util.FontUtility;
 import form.util.ConfigManager;
 
 import javax.swing.*;
@@ -72,7 +73,7 @@ public class ParticipantInfoWindow extends JDialog {
      */
     private JLabel createTitleLabel() {
         JLabel titleLabel = new JLabel("被験者情報を入力してください", SwingConstants.CENTER);
-        titleLabel.setFont(new Font(Constants.FONT_FAMILY, Font.BOLD, Constants.FONT_SIZE_NORMAL));
+        titleLabel.setFont(FontUtility.createNormalBoldFont());
         titleLabel.setBorder(new EmptyBorder(0, 0, 10, 0));
         return titleLabel;
     }
@@ -102,7 +103,7 @@ public class ParticipantInfoWindow extends JDialog {
      */
     private JLabel createFormLabel(String text) {
         JLabel label = new JLabel(text);
-        label.setFont(new Font(Constants.FONT_FAMILY, Font.PLAIN, Constants.FONT_SIZE_LABEL));
+        label.setFont(FontUtility.createLabelFont());
         return label;
     }
 
@@ -111,7 +112,7 @@ public class ParticipantInfoWindow extends JDialog {
      */
     private JTextField createFormTextField() {
         JTextField field = new JTextField(20);
-        field.setFont(new Font(Constants.FONT_FAMILY, Font.PLAIN, Constants.FONT_SIZE_LABEL));
+        field.setFont(FontUtility.createLabelFont());
         return field;
     }
 
@@ -122,12 +123,12 @@ public class ParticipantInfoWindow extends JDialog {
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 5));
 
         JButton confirmButton = new JButton("確定");
-        confirmButton.setFont(new Font(Constants.FONT_FAMILY, Font.BOLD, Constants.FONT_SIZE_BUTTON));
+        confirmButton.setFont(FontUtility.createButtonPrimaryFont());
         confirmButton.setPreferredSize(Constants.BUTTON_SIZE_MEDIUM);
         confirmButton.addActionListener(e -> confirmInput());
 
         JButton cancelButton = new JButton("キャンセル");
-        cancelButton.setFont(new Font(Constants.FONT_FAMILY, Font.PLAIN, Constants.FONT_SIZE_BUTTON));
+        cancelButton.setFont(FontUtility.createButtonSecondaryFont());
         cancelButton.setPreferredSize(Constants.BUTTON_SIZE_MEDIUM);
         cancelButton.addActionListener(e -> cancelInput());
 

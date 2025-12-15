@@ -4,38 +4,44 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 質問データモデル
+ * 質問データモデル（Java 17 Record）
  */
-public class Question {
-    private String text;
-    private List<String> choices;
-    
+public record Question(String text, List<String> choices) {
+
+    /**
+     * コンパクトコンストラクタ（バリデーションと防御的コピー）
+     */
+    public Question {
+        // 防御的コピーで不変性を保証
+        choices = choices != null ? List.copyOf(choices) : List.of();
+    }
+
+    /**
+     * デフォルトコンストラクタ（JSON/CSV デシリアライゼーション用）
+     */
     public Question() {
-        this.choices = new ArrayList<>();
+        this("", new ArrayList<>());
     }
-    
-    public Question(String text, List<String> choices) {
-        this.text = text;
-        this.choices = new ArrayList<>(choices);
-    }
-    
+
+    /**
+     * 後方互換性のためのgetterメソッド
+     */
     public String getText() {
         return text;
     }
-    
-    public void setText(String text) {
-        this.text = text;
-    }
-    
+
     public List<String> getChoices() {
         return choices;
     }
-    
-    public void setChoices(List<String> choices) {
-        this.choices = choices;
+
+    /**
+     * 後方互換性のためのsetterメソッド（新しいインスタンスを返す）
+     */
+    public Question setText(String newText) {
+        return new Question(newText, choices);
     }
-    
-    public void addChoice(String choice) {
-        this.choices.add(choice);
+
+    public Question setChoices(List<String> newChoices) {
+        return new Question(text, newChoices);
     }
 }

@@ -1,649 +1,661 @@
 package form.model;
 
-import java.util.HashMap;
+import form.model.config.*;
+import form.util.ConfigMapper;
+
 import java.util.Map;
 
 /**
  * アプリケーション設定データモデル
+ *
+ * 不変なRecordオブジェクトを使用した設定管理
  */
 public class Config {
-    private String questionsDirectory;
-    private String questionsFile;
-    private String logDirectory;
-    private String logNameFormat;
-    private String responseDirectory;
-    private String responseNameFormat;
-    private String participantName;
-    private String participantId;
-    private String appearanceMode;
-    private String colorTheme;
-    private String outputFormat;
-    private String fontSize;
-    private boolean autoSave;
-    private boolean useParticipantInfo;
-    private int defaultChoices;
-    private int choiceColumns;
-    private int logSequence;
-    private int responseSequence;
-    private boolean useHtmlRendering;
-    private int contentWidth;
-    private boolean randomizeChoices;
-    private boolean enablePrevButton;
-    private int maxSelectableChoices;
-    private int minSelectableChoices;
-    private boolean useChoiceLabels;
-    private boolean saveCombinationPatterns;
+    // 8つのRecordフィールド
+    private final FileSettings fileSettings;
+    private final ParticipantSettings participantSettings;
+    private final UISettings uiSettings;
+    private final BehaviorSettings behaviorSettings;
+    private final RecordingSettings recordingSettings;
+    private final ButtonLabels buttonLabels;
+    private final WindowTitles windowTitles;
+    private final LogActionNames logActionNames;
 
-    private String buttonCreateQuestions;
-    private String buttonTakeSurvey;
-    private String buttonNextQuestion;
-    private String buttonPrevQuestion;
-    private String buttonReselect;
-    private String buttonFinishSurvey;
+    /**
+     * 全てのRecordを指定してConfigを作成
+     */
+    public Config(
+            FileSettings fileSettings,
+            ParticipantSettings participantSettings,
+            UISettings uiSettings,
+            BehaviorSettings behaviorSettings,
+            RecordingSettings recordingSettings,
+            ButtonLabels buttonLabels,
+            WindowTitles windowTitles,
+            LogActionNames logActionNames
+    ) {
+        this.fileSettings = fileSettings != null ? fileSettings : FileSettings.createDefault();
+        this.participantSettings = participantSettings != null ? participantSettings : ParticipantSettings.createDefault();
+        this.uiSettings = uiSettings != null ? uiSettings : UISettings.createDefault();
+        this.behaviorSettings = behaviorSettings != null ? behaviorSettings : BehaviorSettings.createDefault();
+        this.recordingSettings = recordingSettings != null ? recordingSettings : RecordingSettings.createDefault();
+        this.buttonLabels = buttonLabels != null ? buttonLabels : ButtonLabels.createDefault();
+        this.windowTitles = windowTitles != null ? windowTitles : WindowTitles.createDefault();
+        this.logActionNames = logActionNames != null ? logActionNames : LogActionNames.createDefault();
+    }
 
-    private String titleMain;
-    private String titleQuestionEditor;
-    private String titleSettings;
-    private String titleSurvey;
-
-    private String logActionChoiceSelection;
-    private String logActionReasonStart;
-    private String logActionReasonText;
-    private String logActionReasonRewrite;
-    private String logActionQuestionMove;
-    private String logActionSubmit;
-
+    /**
+     * デフォルト値でConfigを作成
+     */
     public Config() {
-        this.appearanceMode = "System";
-        this.colorTheme = "blue";
-        this.outputFormat = "csv";
-        this.fontSize = "medium";
-        this.autoSave = true;
-        this.useParticipantInfo = true;
-        this.defaultChoices = 4;
-        this.choiceColumns = 2;
-        this.logSequence = 1;
-        this.responseSequence = 1;
-        this.useHtmlRendering = false;
-        this.contentWidth = 720;
-        this.randomizeChoices = false;
-        this.enablePrevButton = false;
-        this.maxSelectableChoices = 1;
-        this.minSelectableChoices = 1;
-        this.useChoiceLabels = false;
-        this.saveCombinationPatterns = false;
-        this.buttonCreateQuestions = "問題を作成";
-        this.buttonTakeSurvey = "アンケートに回答";
-        this.buttonNextQuestion = "次の問題へ";
-        this.buttonPrevQuestion = "前の問題へ";
-        this.buttonReselect = "選択肢を選び直す";
-        this.buttonFinishSurvey = "回答を終了する";
-        this.titleMain = "研究用アンケートシステム";
-        this.titleQuestionEditor = "問題作成";
-        this.titleSettings = "設定";
-        this.titleSurvey = "アンケート回答";
-        this.logActionChoiceSelection = "選択肢選択";
-        this.logActionReasonStart = "理由入力開始";
-        this.logActionReasonText = "理由入力内容";
-        this.logActionReasonRewrite = "理由書き直し";
-        this.logActionQuestionMove = "問題移動";
-        this.logActionSubmit = "アンケート送信";
+        this(null, null, null, null, null, null, null, null);
     }
-    
+
+    // ========== Record アクセサ ==========
+
+    public FileSettings fileSettings() {
+        return fileSettings;
+    }
+
+    public ParticipantSettings participantSettings() {
+        return participantSettings;
+    }
+
+    public UISettings uiSettings() {
+        return uiSettings;
+    }
+
+    public BehaviorSettings behaviorSettings() {
+        return behaviorSettings;
+    }
+
+    public RecordingSettings recordingSettings() {
+        return recordingSettings;
+    }
+
+    public ButtonLabels buttonLabels() {
+        return buttonLabels;
+    }
+
+    public WindowTitles windowTitles() {
+        return windowTitles;
+    }
+
+    public LogActionNames logActionNames() {
+        return logActionNames;
+    }
+
+    // ========== 下位互換性のための委譲ゲッター ==========
+    // 既存のコードが段階的に移行できるように残す
+
+    // FileSettings関連
     public String getQuestionsDirectory() {
-        return questionsDirectory;
+        return fileSettings.questionsDirectory();
     }
-    
-    public void setQuestionsDirectory(String questionsDirectory) {
-        this.questionsDirectory = questionsDirectory;
-    }
-    
+
     public String getQuestionsFile() {
-        return questionsFile;
+        return fileSettings.questionsFile();
     }
-    
-    public void setQuestionsFile(String questionsFile) {
-        this.questionsFile = questionsFile;
-    }
-    
+
     public String getLogDirectory() {
-        return logDirectory;
+        return fileSettings.logDirectory();
     }
-    
-    public void setLogDirectory(String logDirectory) {
-        this.logDirectory = logDirectory;
-    }
-    
+
     public String getLogNameFormat() {
-        return logNameFormat;
+        return fileSettings.logNameFormat();
     }
-    
-    public void setLogNameFormat(String logNameFormat) {
-        this.logNameFormat = logNameFormat;
-    }
-    
+
     public String getResponseDirectory() {
-        return responseDirectory;
+        return fileSettings.responseDirectory();
     }
-    
-    public void setResponseDirectory(String responseDirectory) {
-        this.responseDirectory = responseDirectory;
-    }
-    
+
     public String getResponseNameFormat() {
-        return responseNameFormat;
-    }
-    
-    public void setResponseNameFormat(String responseNameFormat) {
-        this.responseNameFormat = responseNameFormat;
-    }
-
-    public String getParticipantName() {
-        return participantName;
-    }
-
-    public void setParticipantName(String participantName) {
-        this.participantName = participantName;
-    }
-
-    public String getParticipantId() {
-        return participantId;
-    }
-
-    public void setParticipantId(String participantId) {
-        this.participantId = participantId;
-    }
-
-    public String getAppearanceMode() {
-        return appearanceMode;
-    }
-    
-    public void setAppearanceMode(String appearanceMode) {
-        this.appearanceMode = appearanceMode;
-    }
-    
-    public String getColorTheme() {
-        return colorTheme;
-    }
-    
-    public void setColorTheme(String colorTheme) {
-        this.colorTheme = colorTheme;
-    }
-    
-    public String getOutputFormat() {
-        return outputFormat;
-    }
-    
-    public void setOutputFormat(String outputFormat) {
-        this.outputFormat = outputFormat;
-    }
-    
-    public String getFontSize() {
-        return fontSize;
-    }
-    
-    public void setFontSize(String fontSize) {
-        this.fontSize = fontSize;
-    }
-    
-    public boolean isAutoSave() {
-        return autoSave;
-    }
-
-    public void setAutoSave(boolean autoSave) {
-        this.autoSave = autoSave;
-    }
-
-    public boolean isUseParticipantInfo() {
-        return useParticipantInfo;
-    }
-
-    public void setUseParticipantInfo(boolean useParticipantInfo) {
-        this.useParticipantInfo = useParticipantInfo;
-    }
-
-    public int getDefaultChoices() {
-        return defaultChoices;
-    }
-
-    public void setDefaultChoices(int defaultChoices) {
-        this.defaultChoices = defaultChoices;
-    }
-
-    public int getChoiceColumns() {
-        return choiceColumns;
-    }
-
-    public void setChoiceColumns(int choiceColumns) {
-        this.choiceColumns = choiceColumns;
+        return fileSettings.responseNameFormat();
     }
 
     public int getLogSequence() {
-        return logSequence;
-    }
-
-    public void setLogSequence(int logSequence) {
-        this.logSequence = logSequence;
+        return fileSettings.logSequence();
     }
 
     public int getResponseSequence() {
-        return responseSequence;
+        return fileSettings.responseSequence();
     }
 
-    public void setResponseSequence(int responseSequence) {
-        this.responseSequence = responseSequence;
+    // ParticipantSettings関連
+    public String getParticipantName() {
+        return participantSettings.participantName();
+    }
+
+    public String getParticipantId() {
+        return participantSettings.participantId();
+    }
+
+    public boolean isUseParticipantInfo() {
+        return participantSettings.useParticipantInfo();
+    }
+
+    // UISettings関連
+    public String getAppearanceMode() {
+        return uiSettings.appearanceMode();
+    }
+
+    public String getColorTheme() {
+        return uiSettings.colorTheme();
+    }
+
+    public String getOutputFormat() {
+        return uiSettings.outputFormat();
+    }
+
+    public String getFontSize() {
+        return uiSettings.fontSize();
     }
 
     public boolean isUseHtmlRendering() {
-        return useHtmlRendering;
-    }
-
-    public void setUseHtmlRendering(boolean useHtmlRendering) {
-        this.useHtmlRendering = useHtmlRendering;
+        return uiSettings.useHtmlRendering();
     }
 
     public int getContentWidth() {
-        return contentWidth > 0 ? contentWidth : 720;
+        return uiSettings.contentWidth();
     }
 
-    public void setContentWidth(int contentWidth) {
-        this.contentWidth = contentWidth;
+    // BehaviorSettings関連
+    public boolean isAutoSave() {
+        return behaviorSettings.autoSave();
+    }
+
+    public int getDefaultChoices() {
+        return behaviorSettings.defaultChoices();
+    }
+
+    public int getChoiceColumns() {
+        return behaviorSettings.choiceColumns();
     }
 
     public boolean isRandomizeChoices() {
-        return randomizeChoices;
-    }
-
-    public void setRandomizeChoices(boolean randomizeChoices) {
-        this.randomizeChoices = randomizeChoices;
+        return behaviorSettings.randomizeChoices();
     }
 
     public boolean isEnablePrevButton() {
-        return enablePrevButton;
-    }
-
-    public void setEnablePrevButton(boolean enablePrevButton) {
-        this.enablePrevButton = enablePrevButton;
+        return behaviorSettings.enablePrevButton();
     }
 
     public int getMaxSelectableChoices() {
-        return maxSelectableChoices;
-    }
-
-    public void setMaxSelectableChoices(int maxSelectableChoices) {
-        validatePositiveInteger(maxSelectableChoices, "最大選択可能数");
-        this.maxSelectableChoices = maxSelectableChoices;
+        return behaviorSettings.maxSelectableChoices();
     }
 
     public int getMinSelectableChoices() {
-        return minSelectableChoices;
-    }
-
-    public void setMinSelectableChoices(int minSelectableChoices) {
-        validatePositiveInteger(minSelectableChoices, "必須選択数");
-        this.minSelectableChoices = minSelectableChoices;
-    }
-
-    /**
-     * 正の整数であることを検証します。
-     */
-    private void validatePositiveInteger(int value, String fieldName) {
-        if (value < 1) {
-            throw new IllegalArgumentException(fieldName + "は1以上である必要があります");
-        }
+        return behaviorSettings.minSelectableChoices();
     }
 
     public boolean isUseChoiceLabels() {
-        return useChoiceLabels;
-    }
-
-    public void setUseChoiceLabels(boolean useChoiceLabels) {
-        this.useChoiceLabels = useChoiceLabels;
+        return behaviorSettings.useChoiceLabels();
     }
 
     public boolean isSaveCombinationPatterns() {
-        return saveCombinationPatterns;
+        return behaviorSettings.saveCombinationPatterns();
     }
 
-    public void setSaveCombinationPatterns(boolean saveCombinationPatterns) {
-        this.saveCombinationPatterns = saveCombinationPatterns;
+    // RecordingSettings関連
+    public boolean isEnableReasonRecording() {
+        return recordingSettings.enableReasonRecording();
     }
 
+    public boolean isEnableThinkAloud() {
+        return recordingSettings.enableThinkAloud();
+    }
+
+    public String getAudioDirectory() {
+        return recordingSettings.audioDirectory();
+    }
+
+    // ButtonLabels関連
     public String getButtonCreateQuestions() {
-        return getOrDefault(buttonCreateQuestions, "問題を作成");
-    }
-
-    public void setButtonCreateQuestions(String buttonCreateQuestions) {
-        this.buttonCreateQuestions = buttonCreateQuestions;
+        return buttonLabels.buttonCreateQuestions();
     }
 
     public String getButtonTakeSurvey() {
-        return getOrDefault(buttonTakeSurvey, "アンケートに回答");
-    }
-
-    public void setButtonTakeSurvey(String buttonTakeSurvey) {
-        this.buttonTakeSurvey = buttonTakeSurvey;
+        return buttonLabels.buttonTakeSurvey();
     }
 
     public String getButtonNextQuestion() {
-        return getOrDefault(buttonNextQuestion, "次の問題へ");
-    }
-
-    public void setButtonNextQuestion(String buttonNextQuestion) {
-        this.buttonNextQuestion = buttonNextQuestion;
+        return buttonLabels.buttonNextQuestion();
     }
 
     public String getButtonPrevQuestion() {
-        return getOrDefault(buttonPrevQuestion, "前の問題へ");
-    }
-
-    public void setButtonPrevQuestion(String buttonPrevQuestion) {
-        this.buttonPrevQuestion = buttonPrevQuestion;
+        return buttonLabels.buttonPrevQuestion();
     }
 
     public String getButtonReselect() {
-        return getOrDefault(buttonReselect, "選択肢を選び直す");
-    }
-
-    public void setButtonReselect(String buttonReselect) {
-        this.buttonReselect = buttonReselect;
+        return buttonLabels.buttonReselect();
     }
 
     public String getButtonFinishSurvey() {
-        return getOrDefault(buttonFinishSurvey, "回答を終了する");
+        return buttonLabels.buttonFinishSurvey();
     }
 
-    public void setButtonFinishSurvey(String buttonFinishSurvey) {
-        this.buttonFinishSurvey = buttonFinishSurvey;
-    }
-
+    // WindowTitles関連
     public String getTitleMain() {
-        return getOrDefault(titleMain, "研究用アンケートシステム");
-    }
-
-    public void setTitleMain(String titleMain) {
-        this.titleMain = titleMain;
+        return windowTitles.titleMain();
     }
 
     public String getTitleQuestionEditor() {
-        return getOrDefault(titleQuestionEditor, "問題作成");
-    }
-
-    public void setTitleQuestionEditor(String titleQuestionEditor) {
-        this.titleQuestionEditor = titleQuestionEditor;
+        return windowTitles.titleQuestionEditor();
     }
 
     public String getTitleSettings() {
-        return getOrDefault(titleSettings, "設定");
-    }
-
-    public void setTitleSettings(String titleSettings) {
-        this.titleSettings = titleSettings;
+        return windowTitles.titleSettings();
     }
 
     public String getTitleSurvey() {
-        return getOrDefault(titleSurvey, "アンケート回答");
+        return windowTitles.titleSurvey();
     }
 
-    public void setTitleSurvey(String titleSurvey) {
-        this.titleSurvey = titleSurvey;
-    }
-
+    // LogActionNames関連
     public String getLogActionChoiceSelection() {
-        return getOrDefault(logActionChoiceSelection, "選択肢選択");
-    }
-
-    public void setLogActionChoiceSelection(String logActionChoiceSelection) {
-        this.logActionChoiceSelection = logActionChoiceSelection;
+        return logActionNames.logActionChoiceSelection();
     }
 
     public String getLogActionReasonStart() {
-        return getOrDefault(logActionReasonStart, "理由入力開始");
-    }
-
-    public void setLogActionReasonStart(String logActionReasonStart) {
-        this.logActionReasonStart = logActionReasonStart;
+        return logActionNames.logActionReasonStart();
     }
 
     public String getLogActionReasonText() {
-        return getOrDefault(logActionReasonText, "理由入力内容");
-    }
-
-    public void setLogActionReasonText(String logActionReasonText) {
-        this.logActionReasonText = logActionReasonText;
+        return logActionNames.logActionReasonText();
     }
 
     public String getLogActionReasonRewrite() {
-        return getOrDefault(logActionReasonRewrite, "理由書き直し");
-    }
-
-    public void setLogActionReasonRewrite(String logActionReasonRewrite) {
-        this.logActionReasonRewrite = logActionReasonRewrite;
+        return logActionNames.logActionReasonRewrite();
     }
 
     public String getLogActionQuestionMove() {
-        return getOrDefault(logActionQuestionMove, "問題移動");
-    }
-
-    public void setLogActionQuestionMove(String logActionQuestionMove) {
-        this.logActionQuestionMove = logActionQuestionMove;
+        return logActionNames.logActionQuestionMove();
     }
 
     public String getLogActionSubmit() {
-        return getOrDefault(logActionSubmit, "アンケート送信");
+        return logActionNames.logActionSubmit();
     }
 
-    public void setLogActionSubmit(String logActionSubmit) {
-        this.logActionSubmit = logActionSubmit;
-    }
+    // ========== Map変換 (ConfigMapperへ委譲) ==========
 
-    private String getOrDefault(String value, String defaultValue) {
-        return value != null ? value : defaultValue;
-    }
-
+    /**
+     * ConfigオブジェクトをMapに変換
+     * @return 設定データを含むマップ
+     */
     public Map<String, Object> toMap() {
-        Map<String, Object> map = new HashMap<>();
-        addFileSettings(map);
-        addParticipantSettings(map);
-        addUISettings(map);
-        addBehaviorSettings(map);
-        addButtonTexts(map);
-        addTitleTexts(map);
-        addLogActionTexts(map);
-        return map;
+        return ConfigMapper.toMap(this);
     }
 
     /**
-     * ファイル/ディレクトリ設定をマップに追加します。
+     * MapからConfigオブジェクトを作成（静的ファクトリーメソッド）
+     * @param map 設定データを含むマップ
+     * @return 作成されたConfigオブジェクト
      */
-    private void addFileSettings(Map<String, Object> map) {
-        map.put("questions_directory", questionsDirectory);
-        map.put("questions_file", questionsFile);
-        map.put("log_directory", logDirectory);
-        map.put("log_name_format", logNameFormat);
-        map.put("response_directory", responseDirectory);
-        map.put("response_name_format", responseNameFormat);
-        map.put("log_sequence", logSequence);
-        map.put("response_sequence", responseSequence);
+    public static Config fromMap(Map<String, Object> map) {
+        return ConfigMapper.fromMap(map);
+    }
+
+    // ========== セッター（非推奨 - 新しいインスタンスを作成） ==========
+    // Recordは不変なので、セッターは使用できません
+    // 設定を更新する場合は、新しいRecordインスタンスを作成してConfigを再構築してください
+
+    /**
+     * @deprecated Configは不変です。新しいFileSettingsインスタンスを作成して新しいConfigを構築してください
+     */
+    @Deprecated
+    public void setQuestionsDirectory(String questionsDirectory) {
+        throw new UnsupportedOperationException("Config is now immutable. Create a new Config instance with updated FileSettings.");
     }
 
     /**
-     * 参加者情報設定をマップに追加します。
+     * @deprecated Configは不変です。新しいFileSettingsインスタンスを作成して新しいConfigを構築してください
      */
-    private void addParticipantSettings(Map<String, Object> map) {
-        map.put("participant_name", participantName);
-        map.put("participant_id", participantId);
-        map.put("use_participant_info", useParticipantInfo);
+    @Deprecated
+    public void setQuestionsFile(String questionsFile) {
+        throw new UnsupportedOperationException("Config is now immutable. Create a new Config instance with updated FileSettings.");
     }
 
     /**
-     * UI設定をマップに追加します。
+     * @deprecated Configは不変です。新しいFileSettingsインスタンスを作成して新しいConfigを構築してください
      */
-    private void addUISettings(Map<String, Object> map) {
-        map.put("appearance_mode", appearanceMode);
-        map.put("color_theme", colorTheme);
-        map.put("font_size", fontSize);
-        map.put("output_format", outputFormat);
-        map.put("content_width", contentWidth);
+    @Deprecated
+    public void setLogDirectory(String logDirectory) {
+        throw new UnsupportedOperationException("Config is now immutable. Create a new Config instance with updated FileSettings.");
     }
 
     /**
-     * 動作設定をマップに追加します。
+     * @deprecated Configは不変です。新しいFileSettingsインスタンスを作成して新しいConfigを構築してください
      */
-    private void addBehaviorSettings(Map<String, Object> map) {
-        map.put("auto_save", autoSave);
-        map.put("default_choices", defaultChoices);
-        map.put("choice_columns", choiceColumns);
-        map.put("use_html_rendering", useHtmlRendering);
-        map.put("randomize_choices", randomizeChoices);
-        map.put("enable_prev_button", enablePrevButton);
-        map.put("max_selectable_choices", maxSelectableChoices);
-        map.put("min_selectable_choices", minSelectableChoices);
-        map.put("use_choice_labels", useChoiceLabels);
-        map.put("save_combination_patterns", saveCombinationPatterns);
+    @Deprecated
+    public void setLogNameFormat(String logNameFormat) {
+        throw new UnsupportedOperationException("Config is now immutable. Create a new Config instance with updated FileSettings.");
     }
 
     /**
-     * ボタンテキストをマップに追加します。
+     * @deprecated Configは不変です。新しいFileSettingsインスタンスを作成して新しいConfigを構築してください
      */
-    private void addButtonTexts(Map<String, Object> map) {
-        map.put("button_create_questions", buttonCreateQuestions);
-        map.put("button_take_survey", buttonTakeSurvey);
-        map.put("button_next_question", buttonNextQuestion);
-        map.put("button_prev_question", buttonPrevQuestion);
-        map.put("button_reselect", buttonReselect);
-        map.put("button_finish_survey", buttonFinishSurvey);
+    @Deprecated
+    public void setResponseDirectory(String responseDirectory) {
+        throw new UnsupportedOperationException("Config is now immutable. Create a new Config instance with updated FileSettings.");
     }
 
     /**
-     * タイトルテキストをマップに追加します。
+     * @deprecated Configは不変です。新しいFileSettingsインスタンスを作成して新しいConfigを構築してください
      */
-    private void addTitleTexts(Map<String, Object> map) {
-        map.put("title_main", titleMain);
-        map.put("title_question_editor", titleQuestionEditor);
-        map.put("title_settings", titleSettings);
-        map.put("title_survey", titleSurvey);
+    @Deprecated
+    public void setResponseNameFormat(String responseNameFormat) {
+        throw new UnsupportedOperationException("Config is now immutable. Create a new Config instance with updated FileSettings.");
     }
 
     /**
-     * ログアクションテキストをマップに追加します。
+     * @deprecated Configは不変です。新しいFileSettingsインスタンスを作成して新しいConfigを構築してください
      */
-    private void addLogActionTexts(Map<String, Object> map) {
-        map.put("log_action_choice_selection", logActionChoiceSelection);
-        map.put("log_action_reason_start", logActionReasonStart);
-        map.put("log_action_reason_text", logActionReasonText);
-        map.put("log_action_reason_rewrite", logActionReasonRewrite);
-        map.put("log_action_question_move", logActionQuestionMove);
-        map.put("log_action_submit", logActionSubmit);
-    }
-
-    public void fromMap(Map<String, Object> map) {
-        loadFileSettings(map);
-        loadParticipantSettings(map);
-        loadUISettings(map);
-        loadBehaviorSettings(map);
-        loadButtonTexts(map);
-        loadTitleTexts(map);
-        loadLogActionTexts(map);
+    @Deprecated
+    public void setLogSequence(int logSequence) {
+        throw new UnsupportedOperationException("Config is now immutable. Create a new Config instance with updated FileSettings.");
     }
 
     /**
-     * ファイル/ディレクトリ設定をマップから読み込みます。
+     * @deprecated Configは不変です。新しいFileSettingsインスタンスを作成して新しいConfigを構築してください
      */
-    private void loadFileSettings(Map<String, Object> map) {
-        this.questionsDirectory = getString(map, "questions_directory");
-        this.questionsFile = getString(map, "questions_file");
-        this.logDirectory = getString(map, "log_directory");
-        this.logNameFormat = getString(map, "log_name_format");
-        this.responseDirectory = getString(map, "response_directory");
-        this.responseNameFormat = getString(map, "response_name_format");
-        this.logSequence = getInt(map, "log_sequence", this.logSequence);
-        this.responseSequence = getInt(map, "response_sequence", this.responseSequence);
+    @Deprecated
+    public void setResponseSequence(int responseSequence) {
+        throw new UnsupportedOperationException("Config is now immutable. Create a new Config instance with updated FileSettings.");
     }
 
     /**
-     * 参加者情報設定をマップから読み込みます。
+     * @deprecated Configは不変です。新しいParticipantSettingsインスタンスを作成して新しいConfigを構築してください
      */
-    private void loadParticipantSettings(Map<String, Object> map) {
-        this.participantName = getString(map, "participant_name");
-        this.participantId = getString(map, "participant_id");
-        this.useParticipantInfo = getBoolean(map, "use_participant_info", this.useParticipantInfo);
+    @Deprecated
+    public void setParticipantName(String participantName) {
+        throw new UnsupportedOperationException("Config is now immutable. Create a new Config instance with updated ParticipantSettings.");
     }
 
     /**
-     * UI設定をマップから読み込みます。
+     * @deprecated Configは不変です。新しいParticipantSettingsインスタンスを作成して新しいConfigを構築してください
      */
-    private void loadUISettings(Map<String, Object> map) {
-        this.appearanceMode = getString(map, "appearance_mode");
-        this.colorTheme = getString(map, "color_theme");
-        this.fontSize = getString(map, "font_size");
-        this.outputFormat = getString(map, "output_format");
-        this.contentWidth = getInt(map, "content_width", this.contentWidth);
+    @Deprecated
+    public void setParticipantId(String participantId) {
+        throw new UnsupportedOperationException("Config is now immutable. Create a new Config instance with updated ParticipantSettings.");
     }
 
     /**
-     * 動作設定をマップから読み込みます。
+     * @deprecated Configは不変です。新しいParticipantSettingsインスタンスを作成して新しいConfigを構築してください
      */
-    private void loadBehaviorSettings(Map<String, Object> map) {
-        this.autoSave = getBoolean(map, "auto_save", this.autoSave);
-        this.defaultChoices = getInt(map, "default_choices", this.defaultChoices);
-        this.choiceColumns = getInt(map, "choice_columns", this.choiceColumns);
-        this.useHtmlRendering = getBoolean(map, "use_html_rendering", this.useHtmlRendering);
-        this.randomizeChoices = getBoolean(map, "randomize_choices", this.randomizeChoices);
-        this.enablePrevButton = getBoolean(map, "enable_prev_button", this.enablePrevButton);
-        this.maxSelectableChoices = getInt(map, "max_selectable_choices", this.maxSelectableChoices);
-        this.minSelectableChoices = getInt(map, "min_selectable_choices", this.minSelectableChoices);
-        this.useChoiceLabels = getBoolean(map, "use_choice_labels", this.useChoiceLabels);
-        this.saveCombinationPatterns = getBoolean(map, "save_combination_patterns", this.saveCombinationPatterns);
+    @Deprecated
+    public void setUseParticipantInfo(boolean useParticipantInfo) {
+        throw new UnsupportedOperationException("Config is now immutable. Create a new Config instance with updated ParticipantSettings.");
     }
 
     /**
-     * ボタンテキストをマップから読み込みます。
+     * @deprecated Configは不変です。新しいUISettingsインスタンスを作成して新しいConfigを構築してください
      */
-    private void loadButtonTexts(Map<String, Object> map) {
-        this.buttonCreateQuestions = getString(map, "button_create_questions");
-        this.buttonTakeSurvey = getString(map, "button_take_survey");
-        this.buttonNextQuestion = getString(map, "button_next_question");
-        this.buttonPrevQuestion = getString(map, "button_prev_question");
-        this.buttonReselect = getString(map, "button_reselect");
-        this.buttonFinishSurvey = getString(map, "button_finish_survey");
+    @Deprecated
+    public void setAppearanceMode(String appearanceMode) {
+        throw new UnsupportedOperationException("Config is now immutable. Create a new Config instance with updated UISettings.");
     }
 
     /**
-     * タイトルテキストをマップから読み込みます。
+     * @deprecated Configは不変です。新しいUISettingsインスタンスを作成して新しいConfigを構築してください
      */
-    private void loadTitleTexts(Map<String, Object> map) {
-        this.titleMain = getString(map, "title_main");
-        this.titleQuestionEditor = getString(map, "title_question_editor");
-        this.titleSettings = getString(map, "title_settings");
-        this.titleSurvey = getString(map, "title_survey");
+    @Deprecated
+    public void setColorTheme(String colorTheme) {
+        throw new UnsupportedOperationException("Config is now immutable. Create a new Config instance with updated UISettings.");
     }
 
     /**
-     * ログアクションテキストをマップから読み込みます。
+     * @deprecated Configは不変です。新しいUISettingsインスタンスを作成して新しいConfigを構築してください
      */
-    private void loadLogActionTexts(Map<String, Object> map) {
-        this.logActionChoiceSelection = getString(map, "log_action_choice_selection");
-        this.logActionReasonStart = getString(map, "log_action_reason_start");
-        this.logActionReasonText = getString(map, "log_action_reason_text");
-        this.logActionReasonRewrite = getString(map, "log_action_reason_rewrite");
-        this.logActionQuestionMove = getString(map, "log_action_question_move");
-        this.logActionSubmit = getString(map, "log_action_submit");
+    @Deprecated
+    public void setOutputFormat(String outputFormat) {
+        throw new UnsupportedOperationException("Config is now immutable. Create a new Config instance with updated UISettings.");
     }
 
-    private String getString(Map<String, Object> map, String key) {
-        return map.containsKey(key) ? (String) map.get(key) : null;
+    /**
+     * @deprecated Configは不変です。新しいUISettingsインスタンスを作成して新しいConfigを構築してください
+     */
+    @Deprecated
+    public void setFontSize(String fontSize) {
+        throw new UnsupportedOperationException("Config is now immutable. Create a new Config instance with updated UISettings.");
     }
 
-    private boolean getBoolean(Map<String, Object> map, String key, boolean defaultValue) {
-        return map.containsKey(key) ? (Boolean) map.get(key) : defaultValue;
+    /**
+     * @deprecated Configは不変です。新しいUISettingsインスタンスを作成して新しいConfigを構築してください
+     */
+    @Deprecated
+    public void setUseHtmlRendering(boolean useHtmlRendering) {
+        throw new UnsupportedOperationException("Config is now immutable. Create a new Config instance with updated UISettings.");
     }
 
-    private int getInt(Map<String, Object> map, String key, int defaultValue) {
-        if (!map.containsKey(key)) return defaultValue;
-        Object value = map.get(key);
-        if (value instanceof Double double1) return double1.intValue();
-        if (value instanceof Integer integer) return integer;
-        return defaultValue;
+    /**
+     * @deprecated Configは不変です。新しいUISettingsインスタンスを作成して新しいConfigを構築してください
+     */
+    @Deprecated
+    public void setContentWidth(int contentWidth) {
+        throw new UnsupportedOperationException("Config is now immutable. Create a new Config instance with updated UISettings.");
+    }
+
+    /**
+     * @deprecated Configは不変です。新しいBehaviorSettingsインスタンスを作成して新しいConfigを構築してください
+     */
+    @Deprecated
+    public void setAutoSave(boolean autoSave) {
+        throw new UnsupportedOperationException("Config is now immutable. Create a new Config instance with updated BehaviorSettings.");
+    }
+
+    /**
+     * @deprecated Configは不変です。新しいBehaviorSettingsインスタンスを作成して新しいConfigを構築してください
+     */
+    @Deprecated
+    public void setDefaultChoices(int defaultChoices) {
+        throw new UnsupportedOperationException("Config is now immutable. Create a new Config instance with updated BehaviorSettings.");
+    }
+
+    /**
+     * @deprecated Configは不変です。新しいBehaviorSettingsインスタンスを作成して新しいConfigを構築してください
+     */
+    @Deprecated
+    public void setChoiceColumns(int choiceColumns) {
+        throw new UnsupportedOperationException("Config is now immutable. Create a new Config instance with updated BehaviorSettings.");
+    }
+
+    /**
+     * @deprecated Configは不変です。新しいBehaviorSettingsインスタンスを作成して新しいConfigを構築してください
+     */
+    @Deprecated
+    public void setRandomizeChoices(boolean randomizeChoices) {
+        throw new UnsupportedOperationException("Config is now immutable. Create a new Config instance with updated BehaviorSettings.");
+    }
+
+    /**
+     * @deprecated Configは不変です。新しいBehaviorSettingsインスタンスを作成して新しいConfigを構築してください
+     */
+    @Deprecated
+    public void setEnablePrevButton(boolean enablePrevButton) {
+        throw new UnsupportedOperationException("Config is now immutable. Create a new Config instance with updated BehaviorSettings.");
+    }
+
+    /**
+     * @deprecated Configは不変です。新しいBehaviorSettingsインスタンスを作成して新しいConfigを構築してください
+     */
+    @Deprecated
+    public void setMaxSelectableChoices(int maxSelectableChoices) {
+        throw new UnsupportedOperationException("Config is now immutable. Create a new Config instance with updated BehaviorSettings.");
+    }
+
+    /**
+     * @deprecated Configは不変です。新しいBehaviorSettingsインスタンスを作成して新しいConfigを構築してください
+     */
+    @Deprecated
+    public void setMinSelectableChoices(int minSelectableChoices) {
+        throw new UnsupportedOperationException("Config is now immutable. Create a new Config instance with updated BehaviorSettings.");
+    }
+
+    /**
+     * @deprecated Configは不変です。新しいBehaviorSettingsインスタンスを作成して新しいConfigを構築してください
+     */
+    @Deprecated
+    public void setUseChoiceLabels(boolean useChoiceLabels) {
+        throw new UnsupportedOperationException("Config is now immutable. Create a new Config instance with updated BehaviorSettings.");
+    }
+
+    /**
+     * @deprecated Configは不変です。新しいBehaviorSettingsインスタンスを作成して新しいConfigを構築してください
+     */
+    @Deprecated
+    public void setSaveCombinationPatterns(boolean saveCombinationPatterns) {
+        throw new UnsupportedOperationException("Config is now immutable. Create a new Config instance with updated BehaviorSettings.");
+    }
+
+    /**
+     * @deprecated Configは不変です。新しいRecordingSettingsインスタンスを作成して新しいConfigを構築してください
+     */
+    @Deprecated
+    public void setEnableReasonRecording(boolean enableReasonRecording) {
+        throw new UnsupportedOperationException("Config is now immutable. Create a new Config instance with updated RecordingSettings.");
+    }
+
+    /**
+     * @deprecated Configは不変です。新しいRecordingSettingsインスタンスを作成して新しいConfigを構築してください
+     */
+    @Deprecated
+    public void setEnableThinkAloud(boolean enableThinkAloud) {
+        throw new UnsupportedOperationException("Config is now immutable. Create a new Config instance with updated RecordingSettings.");
+    }
+
+    /**
+     * @deprecated Configは不変です。新しいRecordingSettingsインスタンスを作成して新しいConfigを構築してください
+     */
+    @Deprecated
+    public void setAudioDirectory(String audioDirectory) {
+        throw new UnsupportedOperationException("Config is now immutable. Create a new Config instance with updated RecordingSettings.");
+    }
+
+    /**
+     * @deprecated Configは不変です。新しいButtonLabelsインスタンスを作成して新しいConfigを構築してください
+     */
+    @Deprecated
+    public void setButtonCreateQuestions(String buttonCreateQuestions) {
+        throw new UnsupportedOperationException("Config is now immutable. Create a new Config instance with updated ButtonLabels.");
+    }
+
+    /**
+     * @deprecated Configは不変です。新しいButtonLabelsインスタンスを作成して新しいConfigを構築してください
+     */
+    @Deprecated
+    public void setButtonTakeSurvey(String buttonTakeSurvey) {
+        throw new UnsupportedOperationException("Config is now immutable. Create a new Config instance with updated ButtonLabels.");
+    }
+
+    /**
+     * @deprecated Configは不変です。新しいButtonLabelsインスタンスを作成して新しいConfigを構築してください
+     */
+    @Deprecated
+    public void setButtonNextQuestion(String buttonNextQuestion) {
+        throw new UnsupportedOperationException("Config is now immutable. Create a new Config instance with updated ButtonLabels.");
+    }
+
+    /**
+     * @deprecated Configは不変です。新しいButtonLabelsインスタンスを作成して新しいConfigを構築してください
+     */
+    @Deprecated
+    public void setButtonPrevQuestion(String buttonPrevQuestion) {
+        throw new UnsupportedOperationException("Config is now immutable. Create a new Config instance with updated ButtonLabels.");
+    }
+
+    /**
+     * @deprecated Configは不変です。新しいButtonLabelsインスタンスを作成して新しいConfigを構築してください
+     */
+    @Deprecated
+    public void setButtonReselect(String buttonReselect) {
+        throw new UnsupportedOperationException("Config is now immutable. Create a new Config instance with updated ButtonLabels.");
+    }
+
+    /**
+     * @deprecated Configは不変です。新しいButtonLabelsインスタンスを作成して新しいConfigを構築してください
+     */
+    @Deprecated
+    public void setButtonFinishSurvey(String buttonFinishSurvey) {
+        throw new UnsupportedOperationException("Config is now immutable. Create a new Config instance with updated ButtonLabels.");
+    }
+
+    /**
+     * @deprecated Configは不変です。新しいWindowTitlesインスタンスを作成して新しいConfigを構築してください
+     */
+    @Deprecated
+    public void setTitleMain(String titleMain) {
+        throw new UnsupportedOperationException("Config is now immutable. Create a new Config instance with updated WindowTitles.");
+    }
+
+    /**
+     * @deprecated Configは不変です。新しいWindowTitlesインスタンスを作成して新しいConfigを構築してください
+     */
+    @Deprecated
+    public void setTitleQuestionEditor(String titleQuestionEditor) {
+        throw new UnsupportedOperationException("Config is now immutable. Create a new Config instance with updated WindowTitles.");
+    }
+
+    /**
+     * @deprecated Configは不変です。新しいWindowTitlesインスタンスを作成して新しいConfigを構築してください
+     */
+    @Deprecated
+    public void setTitleSettings(String titleSettings) {
+        throw new UnsupportedOperationException("Config is now immutable. Create a new Config instance with updated WindowTitles.");
+    }
+
+    /**
+     * @deprecated Configは不変です。新しいWindowTitlesインスタンスを作成して新しいConfigを構築してください
+     */
+    @Deprecated
+    public void setTitleSurvey(String titleSurvey) {
+        throw new UnsupportedOperationException("Config is now immutable. Create a new Config instance with updated WindowTitles.");
+    }
+
+    /**
+     * @deprecated Configは不変です。新しいLogActionNamesインスタンスを作成して新しいConfigを構築してください
+     */
+    @Deprecated
+    public void setLogActionChoiceSelection(String logActionChoiceSelection) {
+        throw new UnsupportedOperationException("Config is now immutable. Create a new Config instance with updated LogActionNames.");
+    }
+
+    /**
+     * @deprecated Configは不変です。新しいLogActionNamesインスタンスを作成して新しいConfigを構築してください
+     */
+    @Deprecated
+    public void setLogActionReasonStart(String logActionReasonStart) {
+        throw new UnsupportedOperationException("Config is now immutable. Create a new Config instance with updated LogActionNames.");
+    }
+
+    /**
+     * @deprecated Configは不変です。新しいLogActionNamesインスタンスを作成して新しいConfigを構築してください
+     */
+    @Deprecated
+    public void setLogActionReasonText(String logActionReasonText) {
+        throw new UnsupportedOperationException("Config is now immutable. Create a new Config instance with updated LogActionNames.");
+    }
+
+    /**
+     * @deprecated Configは不変です。新しいLogActionNamesインスタンスを作成して新しいConfigを構築してください
+     */
+    @Deprecated
+    public void setLogActionReasonRewrite(String logActionReasonRewrite) {
+        throw new UnsupportedOperationException("Config is now immutable. Create a new Config instance with updated LogActionNames.");
+    }
+
+    /**
+     * @deprecated Configは不変です。新しいLogActionNamesインスタンスを作成して新しいConfigを構築してください
+     */
+    @Deprecated
+    public void setLogActionQuestionMove(String logActionQuestionMove) {
+        throw new UnsupportedOperationException("Config is now immutable. Create a new Config instance with updated LogActionNames.");
+    }
+
+    /**
+     * @deprecated Configは不変です。新しいLogActionNamesインスタンスを作成して新しいConfigを構築してください
+     */
+    @Deprecated
+    public void setLogActionSubmit(String logActionSubmit) {
+        throw new UnsupportedOperationException("Config is now immutable. Create a new Config instance with updated LogActionNames.");
     }
 }

@@ -64,6 +64,7 @@ public class Constants {
     public static final Dimension CHOICE_BUTTON_MIN_SIZE = new Dimension(100, 50);
     public static final Dimension CHOICE_BUTTON_PREFERRED_SIZE = new Dimension(500, 50);
     public static final int CHOICE_BUTTON_HEIGHT = 50;
+    public static final int CHOICE_ROW_HEIGHT = 60;
     public static final int TEXT_FIELD_HEIGHT = 30;
 
     // 設定画面UI要素のサイズ
