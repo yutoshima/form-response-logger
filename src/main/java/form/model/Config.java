@@ -33,6 +33,8 @@ public class Config {
     private int minSelectableChoices;
     private boolean useChoiceLabels;
     private boolean saveCombinationPatterns;
+    private int scaleChoiceMin;
+    private int scaleChoiceMax;
 
     private String buttonCreateQuestions;
     private String buttonTakeSurvey;
@@ -72,6 +74,8 @@ public class Config {
         this.minSelectableChoices = 1;
         this.useChoiceLabels = false;
         this.saveCombinationPatterns = false;
+        this.scaleChoiceMin = 0;
+        this.scaleChoiceMax = 10;
         this.buttonCreateQuestions = "問題を作成";
         this.buttonTakeSurvey = "アンケートに回答";
         this.buttonNextQuestion = "次の問題へ";
@@ -309,6 +313,22 @@ public class Config {
         this.saveCombinationPatterns = saveCombinationPatterns;
     }
 
+    public int getScaleChoiceMin() {
+        return scaleChoiceMin;
+    }
+
+    public void setScaleChoiceMin(int scaleChoiceMin) {
+        this.scaleChoiceMin = scaleChoiceMin;
+    }
+
+    public int getScaleChoiceMax() {
+        return scaleChoiceMax;
+    }
+
+    public void setScaleChoiceMax(int scaleChoiceMax) {
+        this.scaleChoiceMax = scaleChoiceMax;
+    }
+
     public String getButtonCreateQuestions() {
         return getOrDefault(buttonCreateQuestions, "問題を作成");
     }
@@ -501,6 +521,8 @@ public class Config {
         map.put("min_selectable_choices", minSelectableChoices);
         map.put("use_choice_labels", useChoiceLabels);
         map.put("save_combination_patterns", saveCombinationPatterns);
+        map.put("scale_choice_min", scaleChoiceMin);
+        map.put("scale_choice_max", scaleChoiceMax);
     }
 
     /**
@@ -595,6 +617,8 @@ public class Config {
         this.minSelectableChoices = getInt(map, "min_selectable_choices", this.minSelectableChoices);
         this.useChoiceLabels = getBoolean(map, "use_choice_labels", this.useChoiceLabels);
         this.saveCombinationPatterns = getBoolean(map, "save_combination_patterns", this.saveCombinationPatterns);
+        this.scaleChoiceMin = getInt(map, "scale_choice_min", this.scaleChoiceMin);
+        this.scaleChoiceMax = getInt(map, "scale_choice_max", this.scaleChoiceMax);
     }
 
     /**

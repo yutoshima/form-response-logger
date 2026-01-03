@@ -548,8 +548,10 @@ public class SurveyInterfaceWindow extends JFrame {
      * 質問から選択肢リストを取得します（scale型の場合は自動生成）。
      */
     private List<String> getChoicesForQuestion(Question question) {
-        if ("scale".equals(question.getType()) && question.getMin() != null && question.getMax() != null) {
-            return generateScaleChoices(question.getMin(), question.getMax());
+        if ("scale".equals(question.getType())) {
+            int min = question.getMin() != null ? question.getMin() : configManager.getConfig().getScaleChoiceMin();
+            int max = question.getMax() != null ? question.getMax() : configManager.getConfig().getScaleChoiceMax();
+            return generateScaleChoices(min, max);
         }
         return question.getChoices();
     }

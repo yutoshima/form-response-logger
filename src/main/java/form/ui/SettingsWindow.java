@@ -28,6 +28,8 @@ public class SettingsWindow extends JFrame {
     private JComboBox<Integer> choiceColumnsCombo;
     private JComboBox<Integer> maxSelectableChoicesCombo;
     private JComboBox<Integer> minSelectableChoicesCombo;
+    private JComboBox<Integer> scaleChoiceMinCombo;
+    private JComboBox<Integer> scaleChoiceMaxCombo;
     private JTextField logSequenceField;
     private JTextField responseSequenceField;
     private JCheckBox autoSaveCheckBox;
@@ -327,6 +329,7 @@ public class SettingsWindow extends JFrame {
         Integer[] defaultChoicesOptions = {2, 3, 4, 5, 6, 7, 8, 9, 10};
         Integer[] choiceColumnsOptions = {1, 2, 3, 4};
         Integer[] selectableChoicesOptions = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+        Integer[] scaleOptions = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 20, 50, 100};
         String[] widthOptions = {"小 (540px)", "中 (720px)", "大 (960px)", "特大 (1140px)"};
 
         outputFormatCombo = new JComboBox<>(outputFormats);
@@ -334,6 +337,8 @@ public class SettingsWindow extends JFrame {
         choiceColumnsCombo = new JComboBox<>(choiceColumnsOptions);
         maxSelectableChoicesCombo = new JComboBox<>(selectableChoicesOptions);
         minSelectableChoicesCombo = new JComboBox<>(selectableChoicesOptions);
+        scaleChoiceMinCombo = new JComboBox<>(scaleOptions);
+        scaleChoiceMaxCombo = new JComboBox<>(scaleOptions);
         contentWidthCombo = new JComboBox<>(widthOptions);
 
         logSequenceField = new JTextField(10);
@@ -357,6 +362,8 @@ public class SettingsWindow extends JFrame {
         panel.add(createIntComboRow("選択肢の列数:", choiceColumnsCombo));
         panel.add(createIntComboRow("複数選択可能数(最大):", maxSelectableChoicesCombo));
         panel.add(createIntComboRow("必須選択数(最小):", minSelectableChoicesCombo));
+        panel.add(createIntComboRow("スケール選択肢最小値:", scaleChoiceMinCombo));
+        panel.add(createIntComboRow("スケール選択肢最大値:", scaleChoiceMaxCombo));
         panel.add(createComboRow("コンテンツ横幅:", contentWidthCombo));
         panel.add(createFieldRow("ログ連番（次回）:", logSequenceField, false));
         panel.add(createFieldRow("回答連番（次回）:", responseSequenceField, false));
@@ -532,6 +539,8 @@ public class SettingsWindow extends JFrame {
         choiceColumnsCombo.setSelectedItem(config.getChoiceColumns());
         maxSelectableChoicesCombo.setSelectedItem(config.getMaxSelectableChoices());
         minSelectableChoicesCombo.setSelectedItem(config.getMinSelectableChoices());
+        scaleChoiceMinCombo.setSelectedItem(config.getScaleChoiceMin());
+        scaleChoiceMaxCombo.setSelectedItem(config.getScaleChoiceMax());
 
         logSequenceField.setText(String.valueOf(config.getLogSequence()));
         responseSequenceField.setText(String.valueOf(config.getResponseSequence()));
@@ -658,6 +667,8 @@ public class SettingsWindow extends JFrame {
     private void saveSelectableChoicesSettings(Config config) {
         config.setMaxSelectableChoices((Integer) maxSelectableChoicesCombo.getSelectedItem());
         config.setMinSelectableChoices((Integer) minSelectableChoicesCombo.getSelectedItem());
+        config.setScaleChoiceMin((Integer) scaleChoiceMinCombo.getSelectedItem());
+        config.setScaleChoiceMax((Integer) scaleChoiceMaxCombo.getSelectedItem());
     }
 
     /**
