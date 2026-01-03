@@ -1,0 +1,33 @@
+{
+  "export_date": "2026-01-03",
+  "total_questions": 3,
+  "questions": [
+    {
+      "text": "Q1. このマップは模範解答とどの程度一致していますか？",
+      "modelImage": "data/images/L04_model.png",
+      "studentImage": "data/images/L04_Pre_S01.png",
+      "type": "scale",
+      "min": 0,
+      "max": 10,
+      "choices": []
+    },
+    {
+      "text": "Q2. 限定構造の正確性を評価してください（0: 不正確 〜 5: 正確）",
+      "modelImage": "data/images/L04_model.png",
+      "studentImage": "data/images/T04_Post2_S01.png",
+      "type": "scale",
+      "min": 0,
+      "max": 5,
+      "choices": []
+    },
+    {
+      "text": "Q3. 全体的な論理構造の妥当性はどうですか？",
+      "modelImage": "data/images/L04_model.png",
+      "studentImage": "data/images/L04_Pre_S01.png",
+      "type": "scale",
+      "min": 0,
+      "max": 10,
+      "choices": []
+    }
+  ]
+}

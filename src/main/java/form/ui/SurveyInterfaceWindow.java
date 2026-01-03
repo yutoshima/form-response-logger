@@ -38,6 +38,7 @@ public class SurveyInterfaceWindow extends JFrame {
     private JEditorPane questionEditorPane;
     private JTextArea questionTextArea;
     private JScrollPane questionScrollPane;
+    private JPanel imagesPanel;
     private JPanel choicesPanel;
     private JTextArea reasonTextArea;
     private JButton rewriteButton;
@@ -174,6 +175,7 @@ public class SurveyInterfaceWindow extends JFrame {
         contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));
 
         addQuestionDisplay(contentPanel);
+        addImagesPanel(contentPanel);
         addChoicesPanel(contentPanel);
         addReasonSection(contentPanel);
         contentPanel.add(Box.createVerticalGlue());
@@ -232,6 +234,17 @@ public class SurveyInterfaceWindow extends JFrame {
         questionScrollPane.setBorder(null);
         questionScrollPane.setAlignmentX(Component.LEFT_ALIGNMENT);
         questionScrollPane.setMaximumSize(new Dimension(Integer.MAX_VALUE, Constants.QUESTION_SCROLL_HEIGHT_TEXT));
+    }
+
+    /**
+     * 画像パネルをコンテンツパネルに追加します。
+     */
+    private void addImagesPanel(JPanel contentPanel) {
+        imagesPanel = new JPanel(new GridLayout(1, 2, Constants.PADDING_MEDIUM, 0));
+        imagesPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        imagesPanel.setVisible(false);
+        contentPanel.add(imagesPanel);
+        contentPanel.add(Box.createVerticalStrut(Constants.PADDING_MEDIUM));
     }
 
     /**
@@ -365,7 +378,8 @@ public class SurveyInterfaceWindow extends JFrame {
 
         progressLabel.setText("問題 " + (currentQuestionIndex + 1) + " / " + questions.size());
         displayQuestionText(question.getText());
-        displayChoices(question.getChoices());
+        displayImages(question);
+        displayChoices(question);
         resetQuestionState();
         updateNavigationButtons();
 
@@ -441,14 +455,114 @@ public class SurveyInterfaceWindow extends JFrame {
             "<html><head>" + styleTag + "</head>");
     }
 
-    private void displayChoices(List<String> originalChoices) {
+    /**
+     * 画像を表示します（modelImageとstudentImageが指定されている場合）。
+     */
+    private void displayImages(Question question) {
+        imagesPanel.removeAll();
+        imagesPanel.setVisible(false);
+
+        String modelImagePath = question.getModelImage();
+        String studentImagePath = question.getStudentImage();
+
+        if (modelImagePath != null && studentImagePath != null) {
+            JPanel modelPanel = createImagePanel("模範解答", modelImagePath);
+            JPanel studentPanel = createImagePanel("学習者の回答", studentImagePath);
+
+            if (modelPanel != null && studentPanel != null) {
+                imagesPanel.add(modelPanel);
+                imagesPanel.add(studentPanel);
+                imagesPanel.setVisible(true);
+                imagesPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 400));
+            }
+        }
+
+        imagesPanel.revalidate();
+        imagesPanel.repaint();
+    }
+
+    /**
+     * 画像パネルを作成します。
+     */
+    private JPanel createImagePanel(String label, String imagePath) {
+        try {
+            File imageFile = new File(imagePath);
+            if (!imageFile.exists()) {
+                System.err.println("画像ファイルが見つかりません: " + imagePath);
+                return null;
+            }
+
+            ImageIcon imageIcon = new ImageIcon(imageFile.getAbsolutePath());
+            Image scaledImage = scaleImage(imageIcon.getImage(), 480);
+            JLabel imageLabel = new JLabel(new ImageIcon(scaledImage));
+
+            JPanel panel = new JPanel(new BorderLayout(0, Constants.PADDING_SMALL));
+            panel.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1),
+                new EmptyBorder(Constants.PADDING_SMALL, Constants.PADDING_SMALL,
+                               Constants.PADDING_SMALL, Constants.PADDING_SMALL)
+            ));
+
+            JLabel titleLabel = new JLabel(label, SwingConstants.CENTER);
+            titleLabel.setFont(new Font(Constants.FONT_FAMILY, Font.BOLD, Constants.FONT_SIZE_LABEL));
+            panel.add(titleLabel, BorderLayout.NORTH);
+            panel.add(imageLabel, BorderLayout.CENTER);
+
+            return panel;
+        } catch (Exception e) {
+            System.err.println("画像の読み込みに失敗しました: " + imagePath);
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    /**
+     * 画像を指定された幅にスケーリングします。
+     */
+    private Image scaleImage(Image originalImage, int targetWidth) {
+        int originalWidth = originalImage.getWidth(null);
+        int originalHeight = originalImage.getHeight(null);
+
+        if (originalWidth <= 0 || originalHeight <= 0) {
+            return originalImage;
+        }
+
+        double aspectRatio = (double) originalHeight / originalWidth;
+        int targetHeight = (int) (targetWidth * aspectRatio);
+
+        return originalImage.getScaledInstance(targetWidth, targetHeight, Image.SCALE_SMOOTH);
+    }
+
+    private void displayChoices(Question question) {
         clearChoiceState();
 
-        List<String> choices = prepareChoices(originalChoices);
-        buildChoiceIndexMap(choices);
+        List<String> choices = getChoicesForQuestion(question);
+        List<String> preparedChoices = prepareChoices(choices);
+        buildChoiceIndexMap(preparedChoices);
 
         int columns = configManager.getConfig().getChoiceColumns();
-        renderChoiceGrid(choices, columns);
+        renderChoiceGrid(preparedChoices, columns);
+    }
+
+    /**
+     * 質問から選択肢リストを取得します（scale型の場合は自動生成）。
+     */
+    private List<String> getChoicesForQuestion(Question question) {
+        if ("scale".equals(question.getType()) && question.getMin() != null && question.getMax() != null) {
+            return generateScaleChoices(question.getMin(), question.getMax());
+        }
+        return question.getChoices();
+    }
+
+    /**
+     * スケール選択肢を生成します（min から max まで）。
+     */
+    private List<String> generateScaleChoices(int min, int max) {
+        List<String> choices = new ArrayList<>();
+        for (int i = min; i <= max; i++) {
+            choices.add(String.valueOf(i));
+        }
+        return choices;
     }
 
     /**
